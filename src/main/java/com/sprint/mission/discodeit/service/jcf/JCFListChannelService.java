@@ -19,6 +19,11 @@ public class JCFListChannelService implements ChannelService {
 
     @Override
     public Channel createChannel(String channelName) {
+        if (channelName == null || channelName.isBlank())
+        {
+            throw new IllegalArgumentException("Channel name cannot be empty!");
+        }
+
         Channel channel = new Channel(channelName);
         data.add(channel);
         return channel;
@@ -73,7 +78,7 @@ public class JCFListChannelService implements ChannelService {
 
 
     @Override
-    public ArrayList<Channel> getChannels()
+    public List<Channel> getChannels()
     {
         return data;
     }

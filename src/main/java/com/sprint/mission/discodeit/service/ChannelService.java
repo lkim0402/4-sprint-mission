@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public interface ChannelService {
@@ -30,7 +31,7 @@ public interface ChannelService {
      *
      * @return 전체 채널 리스트
      */
-    ArrayList<Channel> getChannels();
+    List<Channel> getChannels();
 
     // 수정(Update)
     /**

@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class User extends BaseEntity {
 
@@ -11,8 +12,8 @@ public class User extends BaseEntity {
 
     // extra fields
     private UserStatus userStatus;
-    private List<Channel> channels;
-    private List<Message> messages;
+    private final List<Channel> channels;
+    private final List<Message> messages;
 
     /**
      * member status (user statuc -> enum
@@ -126,7 +127,21 @@ public class User extends BaseEntity {
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Email is null or blank");
+        }
+
+        // validating the format
+        // https://stackoverflow.com/questions/66934141/how-can-i-check-email-address-in-java
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\."+
+                "[a-zA-Z0-9_+&*-]+)*@" +
+                "(?:[a-zA-Z0-9-]+\\.)+[a-z" +
+                "A-Z]{2,7}$";
+
+        Pattern pat = Pattern.compile(emailRegex);
+        if (pat.matcher(email).matches()) {
+            this.email = email;
+        }
     }
 
     public String getPassword() {

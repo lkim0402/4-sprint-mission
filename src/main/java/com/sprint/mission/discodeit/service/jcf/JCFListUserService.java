@@ -77,7 +77,7 @@ public class JCFListUserService implements UserService {
                 .ifPresent(status -> updatedUser.setUserStatus(status));
 
         //setting updatedAt
-        updatedUser.setUpdatedAt();
+        updatedUser.updateTimeStamp();
 
         return updatedUser;
     }
@@ -90,7 +90,7 @@ public class JCFListUserService implements UserService {
         if (user == null) return false;
 
         user.setUserStatus(UserStatus.WITHDRAWN);
-        user.setUpdatedAt();
+        user.updateTimeStamp();
         user.deleteChannels();
         return true;
     }

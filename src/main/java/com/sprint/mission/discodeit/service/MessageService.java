@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public interface MessageService {
@@ -34,7 +35,7 @@ public interface MessageService {
      *
      * @return 전체 메시지 리스트
      */
-    ArrayList<Message> getMessages();
+    List<Message> getMessages();
 
     // 수정(Update)
     /**

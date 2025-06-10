@@ -4,8 +4,8 @@ import java.util.UUID;
 
 public class BaseEntity {
 
-    private UUID id;
-    private long createdAt;
+    private final UUID id;
+    private final long createdAt;
     private long updatedAt;
 
     public BaseEntity() {
@@ -22,7 +22,7 @@ public class BaseEntity {
         return createdAt;
     }
 
-    public void setUpdatedAt() {
+    public void updateTimeStamp() {
         this.updatedAt = System.currentTimeMillis();
     }
 

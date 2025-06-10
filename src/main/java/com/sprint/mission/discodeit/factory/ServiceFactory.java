@@ -8,16 +8,12 @@ import com.sprint.mission.discodeit.service.jcf.*;
 
 public class ServiceFactory {
 
-    // 사용할 서비스 타입 (JCF_LIST 또는 JCF_MAP)
-    private final ServiceType type;
-
     /**
      * 생성자: 서비스 타입을 지정합니다.
      *
      * @param type 사용할 구현 방식 (JCF_LIST 또는 JCF_MAP)
      */
     public ServiceFactory(ServiceType type) {
-        this.type = type;
     }
 
     /**
@@ -26,7 +22,7 @@ public class ServiceFactory {
      * @return UserService 객체
      */
 
-    public UserService createUserService() {
+    public static UserService createUserService(ServiceType type) {
         return switch (type) {
             case JCF_LIST -> new JCFListUserService();
             case JCF_MAP -> new JCFMapUserService();
@@ -39,7 +35,7 @@ public class ServiceFactory {
      * @return ChannelService 객체
      */
 
-    public ChannelService createChannelService() {
+    public static ChannelService createChannelService(ServiceType type) {
         return switch (type) {
             case JCF_LIST -> new JCFListChannelService();
             case JCF_MAP -> new JCFMapChannelService();
@@ -51,7 +47,7 @@ public class ServiceFactory {
      *
      * @return MessageService 객체
      */
-    public MessageService createMessageService() {
+    public static MessageService createMessageService(ServiceType type) {
         return switch (type) {
             case JCF_LIST -> new JCFListMessageService();
             case JCF_MAP -> new JCFMapMessageService();

@@ -78,7 +78,7 @@ public class JCFMapUserService implements UserService {
                 .ifPresent(status -> updatedUser.setUserStatus(status));
 
         //setting updatedAt
-        updatedUser.setUpdatedAt();
+        updatedUser.updateTimeStamp();
 
         return updatedUser;
 
@@ -94,7 +94,7 @@ public class JCFMapUserService implements UserService {
 
         User user =  data.get(id);
         user.setUserStatus(UserStatus.WITHDRAWN);
-        user.setUpdatedAt();
+        user.updateTimeStamp();
         user.deleteChannels();
         return true;
     }

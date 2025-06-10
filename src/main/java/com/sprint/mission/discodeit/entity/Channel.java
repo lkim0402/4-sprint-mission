@@ -8,7 +8,7 @@ public class Channel extends BaseEntity {
     private String channelName;
 
     //  extra fields
-    private List<User> users;
+    private final List<User> users;
     private List<Message> messages;
 
 
@@ -25,9 +25,14 @@ public class Channel extends BaseEntity {
 
 
     // utility methods
+    private boolean containsUser(User user) {
+        return users.contains(user);
+    }
+
+
     public void addUser(User user) {
 
-        if (!users.contains(user)) {
+        if (!containsUser(user)) {
             users.add(user);
 
             // extra safe checking
@@ -39,7 +44,7 @@ public class Channel extends BaseEntity {
 
     public void deleteUser(User user) {
 
-        if (users.contains(user)) {
+        if (containsUser(user)) {
             users.remove(user);
             if (user.getChannels().contains(this)) {
                 user.deleteChannel(this);
