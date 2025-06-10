@@ -12,6 +12,8 @@ import com.sprint.mission.discodeit.factory.ServiceType;
 
 import java.util.*;
 
+import static com.sprint.mission.discodeit.factory.ServiceType.JCF_LIST;
+
 public class JavaApplication {
 
     public static void main(String[] args) {
@@ -25,10 +27,9 @@ public class JavaApplication {
 //        entityTest();
 
         // factory pattern 테스트
-//        ServiceFactory serviceFactory = new ServiceFactory(ServiceType.JCF_LIST);
-//        ChannelService channelService = serviceFactory.createChannelService();
-//        MessageService messageService = serviceFactory.createMessageService();
-//        UserService userService = serviceFactory.createUserService();
+        ChannelService channelService = ServiceFactory.createChannelService(JCF_LIST);
+        MessageService messageService = ServiceFactory.createMessageService(JCF_LIST);
+        UserService userService = ServiceFactory.createUserService(JCF_LIST);
 
     }
 
@@ -38,9 +39,9 @@ public class JavaApplication {
      */
     public static void channelServiceTest() {
 
-//        ServiceFactory serviceFactory = new ServiceFactory(ServiceType.JCF_LIST);
-        ServiceFactory serviceFactory = new ServiceFactory(ServiceType.JCF_MAP);
-        ChannelService channelService = serviceFactory.createChannelService();
+        ChannelService channelService = ServiceFactory.createChannelService(JCF_LIST);
+        MessageService messageService = ServiceFactory.createMessageService(JCF_LIST);
+        UserService userService = ServiceFactory.createUserService(JCF_LIST);
 
         // 등록
         System.out.println("\n[CREATE] Channels created:");
@@ -89,9 +90,9 @@ public class JavaApplication {
      */
     public static void messageServiceTest() {
 
-//        ServiceFactory serviceFactory = new ServiceFactory(ServiceType.JCF_LIST);
-        ServiceFactory serviceFactory = new ServiceFactory(ServiceType.JCF_MAP);
-        MessageService messageService = serviceFactory.createMessageService();
+        ChannelService channelService = ServiceFactory.createChannelService(JCF_LIST);
+        MessageService messageService = ServiceFactory.createMessageService(JCF_LIST);
+        UserService userService = ServiceFactory.createUserService(JCF_LIST);
 
 
         User newUser = new User("newUser", "test@gmail.com", "pw1");
@@ -145,9 +146,9 @@ public class JavaApplication {
      * 유저 생성, 조회, 수정, 삭제 등의 기능을 검증합니다.
      */
     public static void userServiceTest() {
-//        ServiceFactory serviceFactory = new ServiceFactory(ServiceType.JCF_LIST);
-        ServiceFactory serviceFactory = new ServiceFactory(ServiceType.JCF_MAP);
-        UserService userService = serviceFactory.createUserService();
+        ChannelService channelService = ServiceFactory.createChannelService(JCF_LIST);
+        MessageService messageService = ServiceFactory.createMessageService(JCF_LIST);
+        UserService userService = ServiceFactory.createUserService(JCF_LIST);
 
 
         //등록
@@ -202,9 +203,9 @@ public class JavaApplication {
      * 각 엔티티의 관계 연결 등을 검증합니다.
      */
     public static void entityTest() {
-//        ServiceFactory serviceFactory = new ServiceFactory(ServiceType.JCF_LIST);
-        ServiceFactory serviceFactory = new ServiceFactory(ServiceType.JCF_MAP);
-        ChannelService channelService = serviceFactory.createChannelService();
+        ChannelService channelService = ServiceFactory.createChannelService(JCF_LIST);
+        MessageService messageService = ServiceFactory.createMessageService(JCF_LIST);
+        UserService userService = ServiceFactory.createUserService(JCF_LIST);
 
         // memberIds 확인
         System.out.println("\n========== Channel's user Test ==========");
@@ -212,7 +213,6 @@ public class JavaApplication {
         System.out.println("Created channel: " + testChannel);
 
         // 멤버 생성 + 추가
-        UserService userService = new JCFMapUserService();
         System.out.println("\n[CREATE] Users created:");
         User newUser1 = userService.createUser("newUser1", "test@gmail.com", "pw1");
         User newUser2 = userService.createUser("newUser1", "test2@gmail.com", "pw2");
