@@ -87,16 +87,15 @@ public class JCFMapUserService implements UserService {
 
 
     @Override
-    public boolean deleteUser(UUID id) {
+    public void deleteUser(UUID id) {
         if (!data.containsKey(id)) {
-            return false;
+            return;
         }
 
         User user =  data.get(id);
         user.setUserStatus(UserStatus.WITHDRAWN);
         user.updateTimeStamp();
         user.deleteChannels();
-        return true;
     }
 
 

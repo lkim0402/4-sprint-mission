@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -14,6 +15,9 @@ public class User extends BaseEntity {
     private UserStatus userStatus;
     private final List<Channel> channels;
     private final List<Message> messages;
+
+    @Serial
+    private static final long serialVersionUID = 1L; // user's version
 
     /**
      * member status (user statuc -> enum
