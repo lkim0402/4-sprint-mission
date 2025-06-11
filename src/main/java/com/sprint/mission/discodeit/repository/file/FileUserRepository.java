@@ -37,7 +37,7 @@ public class FileUserRepository implements UserRepository {
     }
 
     @Override
-    public Optional<User> findUser(UUID id) {
+    public Optional<User> findById(UUID id) {
         return findAll().stream()
                 .filter(u -> u.getId().equals(id))
                 .findFirst();

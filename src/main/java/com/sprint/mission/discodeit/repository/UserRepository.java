@@ -29,5 +29,5 @@ public interface UserRepository {
      * @param id 조회할 사용자의 ID
      * @return 해당 ID의 사용자가 존재하면 Optional에 담아 반환, 없으면 빈 Optional 반환
      */
-    Optional<User> findUser(UUID id);
+    Optional<User> findById(UUID id);
 }

@@ -28,7 +28,7 @@ public class JCFListUserService implements UserService {
 
     @Override
     public User getUser(UUID id) {
-        return userRepository.findUser(id)
+        return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
     }
 
@@ -109,16 +109,24 @@ public class JCFListUserService implements UserService {
      *
      * @param user 추가할 유저 객체
      */
-    public void addUser(User user) {
+    private void addUser(User user) {
+        existUser(user);
 
+        List<User> users = getUsers();
+        users.add(user);
+        userRepository.saveAll(users);
+
+    }
+
+    private void existUser(User user) {
         List<User> users = getUsers();
 
         boolean alreadyExist = users.stream()
                 .anyMatch(u -> u.getId().equals(user.getId()));
 
-        if (!alreadyExist) {
-            users.add(user);
-            userRepository.saveAll(users);
+        if (alreadyExist) {
+            throw new RuntimeException(user.getId() + " already exists");
         }
     }
+
 }

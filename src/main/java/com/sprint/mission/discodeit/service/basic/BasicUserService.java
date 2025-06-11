@@ -1,27 +1,27 @@
-package com.sprint.mission.discodeit.service.file;
-import com.sprint.mission.discodeit.entity.Message;
+package com.sprint.mission.discodeit.service.basic;
+
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class FileUserService implements UserService {
-
+public class BasicUserService implements UserService {
     private final UserRepository userRepository;
 
-    public FileUserService(UserRepository userRepository) {
+    public BasicUserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
 
     @Override
-    public User createUser(String userName, String email, String password) {
-        User newUser = new User(userName, email, password);
+    public User createUser(String userName, String email, String pw) {
+        User newUser = new User(userName, email, pw);
         addUser(newUser);
         return newUser;
     }
@@ -46,6 +46,7 @@ public class FileUserService implements UserService {
                 .collect(Collectors.toList());
     }
 
+    // update user 합침
     @Override
     public User updateUser(UUID id, User partialUser) {
 
@@ -78,6 +79,7 @@ public class FileUserService implements UserService {
         return null;
     }
 
+
     @Override
     public void deleteUser(UUID id) {
         List<User> users = getUsers();
@@ -92,10 +94,12 @@ public class FileUserService implements UserService {
         userRepository.saveAll(users);
     }
 
+
     @Override
     public void clearUsers() {
         List<User> users = new ArrayList<>();
         userRepository.saveAll(users);
+
     }
 
     // utility methods
@@ -124,6 +128,5 @@ public class FileUserService implements UserService {
             throw new RuntimeException(user.getId() + " already exists");
         }
     }
-
 
 }

@@ -28,5 +28,5 @@ public interface MessageRepository {
      * @param id 조회할 메시지의 ID
      * @return 해당 ID의 메시지가 존재하면 Optional에 담아 반환, 없으면 빈 Optional 반환
      */
-    Optional<Message> findMessage(UUID id);
+    Optional<Message> findById(UUID id);
 }

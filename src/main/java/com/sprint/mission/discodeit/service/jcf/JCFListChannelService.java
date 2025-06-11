@@ -41,13 +41,12 @@ public class JCFListChannelService implements ChannelService {
     @Override
     public void leaveChannel(Channel channel, User user) {
         channel.deleteUser(user);
-
     }
 
 
     @Override
     public Channel getChannel(UUID id) {
-        return channelRepository.findChannel(id)
+        return channelRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Channel not found with id: " + id));
     }
 
@@ -97,13 +96,21 @@ public class JCFListChannelService implements ChannelService {
      * @param channel 추가할 채널 객체
      */
     private void addChannel(Channel channel) {
-        List<Channel> channels = getChannels(); // data access
+        isExistChannel(channel);
+
+        List<Channel> channels = getChannels();
+        channels.add(channel);
+        channelRepository.saveAll(channels);
+    }
+
+    private void isExistChannel(Channel channel) {
+        List<Channel> channels = getChannels();
 
         boolean alreadyExist = channels.stream()
                 .anyMatch(c -> c.getId().equals(channel.getId()));
-        if (!alreadyExist) {
-            channels.add(channel);
-            channelRepository.saveAll(channels); // data access
+
+        if (alreadyExist) {
+            throw new RuntimeException(channel.getId() + " already exists");
         }
     }
 }

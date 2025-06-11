@@ -24,8 +24,8 @@ public class FileMessageService implements MessageService {
         }
         Message msg = new Message(user, message, channel);
 
-//        user.addMessage(msg);
-//        channel.addMessage(msg);
+        user.addMessage(msg);
+        channel.addMessage(msg);
 
         addMessage(msg);
         return msg;
@@ -35,7 +35,7 @@ public class FileMessageService implements MessageService {
 
     @Override
     public Message getMessage(UUID id) {
-        return messageRepository.findMessage(id)
+        return messageRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Channel not found with id: " + id));
     }
 
@@ -80,16 +80,23 @@ public class FileMessageService implements MessageService {
      *
      * @param msg 추가할 메세지 객체
      */
-    public void addMessage(Message msg) {
+    private void addMessage(Message msg) {
+        isExistMessage(msg);
+
+        List<Message> msgs = getMessages();
+        msgs.add(msg);
+        messageRepository.saveAll(msgs);
+    }
+
+    private void isExistMessage(Message msg) {
         List<Message> msgs = getMessages();
 
         boolean alreadyExist = msgs.stream()
                 .anyMatch(c -> c.getId().equals(msg.getId()));
-        if (!alreadyExist) {
-            msgs.add(msg);
-            messageRepository.saveAll(msgs);
-        }
 
+        if (alreadyExist) {
+            throw new RuntimeException(msg.getId() + " already exists");
+        }
     }
 
 }
