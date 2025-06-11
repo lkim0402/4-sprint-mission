@@ -61,7 +61,7 @@ public interface UserService {
      * @param id 유저의 UUID
      * @return Status 변환 성공 여부
      */
-    boolean deleteUser(UUID id);
+    void deleteUser(UUID id);
 
     // ------- 따로 추가 -------
 

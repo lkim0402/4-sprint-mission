@@ -52,9 +52,8 @@ public interface MessageService {
      * 메시지를 삭제합니다.
      *
      * @param id 삭제할 메시지의 UUID
-     * @return 삭제 성공 여부
      */
-    boolean deleteMessage(UUID id);
+    void deleteMessage(UUID id);
 
     // ------- 따로 추가 -------
 

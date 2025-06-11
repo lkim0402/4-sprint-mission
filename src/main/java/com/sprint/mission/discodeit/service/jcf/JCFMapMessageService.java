@@ -62,15 +62,14 @@ public class JCFMapMessageService implements MessageService {
     }
 
     @Override
-    public boolean deleteMessage(UUID id) {
+    public void deleteMessage(UUID id) {
         Message m = getMessage(id);
 
         if (!data.containsKey(id) || m.getUser().getUserStatus() == (UserStatus.WITHDRAWN)) {
-            return false;
+            return;
         }
 
         data.remove(id);
-        return true;
     }
 
     @Override

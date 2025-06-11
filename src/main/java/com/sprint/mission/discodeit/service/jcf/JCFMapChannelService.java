@@ -63,14 +63,9 @@ public class JCFMapChannelService implements ChannelService {
 
 
     @Override
-    public boolean deleteChannel(UUID id) {
-        // update in list
-        if (!data.containsKey(id)) {
-            return false;
-        }
-
+    public void deleteChannel(UUID id) {
         data.remove(id);
-        return true;
+
     }
 
     @Override

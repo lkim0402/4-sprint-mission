@@ -1,27 +1,26 @@
-package com.sprint.mission.discodeit.service.jcf;
-import com.sprint.mission.discodeit.entity.UserStatus;
+package com.sprint.mission.discodeit.service.file;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class JCFListUserService implements UserService {
+public class FileUserService implements UserService {
 
     private final UserRepository userRepository;
 
-    public JCFListUserService(UserRepository userRepository) {
+    public FileUserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
 
     @Override
-    public User createUser(String userName, String email, String pw) {
-        User newUser = new User(userName, email, pw);
+    public User createUser(String userName, String email, String password) {
+        User newUser = new User(userName, email, password);
         addUser(newUser);
         return newUser;
     }
@@ -46,7 +45,6 @@ public class JCFListUserService implements UserService {
                 .collect(Collectors.toList());
     }
 
-    // update user 합침
     @Override
     public User updateUser(UUID id, User partialUser) {
 
@@ -79,7 +77,6 @@ public class JCFListUserService implements UserService {
         return null;
     }
 
-
     @Override
     public void deleteUser(UUID id) {
         List<User> users = getUsers();
@@ -94,12 +91,10 @@ public class JCFListUserService implements UserService {
         userRepository.saveAll(users);
     }
 
-
     @Override
     public void clearUsers() {
         List<User> users = new ArrayList<>();
         userRepository.saveAll(users);
-
     }
 
     // utility methods
@@ -121,4 +116,6 @@ public class JCFListUserService implements UserService {
             userRepository.saveAll(users);
         }
     }
+
+
 }

@@ -3,9 +3,19 @@ package com.sprint.mission.discodeit;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
+import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
+import com.sprint.mission.discodeit.repository.file.FileUserRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.file.FileChannelService;
+import com.sprint.mission.discodeit.service.file.FileMessageService;
+import com.sprint.mission.discodeit.service.file.FileUserService;
+import com.sprint.mission.discodeit.service.jcf.JCFListChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFMapUserService;
 import com.sprint.mission.discodeit.factory.ServiceFactory;
 import com.sprint.mission.discodeit.factory.ServiceType;
@@ -19,17 +29,27 @@ public class JavaApplication {
     public static void main(String[] args) {
 
 
-//        channelServiceTest();
-//        messageServiceTest();
-        userServiceTest();
+        // ====================== JCF/File 기반 저장소로 서비스 초기화 ======================
+        ChannelService channelService = ServiceFactory.createChannelService( "JCF", new JCFChannelRepository());
+//        ChannelService channelService = ServiceFactory.createChannelService("File", new FileChannelRepository());
+        channelService.clearChannels();
+
+        MessageService messageService = ServiceFactory.createMessageService("JCF", new JCFMessageRepository());
+//        MessageService messageService = ServiceFactory.createMessageService("File", new FileMessageRepository());
+        messageService.clearMessages();
+
+//        UserService userService = ServiceFactory.createUserService("JCF", new JCFUserRepository());
+        UserService userService = ServiceFactory.createUserService("File", new FileUserRepository());
+        userService.clearUsers();
+
+
+        // ====================== 테스팅
+//        channelServiceTest(channelService, messageService, userService);
+//        messageServiceTest(channelService, messageService, userService);
+        userServiceTest(channelService, messageService, userService);
 
         // 따로 테스팅 필요 -> 채널은 userList, messageList 를 따로 관리 / 유저는 channelList, messageList 를 따로 관리
 //        entityTest();
-
-        // factory pattern 테스트
-        ChannelService channelService = ServiceFactory.createChannelService(JCF_LIST);
-        MessageService messageService = ServiceFactory.createMessageService(JCF_LIST);
-        UserService userService = ServiceFactory.createUserService(JCF_LIST);
 
     }
 
@@ -37,11 +57,7 @@ public class JavaApplication {
      * ChannelService 기능을 테스트하는 메서드입니다.
      * 채널 생성, 조회, 수정, 삭제, 유저 입장/퇴장 등을 검증합니다.
      */
-    public static void channelServiceTest() {
-
-        ChannelService channelService = ServiceFactory.createChannelService(JCF_LIST);
-        MessageService messageService = ServiceFactory.createMessageService(JCF_LIST);
-        UserService userService = ServiceFactory.createUserService(JCF_LIST);
+    public static void channelServiceTest(ChannelService channelService, MessageService messageService, UserService userService) {
 
         // 등록
         System.out.println("\n[CREATE] Channels created:");
@@ -50,9 +66,12 @@ public class JavaApplication {
         Channel foodChannel = channelService.createChannel("food-channel");
         System.out.println("See all channels: " + channelService.getChannels());
 
+
         // 조회(단건, 다건)
         System.out.println("[READ] Read one channel (study channel): ");
-        System.out.println(channelService.getChannel(studyChannel.getId()));
+        UUID id = studyChannel.getId();
+        System.out.println("Id to check: " + id);
+        System.out.println(channelService.getChannel(id));
         System.out.println("\n[READ] Read all channels:");
         System.out.println("See all channels: " + channelService.getChannels());
 
@@ -75,27 +94,25 @@ public class JavaApplication {
         channelService.clearChannels();
         System.out.println("See all channels"
                 + channelService.getChannels());
-
-        // 삭제를 한 후 read, update, delete 진행할때
-        System.out.println("Read study channel name (deleted): "
-                + channelService.getChannel(studyChannel.getId()));
-        System.out.println("Update study channel name (deleted): "
-                + channelService.updateChannel(studyChannel.getId(), "study-channel-edited"));
-        System.out.println("Delete channel (deleted): " + channelService.deleteChannel(studyChannel.getId()));
+//
+//        // 삭제를 한 후 read, update, delete 진행할때 -> throws Error
+//        System.out.println("Read study channel name (deleted): "
+//                + channelService.getChannel(studyChannel.getId()));
+//        System.out.println("Update study channel name (deleted): "
+//                + channelService.updateChannel(studyChannel.getId(), "study-channel-edited"));
+//
+//        channelService.deleteChannel(studyChannel.getId());
+//        System.out.println("Delete channel (deleted): " + channelService.getChannels());
     }
 
     /**
      * MessageService 기능을 테스트하는 메서드입니다.
      * 메시지 생성, 조회, 수정, 삭제 기능을 검증합니다.
      */
-    public static void messageServiceTest() {
-
-        ChannelService channelService = ServiceFactory.createChannelService(JCF_LIST);
-        MessageService messageService = ServiceFactory.createMessageService(JCF_LIST);
-        UserService userService = ServiceFactory.createUserService(JCF_LIST);
-
+    public static void messageServiceTest(ChannelService channelService, MessageService messageService, UserService userService) {
 
         User newUser = new User("newUser", "test@gmail.com", "pw1");
+        System.out.println("\n[CREATE] New user: " + newUser);
         Channel newChannel = new Channel("newChannel1");
         Channel newChannel2 = new Channel("newChannel2");
 
@@ -132,12 +149,13 @@ public class JavaApplication {
         System.out.println("See all messages: "
                 + messageService.getMessages());
 
-        // 삭제를 한 후 read, update, delete 진행할때
-        System.out.println("Read test1 (deleted): "
-                + messageService.getMessage(test1.getId()));
-        System.out.println("Update test1 username (deleted): "
-                + messageService.updateMessage(test1.getId(), "study-channel-edited"));
-        System.out.println("Delete channel (deleted): " + messageService.deleteMessage(test1.getId()));
+        // 삭제를 한 후 read, update, delete 진행할때 -> throws error
+//        System.out.println("Read test1 (deleted): "
+//                + messageService.getMessage(test1.getId()));
+//        System.out.println("Update test1 username (deleted): "
+//                + messageService.updateMessage(test1.getId(), "study-channel-edited"));
+//        messageService.deleteMessage(test1.getId());
+//        System.out.println("Delete channel (deleted): " + messageService.getMessages());
 
     }
 
@@ -145,11 +163,7 @@ public class JavaApplication {
      * UserService 기능을 테스트하는 메서드입니다.
      * 유저 생성, 조회, 수정, 삭제 등의 기능을 검증합니다.
      */
-    public static void userServiceTest() {
-        ChannelService channelService = ServiceFactory.createChannelService(JCF_LIST);
-        MessageService messageService = ServiceFactory.createMessageService(JCF_LIST);
-        UserService userService = ServiceFactory.createUserService(JCF_LIST);
-
+    public static void userServiceTest(ChannelService channelService, MessageService messageService, UserService userService) {
 
         //등록
         System.out.println("\n[CREATE] Users created:");
@@ -188,13 +202,15 @@ public class JavaApplication {
         System.out.println("See all users: "
                 + userService.getUsers());
 
-        // 삭제를 한 후 read, update, delete 진행할때
-        System.out.println("Read newUser1 (deleted): "
-                + userService.getUser(newUser1.getId()));
-        User userInfoTest = new User(null, "CHANGED EMAIL AGAIN!!", "CHANGED PASSWORD AGAIN!!");
-        System.out.println("Update test1 username (deleted): "
-                + userService.updateUser(newUser1.getId(), userInfoTest));
-        System.out.println("Delete channel (deleted): " + userService.deleteUser(newUser1.getId()));
+        // 삭제를 한 후 read, update, delete 진행할때 -> throws Error
+//        System.out.println("Read newUser1 (deleted): "
+//                + userService.getUser(newUser1.getId()));
+//        User userInfoTest = new User(null, "CHANGED EMAIL AGAIN!!", "CHANGED PASSWORD AGAIN!!");
+//        System.out.println("Update test1 username (deleted): "
+//                + userService.updateUser(newUser1.getId(), userInfoTest));
+//        userService.deleteUser(newUser1.getId());
+//        System.out.println("Delete channel (deleted): ");
+//        userService.getUsers();
 
     }
 
@@ -202,10 +218,7 @@ public class JavaApplication {
      * Entity 클래스들(User, Channel, Message)의 기본 동작을 테스트하는 메서드입니다.
      * 각 엔티티의 관계 연결 등을 검증합니다.
      */
-    public static void entityTest() {
-        ChannelService channelService = ServiceFactory.createChannelService(JCF_LIST);
-        MessageService messageService = ServiceFactory.createMessageService(JCF_LIST);
-        UserService userService = ServiceFactory.createUserService(JCF_LIST);
+    public static void entityTest(ChannelService channelService, MessageService messageService, UserService userService) {
 
         // memberIds 확인
         System.out.println("\n========== Channel's user Test ==========");
