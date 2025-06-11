@@ -37,7 +37,7 @@ public class FileMessageRepository implements MessageRepository {
     }
 
     @Override
-    public Optional<Message> findMessage(UUID id) {
+    public Optional<Message> findById(UUID id) {
         return findAll().stream()
                 .filter(m -> m.getId().equals(id))
                 .findFirst();

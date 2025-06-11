@@ -1,9 +1,9 @@
-package com.sprint.mission.discodeit.service.jcf;
+package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 
@@ -11,11 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class JCFListMessageService implements MessageService {
-
+public class BasicMessageService implements MessageService {
     private final MessageRepository messageRepository;
 
-    public JCFListMessageService(MessageRepository messageRepository) {
+
+    public BasicMessageService(MessageRepository messageRepository) {
         this.messageRepository = messageRepository;
     }
 
@@ -34,11 +34,13 @@ public class JCFListMessageService implements MessageService {
 
     }
 
+
     @Override
     public Message getMessage(UUID id) {
         return messageRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Channel not found with id: " + id));
     }
+
 
     @Override
     public Message updateMessage(UUID msgUUID, String message) {
@@ -52,8 +54,8 @@ public class JCFListMessageService implements MessageService {
 
         messageRepository.saveAll(messages);
         return getMessage(msgUUID);
-    }
 
+    }
 
     @Override
     public void deleteMessage(UUID id) {
@@ -62,18 +64,15 @@ public class JCFListMessageService implements MessageService {
         messageRepository.saveAll(messages);
     }
 
-
     @Override
     public List<Message> getMessages() {
         return messageRepository.findAll();
     }
 
-
     @Override
     public void clearMessages() {
         List<Message> messages = new ArrayList<>();
         messageRepository.saveAll(messages);
-
     }
 
     // utility
@@ -84,7 +83,6 @@ public class JCFListMessageService implements MessageService {
      * @param msg 추가할 메세지 객체
      */
     private void addMessage(Message msg) {
-
         isExistMessage(msg);
 
         List<Message> msgs = getMessages();
@@ -102,5 +100,4 @@ public class JCFListMessageService implements MessageService {
             throw new RuntimeException(msg.getId() + " already exists");
         }
     }
-
 }

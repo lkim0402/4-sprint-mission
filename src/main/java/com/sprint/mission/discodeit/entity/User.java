@@ -173,6 +173,7 @@ public class User extends BaseEntity {
                 "  email     = " + this.email + ",\n" +
                 "  password  = " + this.password + "\n" +
                 "  updatedAt = " + this.getUpdatedAt() + "\n" +
+                "  channels  = " + this.getChannels() + ",\n" +
                 "}";
     }
 

@@ -49,6 +49,7 @@ public class Channel extends BaseEntity {
     public void deleteUser(User user) {
 
         if (containsUser(user)) {
+
             users.remove(user);
             if (user.getChannels().contains(this)) {
                 user.deleteChannel(this);

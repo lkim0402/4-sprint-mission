@@ -12,6 +12,9 @@ import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.basic.BasicChannelService;
+import com.sprint.mission.discodeit.service.basic.BasicMessageService;
+import com.sprint.mission.discodeit.service.basic.BasicUserService;
 import com.sprint.mission.discodeit.service.file.FileChannelService;
 import com.sprint.mission.discodeit.service.file.FileMessageService;
 import com.sprint.mission.discodeit.service.file.FileUserService;
@@ -38,18 +41,36 @@ public class JavaApplication {
 //        MessageService messageService = ServiceFactory.createMessageService("File", new FileMessageRepository());
         messageService.clearMessages();
 
-//        UserService userService = ServiceFactory.createUserService("JCF", new JCFUserRepository());
-        UserService userService = ServiceFactory.createUserService("File", new FileUserRepository());
+        UserService userService = ServiceFactory.createUserService("JCF", new JCFUserRepository());
+//        UserService userService = ServiceFactory.createUserService("File", new FileUserRepository());
         userService.clearUsers();
 
 
-        // ====================== 테스팅
+        // =============================== 서비스 테스팅 ===============================
 //        channelServiceTest(channelService, messageService, userService);
 //        messageServiceTest(channelService, messageService, userService);
-        userServiceTest(channelService, messageService, userService);
+//        userServiceTest(channelService, messageService, userService);
 
         // 따로 테스팅 필요 -> 채널은 userList, messageList 를 따로 관리 / 유저는 channelList, messageList 를 따로 관리
-//        entityTest();
+//        entityTest(channelService, messageService, userService);
+
+        // ====================== (심화) BasicService 테스팅 ======================
+
+//        UserService userService = new BasicUserService(new JCFUserRepository());
+//        UserService userService = new BasicUserService(new FileUserRepository());
+
+//        ChannelService channelService = new BasicChannelService(new JCFChannelRepository());
+//        ChannelService channelService = new BasicChannelService(new FileChannelRepository());
+
+//        MessageService messageService = new BasicMessageService(new JCFMessageRepository());
+//        MessageService messageService = new BasicMessageService(new FileMessageRepository());
+
+
+        // 셋업
+        User user = setupUser(userService);
+        Channel channel = setupChannel(channelService);
+        // 테스트
+        messageCreateTest(messageService, channel, user);
 
     }
 
@@ -260,5 +281,27 @@ public class JavaApplication {
         System.out.println("After deleting testMsg1: " + testChannel.getMessages());
         System.out.println("MessageList of newUser1: " + newUser2.getMessagesList());
 
+    }
+
+
+    static User setupUser(UserService userService) {
+        User user = userService.createUser("woody", "woody@codeit.com", "woody1234");
+        System.out.println("유저 생성: " + user);
+        return user;
+    }
+
+    static Channel setupChannel(ChannelService channelService) {
+        Channel channel = channelService.createChannel( "공지");
+        System.out.println("채널 생성: " + channel);
+        return channel;
+    }
+
+    static void messageCreateTest(MessageService messageService, Channel channel, User author) {
+        Message message = messageService.createMessage(
+                new User("woody", "woody@codeit.com", "woody1234"),
+                "안녕하세요.",
+                new Channel("testChannel")
+                );
+        System.out.println("메시지 생성: " + message);
     }
 }

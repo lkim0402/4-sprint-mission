@@ -48,6 +48,7 @@ public interface ChannelService {
      * 주어진 ID의 채널을 삭제합니다.
      *
      * @param id 삭제할 채널의 UUID
+     * @return 삭제 성공 여부
      */
     void deleteChannel(UUID id);
 
