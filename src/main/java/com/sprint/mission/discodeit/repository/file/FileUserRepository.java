@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class FileUserRepository implements UserRepository {
-    private static final String FILE_PATH = "data/channels.ser";
+    private static final String FILE_PATH = "data/users.ser";
 
     @Override
     public void saveAll(List<User> users) {
@@ -38,7 +38,7 @@ public class FileUserRepository implements UserRepository {
     }
 
     @Override
-    public Optional<User> findById(UUID id) {
+    public Optional<User> findVerifiedUser(UUID id) {
         List<User> users = findAll();
         return users.stream()
                 .filter(u -> u.getId().equals(id))
@@ -46,53 +46,30 @@ public class FileUserRepository implements UserRepository {
     }
 
     @Override
-    public void save(UUID id, User user) {
+    public void save(User user) {
 
-        List<User> data = findAll();
-        boolean updated = false;
+        List<User> users = findAll();
 
         // replace if same ID, add if none
-        for (User u : data) {
-            if (u.getId().equals(id)) {
-                Optional.ofNullable(user.getUserName())
-                        .ifPresent(name -> u.setUserName(name));
+        boolean updated = false;
 
-                // setting email
-                Optional.ofNullable(user.getEmail())
-                        .ifPresent(email -> u.setEmail(email));
-
-                // setting password
-                Optional.ofNullable(user.getPassword())
-                        .ifPresent(pw -> u.setPassword(pw));
-
-                // setting status
-                Optional.ofNullable(user.getUserStatus())
-                        .ifPresent(status -> u.setUserStatus(status));
-
-                //partialUser updatedAt
-                u.updateTimeStamp();
+        for (int i = 0; i < users.size(); i++) {
+            if (users.get(i).getId().equals(user.getId())) {
+                users.set(i, user);
                 updated = true;
                 break;
             }
         }
 
         if (!updated) {
-            if (user.getUserName() != null &&
-                    user.getEmail() != null &&
-                    user.getPassword() != null &&
-                    user.getUserStatus() != null) {
-                user.setId(id);
-                data.add(user);
-            } else {
-                throw new IllegalArgumentException("Cannot add user: name, email, password, and status must all be provided");
-            }
+            users.add(user);
         }
 
-        saveAll(data);
+        saveAll(users);
     }
 
     @Override
-    public void deleteById(UUID id) {
+    public void deleteUser(UUID id) {
         List<User> users = findAll();
         users.removeIf(u -> u.getId().equals(id));
         saveAll(users);

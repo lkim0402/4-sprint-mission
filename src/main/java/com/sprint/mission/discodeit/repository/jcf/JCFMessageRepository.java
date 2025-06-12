@@ -22,7 +22,7 @@ public class JCFMessageRepository implements MessageRepository {
     }
 
     @Override
-    public Optional<Message> findById(UUID id) {
+    public Optional<Message> findVerifiedMessage(UUID id) {
         return findAll().stream()
                 .filter(m -> m.getId().equals(id))
                 .findFirst();
@@ -51,7 +51,7 @@ public class JCFMessageRepository implements MessageRepository {
     }
 
     @Override
-    public void deleteById(UUID id) {
+    public void deleteMessage(UUID id) {
         data.removeIf(m -> m.getId().equals(id));
     }
 }

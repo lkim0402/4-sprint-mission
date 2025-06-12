@@ -23,7 +23,7 @@ public interface UserService {
      * @param userId 유저의 UUID
      * @return 조회된 유저 객체 (없을 경우 null)
      */
-    User findById(UUID userId);
+    User findVerifiedUser(UUID userId);
 
     /**
      * 전체 유저 목록을 반환합니다.
@@ -60,7 +60,7 @@ public interface UserService {
      * @param id 유저의 UUID
      * @return Status 변환 성공 여부
      */
-    void deleteById(UUID id);
+    void deleteUser(UUID id);
 
     // ------- 따로 추가 -------
 

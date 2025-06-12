@@ -27,7 +27,7 @@ public interface ChannelRepository {
      * @param id 조회할 채널의 ID
      * @return 해당 채널이 존재하면 Optional에 담아 반환, 없으면 빈 Optional 반환
      */
-    Optional<Channel> findById(UUID id);
+    Optional<Channel> findVerifiedChannel(UUID id);
 
     /**
      * 채널을 저장합니다.
@@ -41,5 +41,5 @@ public interface ChannelRepository {
      *
      * @param id 삭제할 채널의 ID
      */
-    void deleteById(UUID id);
+    void deleteChannel(UUID id);
 }

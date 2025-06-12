@@ -28,7 +28,7 @@ public class JCFChannelRepository implements ChannelRepository {
     }
 
     @Override
-    public Optional<Channel> findById(UUID id) {
+    public Optional<Channel> findVerifiedChannel(UUID id) {
         return findAll().stream()
                 .filter(c -> c.getId().equals(id))
                 .findFirst();
@@ -56,7 +56,7 @@ public class JCFChannelRepository implements ChannelRepository {
     }
 
     @Override
-    public void deleteById(UUID id) {
+    public void deleteChannel(UUID id) {
         data.removeIf(c -> c.getId().equals(id));
     }
 }
