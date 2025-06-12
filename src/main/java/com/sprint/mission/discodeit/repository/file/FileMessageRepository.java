@@ -38,7 +38,7 @@ public class FileMessageRepository implements MessageRepository {
     }
 
     @Override
-    public Optional<Message> findById(UUID id) {
+    public Optional<Message> findVerifiedMessage(UUID id) {
         return findAll().stream()
                 .filter(m -> m.getId().equals(id))
                 .findFirst();
@@ -69,7 +69,7 @@ public class FileMessageRepository implements MessageRepository {
     }
 
     @Override
-    public void deleteById(UUID id) {
+    public void deleteMessage(UUID id) {
         List<Message> messages = findAll();
         messages.removeIf(m -> m.getId().equals(id));
         saveAll(messages);

@@ -37,7 +37,7 @@ public class JCFMapChannelService implements ChannelService {
     }
 
     @Override
-    public Channel findById(UUID id) {
+    public Channel findVerifiedChannel(UUID id) {
         if(!data.containsKey(id)) {
             return null;
         }
@@ -63,7 +63,7 @@ public class JCFMapChannelService implements ChannelService {
 
 
     @Override
-    public void deleteById(UUID id) {
+    public void deleteChannel(UUID id) {
         data.remove(id);
 
     }

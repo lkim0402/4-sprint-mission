@@ -27,12 +27,13 @@ public class JCFListChannelService implements ChannelService {
 
         Channel channel = new Channel(channelName);
 
-        addChannel(channel);
+        channelRepository.save(channel);
         return channel;
     }
 
     @Override
     public void joinChannel(Channel channel, User user) {
+        findVerifiedChannel(channel.getId());
         isValidActiveUser(user);
         channel.addUser(user);
         channelRepository.save(channel);
@@ -40,6 +41,7 @@ public class JCFListChannelService implements ChannelService {
 
     @Override
     public void leaveChannel(Channel channel, User user) {
+        findVerifiedChannel(channel.getId());
         isValidActiveUser(user);
         channel.deleteUser(user);
         channelRepository.save(channel);
@@ -47,26 +49,25 @@ public class JCFListChannelService implements ChannelService {
 
 
     @Override
-    public Channel findById(UUID id) {
-        return channelRepository.findById(id)
+    public Channel findVerifiedChannel(UUID id) {
+        return channelRepository.findVerifiedChannel(id)
                 .orElseThrow(() -> new RuntimeException("Channel not found with id: " + id));
     }
 
 
     @Override
     public Channel updateChannel(UUID id, String channelName) {
-        validateChannelExists(findById(id));
+        Channel channel = findVerifiedChannel(id);
 
-        Channel c = findById(id);
-        c.setChannelName(channelName);
-        channelRepository.save(c);
-        return c;
+        channel.setChannelName(channelName);
+        channelRepository.save(channel);
+        return channel;
     }
 
 
     @Override
-    public void deleteById(UUID id) {
-        channelRepository.deleteById(id);
+    public void deleteChannel(UUID id) {
+        channelRepository.deleteChannel(id);
     }
 
 
@@ -83,33 +84,6 @@ public class JCFListChannelService implements ChannelService {
     }
 
     // =========== utility methods ===========
-    /**
-     * 새로운 채널을 목록에 추가합니다.
-     * 이미 존재하는 채널은 중복 추가되지 않고 정보가 덮어씌워집니다.
-     *
-     * @param channel 추가할 채널 객체
-     */
-    private void addChannel(Channel channel) {
-        channelRepository.save(channel);
-    }
-
-    /**
-     * 지정된 채널이 시스템에 존재하는지 검증합니다.
-     *
-     * @param channel 존재 여부를 확인할 채널 객체
-     * @throws RuntimeException 채널이 존재하지 않는 경우 예외를 발생시킵니다
-     */
-    private void validateChannelExists(Channel channel) {
-        List<Channel> channels = getChannels();
-
-        boolean alreadyExist = channels.stream()
-                .anyMatch(c -> c.getId().equals(channel.getId()));
-
-        if (!alreadyExist) {
-            throw new RuntimeException("Channel " + channel.getId() + " does not exist");
-        }
-    }
-
     /**
      * 사용자가 유효한 활성 사용자인지 검증합니다.
      *

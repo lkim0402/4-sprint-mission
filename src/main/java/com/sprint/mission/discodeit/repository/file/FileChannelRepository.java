@@ -38,7 +38,7 @@ public class FileChannelRepository implements ChannelRepository {
     }
 
     @Override
-    public Optional<Channel> findById(UUID id) {
+    public Optional<Channel> findVerifiedChannel(UUID id) {
         return findAll().stream()
                 .filter(c -> c.getId().equals(id))
                 .findFirst();
@@ -67,7 +67,7 @@ public class FileChannelRepository implements ChannelRepository {
     }
 
     @Override
-    public void deleteById(UUID id) {
+    public void deleteChannel(UUID id) {
         List<Channel> channels = findAll();
         channels.removeIf(c -> c.getId().equals(id));
         saveAll(channels);

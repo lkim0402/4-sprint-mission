@@ -29,7 +29,7 @@ public interface MessageRepository {
      * @param id 조회할 메시지의 ID
      * @return 해당 ID의 메시지가 존재하면 Optional에 담아 반환, 없으면 빈 Optional 반환
      */
-    Optional<Message> findById(UUID id);
+    Optional<Message> findVerifiedMessage(UUID id);
 
     /**
      * 메세지를 저장합니다.
@@ -43,5 +43,5 @@ public interface MessageRepository {
      *
      * @param id 삭제할 메세지의 ID
      */
-    void deleteById(UUID id);
+    void deleteMessage(UUID id);
 }

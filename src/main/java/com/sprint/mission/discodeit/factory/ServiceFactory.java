@@ -57,10 +57,10 @@ public class ServiceFactory {
      * @param type 사용할 구현 방식 (JCF_LIST 또는 JCF_MAP)
      * @return MessageService 객체
      */
-    public static MessageService createMessageService(String type, MessageRepository repository) {
+    public static MessageService createMessageService(String type, MessageRepository messageRepository, ChannelRepository channelRepository, UserRepository userRepository ) {
         return switch (type) {
-            case "JCF" -> new JCFListMessageService(repository);
-            case "File" -> new FileMessageService(repository);
+            case "JCF" -> new JCFListMessageService(messageRepository, channelRepository, userRepository);
+            case "File" -> new FileMessageService(messageRepository, channelRepository, userRepository);
             default -> null;
         };
     }

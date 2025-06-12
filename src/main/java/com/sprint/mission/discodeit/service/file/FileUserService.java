@@ -22,13 +22,13 @@ public class FileUserService implements UserService {
     @Override
     public User createUser(String userName, String email, String password) {
         User newUser = new User(userName, email, password);
-        addUser(newUser);
+        userRepository.save(newUser);
         return newUser;
     }
 
     @Override
-    public User findById(UUID id) {
-        return userRepository.findById(id)
+    public User findVerifiedUser(UUID id) {
+        return userRepository.findVerifiedUser(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
     }
 
@@ -43,14 +43,34 @@ public class FileUserService implements UserService {
 
     @Override
     public void updateUser(UUID id, User partialUser) {
-        validateUserExists(findById(id));
+        User user = findVerifiedUser(id);
 
-        userRepository.save(id, partialUser);
+        // replace if same ID, add if none
+        Optional.ofNullable(partialUser.getUserName())
+                .ifPresent(name -> user.setUserName(partialUser.getUserName()));
+
+        // setting email
+        Optional.ofNullable(partialUser.getEmail())
+                .ifPresent(email -> user.setEmail(partialUser.getEmail()));
+
+        // setting password
+        Optional.ofNullable(partialUser.getPassword())
+                .ifPresent(pw -> user.setPassword(partialUser.getPassword()));
+
+        // setting status
+        Optional.ofNullable(partialUser.getUserStatus())
+                .ifPresent(status -> user.setUserStatus(partialUser.getUserStatus()));
+
+        //partialUser updatedAt
+        user.updateTimeStamp();
+
+        userRepository.save(user);
+
     }
 
     @Override
-    public void deleteById(UUID id) {
-        userRepository.deleteById(id);
+    public void deleteUser(UUID id) {
+        userRepository.deleteUser(id);
     }
 
     @Override
@@ -65,31 +85,4 @@ public class FileUserService implements UserService {
         userRepository.saveAll(users);
     }
 
-    // =========== utility methods ===========
-    /**
-     * 새로운 유저를 목록에 추가합니다.
-     * 이미 존재하는 유저는 중복 추가되지 않고 정보는 덮어씌워집니다.
-     *
-     * @param user 추가할 유저 객체
-     */
-    private void addUser(User user) {
-        userRepository.save(user.getId(), user);
-    }
-
-    /**
-     * 지정된 유저가 시스템에 존재하는지 검증합니다.
-     *
-     * @param user 존재 여부를 확인할 유저 객체
-     * @throws RuntimeException 유저가 존재하지 않는 경우 예외를 발생시킵니다
-     */
-    private void validateUserExists(User user) {
-        List<User> users = getUsers();
-
-        boolean alreadyExist = users.stream()
-                .anyMatch(u -> u.getId().equals(user.getId()));
-
-        if (!alreadyExist) {
-            throw new RuntimeException("User " + user.getId() + " does not exist");
-        }
-    }
 }

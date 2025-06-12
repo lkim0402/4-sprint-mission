@@ -34,19 +34,19 @@ public class JavaApplication {
 
         // ====================== JCF/File 기반 저장소로 서비스 초기화 ======================
 //        ChannelService channelService = ServiceFactory.createChannelService( "JCF", new JCFChannelRepository());
-//        ChannelService channelService = ServiceFactory.createChannelService("File", new FileChannelRepository());
-//        channelService.clearChannels();
+        ChannelService channelService = ServiceFactory.createChannelService("File", new FileChannelRepository());
+        channelService.clearChannels();
 
-//        MessageService messageService = ServiceFactory.createMessageService("JCF", new JCFMessageRepository());
-//        MessageService messageService = ServiceFactory.createMessageService("File", new FileMessageRepository());
-//        messageService.clearMessages();
+//        MessageService messageService = ServiceFactory.createMessageService("JCF", new JCFMessageRepository(), new JCFChannelRepository(), new JCFUserRepository());
+        MessageService messageService = ServiceFactory.createMessageService("File", new FileMessageRepository(), new FileChannelRepository(), new FileUserRepository());
+        messageService.clearMessages();
 
 //        UserService userService = ServiceFactory.createUserService("JCF", new JCFUserRepository());
-//        UserService userService = ServiceFactory.createUserService("File", new FileUserRepository());
-//        userService.clearUsers();
+        UserService userService = ServiceFactory.createUserService("File", new FileUserRepository());
+        userService.clearUsers();
 
         // =============================== 서비스 테스팅 ===============================
-//        channelServiceTest(channelService, messageService, userService);
+        channelServiceTest(channelService, messageService, userService);
 //        messageServiceTest(channelService, messageService, userService);
 //        userServiceTest(channelService, messageService, userService);
 
@@ -56,20 +56,20 @@ public class JavaApplication {
         // ====================== (심화) BasicService 테스팅 ======================
 
 //        UserService userService = new BasicUserService(new JCFUserRepository());
-        UserService userService = new BasicUserService(new FileUserRepository());
+//        UserService userService = new BasicUserService(new FileUserRepository());
 
-        ChannelService channelService = new BasicChannelService(new JCFChannelRepository());
+//        ChannelService channelService = new BasicChannelService(new JCFChannelRepository());
 //        ChannelService channelService = new BasicChannelService(new FileChannelRepository());
 
-        MessageService messageService = new BasicMessageService(new JCFMessageRepository());
-//        MessageService messageService = new BasicMessageService(new FileMessageRepository());
+//        MessageService messageService = new BasicMessageService(new JCFMessageRepository(), new JCFChannelRepository(), new JCFUserRepository());
+//        MessageService messageService = new BasicMessageService(new FileMessageRepository(), new FileChannelRepository(), new FileUserRepository());
 
 
 //        // 셋업
-        User user = setupUser(userService);
-        Channel channel = setupChannel(channelService);
+//        User user = setupUser(userService);
+//        Channel channel = setupChannel(channelService);
 //        // 테스트
-        messageCreateTest(messageService, channel, user);
+//        messageCreateTest(messageService, channel, user);
 
     }
 
@@ -100,14 +100,14 @@ public class JavaApplication {
         // 수정된 데이터 조회
         System.out.println("\n[Update] Update individual channel (study channel):");
         System.out.println("Read study channel name: "
-                + channelService.findById(studyChannel.getId()));
+                + channelService.findVerifiedChannel(studyChannel.getId()));
         System.out.println("Read updated study channel name: "
                 + channelService.updateChannel(studyChannel.getId(), "study-channel-edited"));
 
         // 삭제
         // 조회를 통해 삭제되었는지 확인
         System.out.println("\n[Delete] Delete individual channel (study channel):");
-        channelService.deleteById(studyChannel.getId());
+        channelService.deleteChannel(studyChannel.getId());
         System.out.println("See all channels"
                 + channelService.getChannels());
         System.out.println("\n[Delete] Delete all channels:");
@@ -144,7 +144,7 @@ public class JavaApplication {
 
         // 조회(단건, 다건)
         System.out.println("\n[READ] Read one message (test1):");
-        System.out.println(messageService.findById(test1.getId()));
+        System.out.println(messageService.findVerifiedMessage(test1.getId()));
         System.out.println("\n[READ] Read all messages:");
         System.out.println("See all messages: " + messageService.getMessages());
 
@@ -152,7 +152,7 @@ public class JavaApplication {
         // 수정된 데이터 조회
         System.out.println("\n[Update] Update individual message (test2):");
         System.out.println("Read test2 message: "
-                + messageService.findById(test2.getId()));
+                + messageService.findVerifiedMessage(test2.getId()));
         System.out.println("Read updated test2 message: " +
                 messageService.updateMessage(test2.getId(), "testmessage2 updated!!"));
 
@@ -161,7 +161,7 @@ public class JavaApplication {
         System.out.println("\n[Delete] Delete individual message (test2):");
         System.out.println("See all messages before deletion: "
                 + messageService.getMessages());
-        messageService.deleteById(test2.getId());
+        messageService.deleteMessage(test2.getId());
         System.out.println("See all messages after deletion: "
                 + messageService.getMessages());
         System.out.println("\n[Delete] Delete all messages:");
@@ -199,7 +199,7 @@ public class JavaApplication {
         System.out.println("\n[DEBUG] About to search for ID: " + newUser1.getId());
         System.out.println("\n[READ] Read one user (newUser1):");
         System.out.println("\n[DEBUG] About to search for ID (again): " + newUser1.getId());
-        System.out.println(userService.findById(newUser1.getId()));
+        System.out.println(userService.findVerifiedUser(newUser1.getId()));
         System.out.println("\n[READ] Read all users:");
         System.out.println("See all users: " + userService.getUsers());
 
@@ -207,7 +207,7 @@ public class JavaApplication {
         // 수정된 데이터 조회
         System.out.println("\n[Update] Update (newUser2):");
         System.out.println("Read newUser2: "
-                + userService.findById(newUser2.getId()));
+                + userService.findVerifiedUser(newUser2.getId()));
         User userInfo = new User(null, "testchanged@gmail.com", "CHANGED PASSWORD!!");
         userService.updateUser(newUser2.getId(), userInfo);
         System.out.println("Read updated newUser2 (new email and pw): " + newUser2);
@@ -217,7 +217,7 @@ public class JavaApplication {
         System.out.println("\n[Delete] Delete individual user (newUser2):");
         System.out.println("See all users before deletion: "
                 + userService.getUsers());
-        userService.deleteById(newUser2.getId());
+        userService.deleteUser(newUser2.getId());
         System.out.println("See all users after deletion (newUser2): "
                 + userService.getUsers());
         System.out.println("Check deleted user status/info (newUser2): "

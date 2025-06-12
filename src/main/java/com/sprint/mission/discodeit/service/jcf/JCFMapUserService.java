@@ -22,7 +22,7 @@ public class JCFMapUserService implements UserService {
     }
 
     @Override
-    public User findById(UUID id) {
+    public User findVerifiedUser(UUID id) {
 
         List<User> users = new ArrayList<>(data.values());
 
@@ -84,7 +84,7 @@ public class JCFMapUserService implements UserService {
 
 
     @Override
-    public void deleteById(UUID id) {
+    public void deleteUser(UUID id) {
         if (!data.containsKey(id)) {
             return;
         }
