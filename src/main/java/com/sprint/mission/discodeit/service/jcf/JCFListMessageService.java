@@ -35,31 +35,25 @@ public class JCFListMessageService implements MessageService {
     }
 
     @Override
-    public Message getMessage(UUID id) {
+    public Message findById(UUID id) {
         return messageRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Channel not found with id: " + id));
     }
 
     @Override
-    public Message updateMessage(UUID msgUUID, String message) {
-        List<Message> messages = getMessages();
+    public Message updateMessage(UUID id, String message) {
+        validateUserExists(findById(id));
 
-        for (Message msg : messages) {
-            if (msgUUID.equals(msg.getId())) {
-                msg.setMessage(message);
-            }
-        }
-
-        messageRepository.saveAll(messages);
-        return getMessage(msgUUID);
+        Message m = findById(id);
+        m.setMessage(message);
+        messageRepository.save(m);
+        return m;
     }
 
 
     @Override
-    public void deleteMessage(UUID id) {
-        List<Message> messages = getMessages();
-        messages.removeIf(m -> m.getId().equals(id));
-        messageRepository.saveAll(messages);
+    public void deleteById(UUID id) {
+        messageRepository.deleteById(id);
     }
 
 
@@ -76,30 +70,32 @@ public class JCFListMessageService implements MessageService {
 
     }
 
-    // utility
+    // =========== utility methods ===========
     /**
      * 새로운 메세지를 목록에 추가합니다.
-     * 이미 존재하는 메세지는 중복 추가되지 않습니다.
+     * 이미 존재하는 메세지는 중복 추가되지 않고 정보는 덮어씌워집니다.
      *
      * @param msg 추가할 메세지 객체
      */
     private void addMessage(Message msg) {
-
-        isExistMessage(msg);
-
-        List<Message> msgs = getMessages();
-        msgs.add(msg);
-        messageRepository.saveAll(msgs);
+//        isExistMessage(msg);
+        messageRepository.save(msg);
     }
 
-    private void isExistMessage(Message msg) {
+    /**
+     * 지정된 메세지가 시스템에 존재하는지 검증합니다.
+     *
+     * @param msg 존재 여부를 확인할 메세지 객체
+     * @throws RuntimeException 메세지가 존재하지 않는 경우 예외를 발생시킵니다
+     */
+    private void validateUserExists(Message msg) {
         List<Message> msgs = getMessages();
 
         boolean alreadyExist = msgs.stream()
                 .anyMatch(c -> c.getId().equals(msg.getId()));
 
-        if (alreadyExist) {
-            throw new RuntimeException(msg.getId() + " already exists");
+        if (!alreadyExist) {
+            throw new RuntimeException("Message " + msg.getId() + " does not exist");
         }
     }
 

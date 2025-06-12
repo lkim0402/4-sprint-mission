@@ -24,7 +24,7 @@ public interface ChannelService {
      * @param id 채널의 UUID
      * @return 조회된 채널 (없으면 null)
      */
-    Channel getChannel(UUID id);
+    Channel findById(UUID id);
 
     /**
      * 모든 채널 목록을 반환합니다.
@@ -50,7 +50,7 @@ public interface ChannelService {
      * @param id 삭제할 채널의 UUID
      * @return 삭제 성공 여부
      */
-    void deleteChannel(UUID id);
+    void deleteById(UUID id);
 
     // ------- 따로 추가 -------
     /**
@@ -76,6 +76,8 @@ public interface ChannelService {
      * 모든 채널 데이터를 초기화(삭제)합니다.
      */
     void clearChannels();
+
+
 
 
 }

@@ -1,10 +1,11 @@
 package com.sprint.mission.discodeit.entity;
 
 import java.io.Serial;
+import java.io.Serializable;
 import java.util.*;
 import java.util.regex.Pattern;
 
-public class User extends BaseEntity {
+public class User extends BaseEntity implements Serializable {
 
     // new fields
     private String email;
@@ -145,6 +146,9 @@ public class User extends BaseEntity {
         Pattern pat = Pattern.compile(emailRegex);
         if (pat.matcher(email).matches()) {
             this.email = email;
+        } else {
+            // ✅ ADD THIS LINE
+            throw new IllegalArgumentException("Invalid email format: " + email);
         }
     }
 
@@ -159,6 +163,8 @@ public class User extends BaseEntity {
     public String getUserName() {
         return userName;
     }
+
+
 
     public void setUserName(String userName) {
         this.userName = userName;

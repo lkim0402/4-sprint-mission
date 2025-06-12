@@ -1,4 +1,5 @@
 package com.sprint.mission.discodeit.repository.file;
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import java.io.*;
@@ -42,6 +43,36 @@ public class FileMessageRepository implements MessageRepository {
                 .filter(m -> m.getId().equals(id))
                 .findFirst();
 
+    }
+
+    @Override
+    public void save(Message message) {
+        List<Message> messages = findAll();
+
+        // replace if same ID, add if none
+        boolean updated = false;
+
+        for (int i = 0; i < messages.size(); i++) {
+            if (messages.get(i).getId().equals(message.getId())) {
+                messages.set(i, message);
+                updated = true;
+                break;
+            }
+        }
+
+        if (!updated) {
+            messages.add(message);
+        }
+
+        saveAll(messages);
+
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        List<Message> messages = findAll();
+        messages.removeIf(m -> m.getId().equals(id));
+        saveAll(messages);
     }
 
 }

@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public class BaseEntity implements Serializable {
 
-    private final UUID id;
+    private UUID id;
     private final long createdAt;
     private long updatedAt;
 
@@ -33,5 +33,10 @@ public class BaseEntity implements Serializable {
 
     public long getUpdatedAt() {
         return updatedAt;
+    }
+
+    // used only when we want to update user
+    public void setId(UUID id) {
+        this.id = id;
     }
 }

@@ -43,4 +43,33 @@ public class FileChannelRepository implements ChannelRepository {
                 .filter(c -> c.getId().equals(id))
                 .findFirst();
     }
+
+    @Override
+    public void save(Channel channel) {
+        List<Channel> channels = findAll();
+
+        // replace if same ID, add if none
+        boolean updated = false;
+
+        for (int i = 0; i < channels.size(); i++) {
+            if (channels.get(i).getId().equals(channel.getId())) {
+                channels.set(i, channel);
+                updated = true;
+                break;
+            }
+        }
+
+        if (!updated) {
+            channels.add(channel);
+        }
+
+        saveAll(channels);
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        List<Channel> channels = findAll();
+        channels.removeIf(c -> c.getId().equals(id));
+        saveAll(channels);
+    }
 }
