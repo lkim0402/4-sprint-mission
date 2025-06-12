@@ -33,7 +33,7 @@ public class JCFMapMessageService implements MessageService {
     }
 
     @Override
-    public Message getMessage(UUID id) {
+    public Message findById(UUID id) {
 
         List<Message> msgList = new ArrayList<>(data.values());
         return msgList.stream()
@@ -44,7 +44,7 @@ public class JCFMapMessageService implements MessageService {
 
     @Override
     public Message updateMessage(UUID msgUUID, String message) {
-        if (getMessage(msgUUID).getUser().getUserStatus() == (UserStatus.WITHDRAWN)) {
+        if (findById(msgUUID).getUser().getUserStatus() == (UserStatus.WITHDRAWN)) {
             return null;
         }
 
@@ -62,8 +62,8 @@ public class JCFMapMessageService implements MessageService {
     }
 
     @Override
-    public void deleteMessage(UUID id) {
-        Message m = getMessage(id);
+    public void deleteById(UUID id) {
+        Message m = findById(id);
 
         if (!data.containsKey(id) || m.getUser().getUserStatus() == (UserStatus.WITHDRAWN)) {
             return;

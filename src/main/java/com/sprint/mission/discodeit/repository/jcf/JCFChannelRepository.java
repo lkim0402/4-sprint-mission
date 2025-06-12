@@ -34,4 +34,29 @@ public class JCFChannelRepository implements ChannelRepository {
                 .findFirst();
     }
 
+    @Override
+    public void save(Channel channel) {
+
+        // replace if same ID, add if none
+        boolean updated = false;
+
+        for (int i = 0; i < data.size(); i++) {
+            if (data.get(i).getId().equals(channel.getId())) {
+                data.set(i, channel);
+                updated = true;
+                break;
+            }
+        }
+
+        if (!updated) {
+            data.add(channel);
+        }
+
+        saveAll(data);
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        data.removeIf(c -> c.getId().equals(id));
+    }
 }

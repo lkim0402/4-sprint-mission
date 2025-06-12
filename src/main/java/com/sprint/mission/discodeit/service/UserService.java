@@ -23,7 +23,7 @@ public interface UserService {
      * @param userId 유저의 UUID
      * @return 조회된 유저 객체 (없을 경우 null)
      */
-    User getUser(UUID userId);
+    User findById(UUID userId);
 
     /**
      * 전체 유저 목록을 반환합니다.
@@ -39,17 +39,16 @@ public interface UserService {
 
     // 수정(Update)
     /**
-     * 주어진 UUID를 가진 유저 정보를 수정합니다.
+     * 주어진 UUID를 가진 유저 정보를 수정거나, 존재하지 않을경우 추가합니다.
      *
      * 전달된 partialUser 객체는 수정하고자 하는 필드만 값을 가지며,
      * 그 외의 필드는 null일 수 있습니다.
      * 기존 유저 객체의 해당 필드만 업데이트됩니다.
      * 수정 가능한 필드는 userName, email, password, userStatus 입니다.
-     * @param userId 유저의 UUID
-     * @param partialUser 새로운 유저
-     * @return 수정된 유저 객체 (없을 경우 null)
+     * @param id 수정할 경우, 새로운 정보를 갱신할 유저의 id
+     * @param user 새로운 유저 정보
      */
-    User updateUser(UUID userId, User partialUser);
+    void updateUser(UUID id, User user);
 
 //    User updateUserStatus(UUID id, UserStatus userStatus);
 
@@ -61,7 +60,7 @@ public interface UserService {
      * @param id 유저의 UUID
      * @return Status 변환 성공 여부
      */
-    void deleteUser(UUID id);
+    void deleteById(UUID id);
 
     // ------- 따로 추가 -------
 

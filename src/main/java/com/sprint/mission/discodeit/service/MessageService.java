@@ -28,7 +28,7 @@ public interface MessageService {
      * @param id 메시지 UUID
      * @return 메시지 객체 (없으면 null 반환)
      */
-    Message getMessage(UUID id);
+    Message findById(UUID id);
 
     /**
      * 저장된 모든 메시지를 리스트로 반환합니다.
@@ -53,7 +53,7 @@ public interface MessageService {
      *
      * @param id 삭제할 메시지의 UUID
      */
-    void deleteMessage(UUID id);
+    void deleteById(UUID id);
 
     // ------- 따로 추가 -------
 

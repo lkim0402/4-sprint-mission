@@ -22,7 +22,7 @@ public class JCFMapUserService implements UserService {
     }
 
     @Override
-    public User getUser(UUID id) {
+    public User findById(UUID id) {
 
         List<User> users = new ArrayList<>(data.values());
 
@@ -51,7 +51,7 @@ public class JCFMapUserService implements UserService {
 
     // update user 합침
     @Override
-    public User updateUser(UUID id, User userInfo) {
+    public void updateUser(UUID id, User userInfo) {
 
         User updatedUser = Optional.ofNullable(data.get(id))
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다!"));
@@ -80,14 +80,11 @@ public class JCFMapUserService implements UserService {
         //setting updatedAt
         updatedUser.updateTimeStamp();
 
-        return updatedUser;
-
-
     }
 
 
     @Override
-    public void deleteUser(UUID id) {
+    public void deleteById(UUID id) {
         if (!data.containsKey(id)) {
             return;
         }

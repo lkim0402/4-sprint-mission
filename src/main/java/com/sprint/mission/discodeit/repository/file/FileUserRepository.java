@@ -1,4 +1,5 @@
 package com.sprint.mission.discodeit.repository.file;
+import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import java.io.*;
@@ -38,8 +39,61 @@ public class FileUserRepository implements UserRepository {
 
     @Override
     public Optional<User> findById(UUID id) {
-        return findAll().stream()
+        List<User> users = findAll();
+        return users.stream()
                 .filter(u -> u.getId().equals(id))
                 .findFirst();
     }
-}
+
+    @Override
+    public void save(UUID id, User user) {
+
+        List<User> data = findAll();
+        boolean updated = false;
+
+        // replace if same ID, add if none
+        for (User u : data) {
+            if (u.getId().equals(id)) {
+                Optional.ofNullable(user.getUserName())
+                        .ifPresent(name -> u.setUserName(name));
+
+                // setting email
+                Optional.ofNullable(user.getEmail())
+                        .ifPresent(email -> u.setEmail(email));
+
+                // setting password
+                Optional.ofNullable(user.getPassword())
+                        .ifPresent(pw -> u.setPassword(pw));
+
+                // setting status
+                Optional.ofNullable(user.getUserStatus())
+                        .ifPresent(status -> u.setUserStatus(status));
+
+                //partialUser updatedAt
+                u.updateTimeStamp();
+                updated = true;
+                break;
+            }
+        }
+
+        if (!updated) {
+            if (user.getUserName() != null &&
+                    user.getEmail() != null &&
+                    user.getPassword() != null &&
+                    user.getUserStatus() != null) {
+                user.setId(id);
+                data.add(user);
+            } else {
+                throw new IllegalArgumentException("Cannot add user: name, email, password, and status must all be provided");
+            }
+        }
+
+        saveAll(data);
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        List<User> users = findAll();
+        users.removeIf(u -> u.getId().equals(id));
+        saveAll(users);
+    }}

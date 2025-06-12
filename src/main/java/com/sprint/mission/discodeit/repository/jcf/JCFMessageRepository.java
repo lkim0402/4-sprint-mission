@@ -1,4 +1,5 @@
 package com.sprint.mission.discodeit.repository.jcf;
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 
@@ -25,5 +26,32 @@ public class JCFMessageRepository implements MessageRepository {
         return findAll().stream()
                 .filter(m -> m.getId().equals(id))
                 .findFirst();
+    }
+
+    @Override
+    public void save(Message message) {
+
+        // replace if same ID, add if none
+        boolean updated = false;
+
+        for (int i = 0; i < data.size(); i++) {
+            if (data.get(i).getId().equals(message.getId())) {
+                data.set(i, message);
+                updated = true;
+                break;
+            }
+        }
+
+        if (!updated) {
+            data.add(message);
+        }
+
+        saveAll(data);
+
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        data.removeIf(m -> m.getId().equals(id));
     }
 }
