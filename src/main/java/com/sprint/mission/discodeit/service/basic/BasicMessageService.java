@@ -1,9 +1,9 @@
-package com.sprint.mission.discodeit.service.jcf;
+package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -13,13 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class JCFListMessageService implements MessageService {
-
+public class BasicMessageService implements MessageService {
     private final MessageRepository messageRepository;
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
 
-    public JCFListMessageService(MessageRepository messageRepository, ChannelRepository channelRepository, UserRepository userRepository) {
+    public BasicMessageService(MessageRepository messageRepository, ChannelRepository channelRepository, UserRepository userRepository) {
 
         this.messageRepository = messageRepository;
         this.channelRepository = channelRepository;
@@ -40,7 +39,6 @@ public class JCFListMessageService implements MessageService {
 
         messageRepository.save(msg);
         return msg;
-
     }
 
     @Override
@@ -59,23 +57,19 @@ public class JCFListMessageService implements MessageService {
         return msg;
     }
 
-
     @Override
     public void deleteMessage(UUID id) {
         messageRepository.deleteMessage(id);
     }
-
 
     @Override
     public List<Message> getMessages() {
         return messageRepository.findAll();
     }
 
-
     @Override
     public void clearMessages() {
         List<Message> messages = new ArrayList<>();
         messageRepository.saveAll(messages);
-
     }
 }

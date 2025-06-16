@@ -1,8 +1,11 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.*;
+import java.util.regex.Pattern;
 
-public class User extends BaseEntity {
+public class User extends BaseEntity implements Serializable {
 
     // new fields
     private String email;
@@ -11,8 +14,11 @@ public class User extends BaseEntity {
 
     // extra fields
     private UserStatus userStatus;
-    private List<Channel> channels;
-    private List<Message> messages;
+    private final List<Channel> channels;
+    private final List<Message> messages;
+
+    @Serial
+    private static final long serialVersionUID = 1L; // user's version
 
     /**
      * member status (user statuc -> enum
@@ -126,7 +132,24 @@ public class User extends BaseEntity {
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Email is null or blank");
+        }
+
+        // validating the format
+        // https://stackoverflow.com/questions/66934141/how-can-i-check-email-address-in-java
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\."+
+                "[a-zA-Z0-9_+&*-]+)*@" +
+                "(?:[a-zA-Z0-9-]+\\.)+[a-z" +
+                "A-Z]{2,7}$";
+
+        Pattern pat = Pattern.compile(emailRegex);
+        if (pat.matcher(email).matches()) {
+            this.email = email;
+        } else {
+            // ✅ ADD THIS LINE
+            throw new IllegalArgumentException("Invalid email format: " + email);
+        }
     }
 
     public String getPassword() {
@@ -141,6 +164,8 @@ public class User extends BaseEntity {
         return userName;
     }
 
+
+
     public void setUserName(String userName) {
         this.userName = userName;
     }
@@ -154,6 +179,7 @@ public class User extends BaseEntity {
                 "  email     = " + this.email + ",\n" +
                 "  password  = " + this.password + "\n" +
                 "  updatedAt = " + this.getUpdatedAt() + "\n" +
+                "  channels  = " + this.getChannels() + ",\n" +
                 "}";
     }
 

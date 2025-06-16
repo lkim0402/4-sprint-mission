@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public interface ChannelService {
@@ -23,14 +24,14 @@ public interface ChannelService {
      * @param id 채널의 UUID
      * @return 조회된 채널 (없으면 null)
      */
-    Channel getChannel(UUID id);
+    Channel findVerifiedChannel(UUID id);
 
     /**
      * 모든 채널 목록을 반환합니다.
      *
      * @return 전체 채널 리스트
      */
-    ArrayList<Channel> getChannels();
+    List<Channel> getChannels();
 
     // 수정(Update)
     /**
@@ -49,7 +50,7 @@ public interface ChannelService {
      * @param id 삭제할 채널의 UUID
      * @return 삭제 성공 여부
      */
-    boolean deleteChannel(UUID id);
+    void deleteChannel(UUID id);
 
     // ------- 따로 추가 -------
     /**
@@ -75,6 +76,8 @@ public interface ChannelService {
      * 모든 채널 데이터를 초기화(삭제)합니다.
      */
     void clearChannels();
+
+
 
 
 }

@@ -1,12 +1,17 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.UUID;
 
-public class BaseEntity {
+public class BaseEntity implements Serializable {
 
     private UUID id;
-    private long createdAt;
+    private final long createdAt;
     private long updatedAt;
+
+    @Serial
+    private static final long serialVersionUID = 1L; // base entity's version
 
     public BaseEntity() {
         this.id = UUID.randomUUID();
@@ -22,11 +27,16 @@ public class BaseEntity {
         return createdAt;
     }
 
-    public void setUpdatedAt() {
+    public void updateTimeStamp() {
         this.updatedAt = System.currentTimeMillis();
     }
 
     public long getUpdatedAt() {
         return updatedAt;
+    }
+
+    // used only when we want to update user
+    public void setId(UUID id) {
+        this.id = id;
     }
 }
