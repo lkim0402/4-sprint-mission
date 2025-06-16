@@ -1,60 +1,67 @@
 package com.sprint.mission.discodeit.factory;
 
+import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.file.FileChannelService;
+import com.sprint.mission.discodeit.service.file.FileMessageService;
+import com.sprint.mission.discodeit.service.file.FileUserService;
 import com.sprint.mission.discodeit.service.jcf.*;
 
 
 public class ServiceFactory {
 
-    // 사용할 서비스 타입 (JCF_LIST 또는 JCF_MAP)
-    private final ServiceType type;
-
     /**
-     * 생성자: 서비스 타입을 지정합니다.
-     *
-     * @param type 사용할 구현 방식 (JCF_LIST 또는 JCF_MAP)
+     * 이 클래스는 인스턴스화될 필요가 없습니다. 모든 서비스 생성 메서드는 static으로 제공됩니다.
      */
-    public ServiceFactory(ServiceType type) {
-        this.type = type;
+    public ServiceFactory() {
     }
 
+    // MAP은 잠시 보류
     /**
      * 지정된 타입에 따라 UserService 인스턴스를 생성합니다.
      *
+     * @param type 사용할 구현 방식 (JCF_LIST 또는 JCF_MAP)
      * @return UserService 객체
      */
-
-    public UserService createUserService() {
+    public static UserService createUserService(String type, UserRepository repository) {
         return switch (type) {
-            case JCF_LIST -> new JCFListUserService();
-            case JCF_MAP -> new JCFMapUserService();
+            case "JCF" -> new JCFListUserService(repository);
+            case "File" -> new FileUserService(repository);
+            default -> null;
         };
     }
+
 
     /**
      * 지정된 타입에 따라 ChannelService 인스턴스를 생성합니다.
      *
+     * @param type 사용할 구현 방식 (JCF_LIST 또는 JCF_MAP)
      * @return ChannelService 객체
      */
-
-    public ChannelService createChannelService() {
+    public static ChannelService createChannelService(String type, ChannelRepository repository) {
         return switch (type) {
-            case JCF_LIST -> new JCFListChannelService();
-            case JCF_MAP -> new JCFMapChannelService();
+            case "JCF" -> new JCFListChannelService(repository);
+            case "File" -> new FileChannelService(repository);
+            default -> null;
         };
     }
 
     /**
      * 지정된 타입에 따라 MessageService 인스턴스를 생성합니다.
      *
+     * @param type 사용할 구현 방식 (JCF_LIST 또는 JCF_MAP)
      * @return MessageService 객체
      */
-    public MessageService createMessageService() {
+    public static MessageService createMessageService(String type, MessageRepository messageRepository, ChannelRepository channelRepository, UserRepository userRepository ) {
         return switch (type) {
-            case JCF_LIST -> new JCFListMessageService();
-            case JCF_MAP -> new JCFMapMessageService();
+            case "JCF" -> new JCFListMessageService(messageRepository, channelRepository, userRepository);
+            case "File" -> new FileMessageService(messageRepository, channelRepository, userRepository);
+            default -> null;
         };
     }
 }

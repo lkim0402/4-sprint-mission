@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public interface MessageService {
@@ -27,14 +28,14 @@ public interface MessageService {
      * @param id 메시지 UUID
      * @return 메시지 객체 (없으면 null 반환)
      */
-    Message getMessage(UUID id);
+    Message findVerifiedMessage(UUID id);
 
     /**
      * 저장된 모든 메시지를 리스트로 반환합니다.
      *
      * @return 전체 메시지 리스트
      */
-    ArrayList<Message> getMessages();
+    List<Message> getMessages();
 
     // 수정(Update)
     /**
@@ -51,9 +52,8 @@ public interface MessageService {
      * 메시지를 삭제합니다.
      *
      * @param id 삭제할 메시지의 UUID
-     * @return 삭제 성공 여부
      */
-    boolean deleteMessage(UUID id);
+    void deleteMessage(UUID id);
 
     // ------- 따로 추가 -------
 

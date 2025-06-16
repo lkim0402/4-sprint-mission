@@ -1,21 +1,19 @@
-package com.sprint.mission.discodeit.service.jcf;
-
-import com.sprint.mission.discodeit.entity.UserStatus;
+package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
-import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
-import com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.UUID;
 
-import java.util.*;
-
-public class JCFListChannelService implements ChannelService {
-
+public class BasicChannelService implements ChannelService {
     private final ChannelRepository channelRepository;
 
-    public JCFListChannelService(ChannelRepository channelRepository) {
+    public BasicChannelService(ChannelRepository channelRepository) {
         this.channelRepository = channelRepository;
     }
 
@@ -47,13 +45,11 @@ public class JCFListChannelService implements ChannelService {
         channelRepository.save(channel);
     }
 
-
     @Override
     public Channel findVerifiedChannel(UUID id) {
         return channelRepository.findVerifiedChannel(id)
                 .orElseThrow(() -> new RuntimeException("Channel not found with id: " + id));
     }
-
 
     @Override
     public Channel updateChannel(UUID id, String channelName) {
@@ -93,6 +89,7 @@ public class JCFListChannelService implements ChannelService {
      *         - user의 상태가 null인 경우
      *         - user의 상태가 WITHDRAWN(탈퇴)인 경우
      */
+
     private void isValidActiveUser(User user) {
         if (user == null || user.getUserStatus() == null || user.getUserStatus() == UserStatus.WITHDRAWN) {
             throw new NoSuchElementException("Not a valid user");

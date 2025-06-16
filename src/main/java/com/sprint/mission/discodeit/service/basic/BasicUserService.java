@@ -1,6 +1,8 @@
-package com.sprint.mission.discodeit.service.jcf;
-import com.sprint.mission.discodeit.entity.UserStatus;
+package com.sprint.mission.discodeit.service.basic;
+
+import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 
@@ -10,11 +12,10 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class JCFListUserService implements UserService {
-
+public class BasicUserService implements UserService {
     private final UserRepository userRepository;
 
-    public JCFListUserService(UserRepository userRepository) {
+    public BasicUserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -32,6 +33,7 @@ public class JCFListUserService implements UserService {
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
     }
 
+
     @Override
     public List<User> getUsersByStatus(UserStatus userStatus) {
         List<User> users = getUsers();
@@ -41,6 +43,7 @@ public class JCFListUserService implements UserService {
                 .collect(Collectors.toList());
     }
 
+    // update user 합침
     @Override
     public void updateUser(UUID id, User partialUser) {
         User user = findVerifiedUser(id);
@@ -64,7 +67,8 @@ public class JCFListUserService implements UserService {
         //partialUser updatedAt
         user.updateTimeStamp();
 
-        userRepository.save(user);    }
+        userRepository.save(user);
+    }
 
     @Override
     public void deleteUser(UUID id) {
@@ -82,4 +86,5 @@ public class JCFListUserService implements UserService {
         userRepository.saveAll(users);
 
     }
+
 }

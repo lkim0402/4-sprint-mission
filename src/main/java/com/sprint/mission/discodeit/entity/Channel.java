@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.*;
 
 public class Channel extends BaseEntity {
@@ -8,9 +10,11 @@ public class Channel extends BaseEntity {
     private String channelName;
 
     //  extra fields
-    private List<User> users;
+    private final List<User> users;
     private List<Message> messages;
 
+    @Serial
+    private static final long serialVersionUID = 1L; // channel's version
 
     public Channel(String channelName) {
         super();
@@ -25,9 +29,14 @@ public class Channel extends BaseEntity {
 
 
     // utility methods
+    private boolean containsUser(User user) {
+        return users.contains(user);
+    }
+
+
     public void addUser(User user) {
 
-        if (!users.contains(user)) {
+        if (!containsUser(user)) {
             users.add(user);
 
             // extra safe checking
@@ -39,7 +48,8 @@ public class Channel extends BaseEntity {
 
     public void deleteUser(User user) {
 
-        if (users.contains(user)) {
+        if (containsUser(user)) {
+
             users.remove(user);
             if (user.getChannels().contains(this)) {
                 user.deleteChannel(this);
