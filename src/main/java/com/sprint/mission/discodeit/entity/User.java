@@ -1,67 +1,70 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.lang.reflect.Array;
-import java.nio.channels.Channels;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.UUID;
 
-public class User extends BaseEntity {
+public class User implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private UUID id;
+    private Long createdAt;
+    private Long updatedAt;
+    //
     private String username;
-    private final List<Message> messages;
-    private final List<Channel> channels;
+    private String email;
+    private String password;
 
-    public User(String name) {
-        super();
-        this.username = name;
+    public User(String username, String email, String password) {
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now().getEpochSecond();
+        //
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
 
-        //추가
-        this.messages = new ArrayList<Message>();
-        this.channels = new ArrayList<Channel>();
+    public UUID getId() {
+        return id;
+    }
+
+    public Long getCreatedAt() {
+        return createdAt;
+    }
+
+    public Long getUpdatedAt() {
+        return updatedAt;
     }
 
     public String getUsername() {
         return username;
     }
 
-    public void updateName(String userName){
-        this.username = userName;
+    public String getEmail() {
+        return email;
     }
 
-    //유저의 Message 목록에 추가
-    public void addMessage(Message message){
-        if(!messages.contains(message)) {
-            messages.add(message);
-            message.addUser(this);
+    public String getPassword() {
+        return password;
+    }
+
+    public void update(String newUsername, String newEmail, String newPassword) {
+        boolean anyValueUpdated = false;
+        if (newUsername != null && !newUsername.equals(this.username)) {
+            this.username = newUsername;
+            anyValueUpdated = true;
         }
-    }
-
-    //유저의 Channel 목록에 추가
-    public void addChannel(Channel channel){
-        if(!channels.contains(channel)) {
-            channels.add(channel);
-            channel.addUser(this);
+        if (newEmail != null && !newEmail.equals(this.email)) {
+            this.email = newEmail;
+            anyValueUpdated = true;
         }
-    }
-
-    public void deleteChannel(Channel channel){
-        if(!channels.contains(channel)){
-            channels.remove(channel);
-            channel.deleteUser(this);
+        if (newPassword != null && !newPassword.equals(this.password)) {
+            this.password = newPassword;
+            anyValueUpdated = true;
         }
-    }
 
-    public void deleteMessage(Message message){
-        if(!messages.contains(message)) {
-            messages.remove(message);
-            message.deleteUser(this);
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now().getEpochSecond();
         }
-    }
-    public List<Channel> getChannels(){
-        return channels;
-    }
-
-    public List<Message> getMessages(){
-        return messages;
     }
 }

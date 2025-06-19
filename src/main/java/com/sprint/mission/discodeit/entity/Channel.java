@@ -1,63 +1,65 @@
 package com.sprint.mission.discodeit.entity;
-import java.util.ArrayList;
-import java.util.List;
 
-public class Channel extends BaseEntity {
-    private String channel;
-    private final List<Message> messages;
-    private final List<User> users;
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.UUID;
 
-    public Channel(String channel) {
-        super();
-        this.channel = channel;
+public class Channel implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private UUID id;
+    private Long createdAt;
+    private Long updatedAt;
+    //
+    private ChannelType type;
+    private String name;
+    private String description;
 
-        this.messages = new ArrayList<>();
-        this.users = new ArrayList<>();
+    public Channel(ChannelType type, String name, String description) {
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now().getEpochSecond();
+        //
+        this.type = type;
+        this.name = name;
+        this.description = description;
     }
 
-    public List<User> getUsers() {
-        return users;
+    public UUID getId() {
+        return id;
     }
 
-    public String getChannel() {
-        return channel;
+    public Long getCreatedAt() {
+        return createdAt;
     }
 
-    public void updateChannel(String updateChannel){
-        this.channel = updateChannel;
-        updateTimeStamp();
+    public Long getUpdatedAt() {
+        return updatedAt;
     }
 
-    //추가
-    public void addUser(User user){
-        if(!users.contains(user)) {
-            users.add(user);
-            user.addChannel(this);
+    public ChannelType getType() {
+        return type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void update(String newName, String newDescription) {
+        boolean anyValueUpdated = false;
+        if (newName != null && !newName.equals(this.name)) {
+            this.name = newName;
+            anyValueUpdated = true;
         }
-    }
-    //추가
-    public void addMessage(Message message){
-        if(!messages.contains(message)) {
-            messages.add(message);
-            message.addChannel(this);
+        if (newDescription != null && !newDescription.equals(this.description)) {
+            this.description = newDescription;
+            anyValueUpdated = true;
         }
-    }
-    public void deleteMessage(Message message){
-        if(!messages.contains(message)){
-            messages.remove(message);
-            message.deleteChannel(this);
-        }
-    }
 
-    public void deleteUser(User user){
-        if(!users.contains(user)){
-            users.remove(user);
-            user.deleteChannel(this);
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now().getEpochSecond();
         }
-    }
-
-    //추가
-    public List<Message> getMessages(){
-        return messages;
     }
 }

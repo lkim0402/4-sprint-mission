@@ -1,45 +1,63 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serializable;
+import java.time.Instant;
 import java.util.UUID;
 
-public class Message extends BaseEntity {
-    private String content;
-    private User user;
-    private Channel channel;
+public class Message implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-    public Message(String content, User user, Channel channel) {
-        super();
+    private UUID id;
+    private Long createdAt;
+    private Long updatedAt;
+    //
+    private String content;
+    //
+    private UUID channelId;
+    private UUID authorId;
+
+    public Message(String content, UUID channelId, UUID authorId) {
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now().getEpochSecond();
+        //
         this.content = content;
-        this.user = user;
-        this.channel = channel;
+        this.channelId = channelId;
+        this.authorId = authorId;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public Long getCreatedAt() {
+        return createdAt;
+    }
+
+    public Long getUpdatedAt() {
+        return updatedAt;
     }
 
     public String getContent() {
         return content;
     }
 
-
-    public void addUser(User user){
-        this.user = user;
+    public UUID getChannelId() {
+        return channelId;
     }
 
-    public void deleteUser(User user){
-        this.user = user;
+    public UUID getAuthorId() {
+        return authorId;
     }
 
-    public void addChannel(Channel channel){
-        this.channel = channel;
-    }
+    public void update(String newContent) {
+        boolean anyValueUpdated = false;
+        if (newContent != null && !newContent.equals(this.content)) {
+            this.content = newContent;
+            anyValueUpdated = true;
+        }
 
-    public void deleteChannel(Channel channel){
-        this.channel = channel;
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now().getEpochSecond();
+        }
     }
-
-    public void updateContent(String newContent){
-        this.content = newContent;
-        updateTimeStamp();
-    }
-
 }
