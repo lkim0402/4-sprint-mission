@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 import lombok.Getter;
+import lombok.Setter;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
@@ -17,11 +19,14 @@ public class UserStatus extends BaseEntity {
 
     private final UUID userId;
     private Instant lastActiveTime;
+    @Setter
+    private UserState status;
 
     public UserStatus(UUID userId) {
         super();
         this.userId = userId;
         this.lastActiveTime = Instant.now();
+        this.status = UserState.ACTIVE;
     }
 
     public enum UserState {

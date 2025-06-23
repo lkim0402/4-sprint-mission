@@ -85,6 +85,14 @@ public class FileMessageRepository implements MessageRepository {
     }
 
     @Override
+    // 확장성 고려해야 함
+    public List<Message> findByChannelId(UUID channelId) {
+        return findAll().stream().
+                filter(m -> m.getChannelId().equals(channelId))
+                .toList();
+    }
+
+    @Override
     public boolean existsById(UUID id) {
         Path path = resolvePath(id);
         return Files.exists(path);

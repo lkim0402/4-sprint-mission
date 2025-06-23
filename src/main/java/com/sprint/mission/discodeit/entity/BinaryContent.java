@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 import lombok.Getter;
+import lombok.Setter;
+
 import java.util.UUID;
 
     /**
@@ -12,8 +14,11 @@ import java.util.UUID;
 @Getter
 public class BinaryContent extends ImmutableBaseEntity {
 
-    private final UUID userId;
-    private final UUID messageId;
+    @Setter
+    private UUID userId;
+    @Setter
+    private UUID messageId;
+
     private final byte[] bytes;
     private final String fileName;
     private final String fileType;
