@@ -1,11 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
-import com.sprint.mission.discodeit.dto.ChannelService.ChannelResponseDto;
-import com.sprint.mission.discodeit.dto.ChannelService.PrivateChannelRequestDto;
-import com.sprint.mission.discodeit.dto.ChannelService.PublicChannelRequestDto;
-import com.sprint.mission.discodeit.dto.ChannelService.UpdateChannelRequestDto;
+import com.sprint.mission.discodeit.dto.ChannelService.*;
 import com.sprint.mission.discodeit.dto.UserService.ChannelResponseDtos;
 import com.sprint.mission.discodeit.entity.*;
-import com.sprint.mission.discodeit.mapper.Mapper;
+import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -21,7 +18,7 @@ public class BasicChannelService implements ChannelService {
     private final ChannelRepository channelRepository;
     private final ReadStatusRepository readStatusRepository;
     private final MessageRepository messageRepository;
-    private final Mapper mapper;
+    private final ChannelMapper channelMapper;
 
     @Override
     public Channel createPublic(PublicChannelRequestDto channelRequestDto) {
@@ -30,14 +27,14 @@ public class BasicChannelService implements ChannelService {
             throw new IllegalArgumentException("Channel name already exists");
         }
 
-        Channel channel = mapper.toPublicChannel(channelRequestDto);
+        Channel channel = channelMapper.toPublicChannel(channelRequestDto);
         return channelRepository.save(channel);
     }
 
     @Override
     public Channel createPrivate(PrivateChannelRequestDto channelRequestDto) {
         List<UUID> userIds = channelRequestDto.userIds();
-        Channel channel = mapper.toPrivateChannel(channelRequestDto);
+        Channel channel = channelMapper.toPrivateChannel(channelRequestDto);
 
         for  (UUID uuid : userIds) {
             ReadStatus readStatus = new ReadStatus(uuid, channel.getId());
@@ -68,7 +65,7 @@ public class BasicChannelService implements ChannelService {
                 .max(Comparator.naturalOrder())
                 .orElse(null);
 
-        return mapper.toChannelResponseDto(channel, userIds, latestMessageTime);
+        return channelMapper.toChannelResponseDto(channel, userIds, latestMessageTime);
     }
 
     @Override
@@ -105,16 +102,16 @@ public class BasicChannelService implements ChannelService {
                             .max(Instant::compareTo)
                             .orElse(null);
 
-                    return mapper.toChannelResponseDto(c, userIds, lastMessage);
+                    return channelMapper.toChannelResponseDto(c, userIds, lastMessage);
 
                 })
                 .toList();
 
-        return mapper.toChannelResponseDtos(channelResponseDtos);
+        return channelMapper.toChannelResponseDtos(channelResponseDtos);
     }
 
     @Override
-    public Channel update(UpdateChannelRequestDto updateChannelRequestDto) {
+    public UpdateChannelResponseDto update(UpdateChannelRequestDto updateChannelRequestDto) {
 
         if (updateChannelRequestDto.type() == ChannelType.PRIVATE) {
             throw new IllegalArgumentException("Private channel cannot be updated");
@@ -128,7 +125,9 @@ public class BasicChannelService implements ChannelService {
                 updateChannelRequestDto.name(),
                 updateChannelRequestDto.description()
         );
-        return channelRepository.save(channel);
+        return channelMapper.toUpdateChannelResponseDto(
+                channelRepository.save(channel)
+        );
     }
 
     @Override

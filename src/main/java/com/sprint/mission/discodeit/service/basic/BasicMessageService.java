@@ -1,13 +1,11 @@
 package com.sprint.mission.discodeit.service.basic;
-
-import com.sprint.mission.discodeit.dto.MessageService.MessageRequestDto;
-import com.sprint.mission.discodeit.dto.MessageService.MessageResponseDto;
-import com.sprint.mission.discodeit.dto.MessageService.MessageResponseDtos;
-import com.sprint.mission.discodeit.dto.MessageService.UpdateMessageRequestDto;
+import com.sprint.mission.discodeit.dto.ChannelService.UpdateChannelResponseDto;
+import com.sprint.mission.discodeit.dto.MessageService.*;
 import com.sprint.mission.discodeit.dto.BinaryContentService.BinaryContentRequestDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.mapper.Mapper;
+import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
+import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -28,12 +26,13 @@ public class BasicMessageService implements MessageService {
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
-    private final Mapper mapper;
+    private final BinaryContentMapper binaryContentMapper;
+    private final MessageMapper messageMapper;
 
     @Override
     public Message create(MessageRequestDto messageRequestDto) {
 
-        Message newMessage = mapper.toMessage(messageRequestDto);
+        Message newMessage = messageMapper.toMessage(messageRequestDto);
         UUID channelId = newMessage.getChannelId();
         UUID authorId = newMessage.getAuthorId();
         if (!channelRepository.existsById(newMessage.getChannelId())) {
@@ -48,7 +47,8 @@ public class BasicMessageService implements MessageService {
         // saving the binary content
         List<BinaryContentRequestDto> attachments = messageRequestDto.attachments();
         for (BinaryContentRequestDto attachment : attachments) {
-            BinaryContent binaryContent = mapper.toBinaryContent(attachment, authorId, savedMessage.getId());
+            BinaryContent binaryContent = binaryContentMapper.toBinaryContent(attachment);
+            binaryContent.setUserId(authorId);
             binaryContent.setMessageId(savedMessage.getId());
             binaryContentRepository.save(binaryContent);
         }
@@ -60,24 +60,25 @@ public class BasicMessageService implements MessageService {
         Message msg =  messageRepository.findById(messageId)
                 .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
 
-        return mapper.toMessageResponseDto(msg);
+        return messageMapper.toMessageResponseDto(msg);
     }
 
     @Override
     public MessageResponseDtos findallByChannelId(UUID channelId) {
 
         List<Message> messageList = messageRepository.findByChannelId(channelId);
-        return mapper.toMessageResponseDtos(
+        return messageMapper.toMessageResponseDtos(
                 messageList
         );
     }
 
     @Override
-    public Message update(UUID messageId, UpdateMessageRequestDto updateMessageRequestDto) {
+    public UpdateMessageResponseDto update(UUID messageId, UpdateMessageRequestDto updateMessageRequestDto) {
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
+
         message.update(updateMessageRequestDto.content());
-        return messageRepository.save(message);
+        return messageMapper.toUpdateMessageResponseDto(messageRepository.save(message));
     }
 
     @Override
