@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.dto.AuthService.UserLoginRequestDto;
 import com.sprint.mission.discodeit.dto.AuthService.UserLoginResponseDto;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.mapper.Mapper;
+import com.sprint.mission.discodeit.mapper.AuthMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.AuthService;
@@ -19,7 +19,7 @@ public class BasicAuthService implements AuthService {
 
     private final UserRepository userRepository;
     private final UserStatusRepository userStatusRepository;
-    private final Mapper mapper;
+    private final AuthMapper authMapper;
 
     @Override
     public UserLoginResponseDto login(UserLoginRequestDto userLoginRequestDto) {
@@ -36,7 +36,10 @@ public class BasicAuthService implements AuthService {
         UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
             .orElseThrow(() -> new NoSuchElementException("User Status with user id " +  user.getId() + " not found!"));
 
+        // update userStatus and save
+        userStatus.updateLastActiveTime();
+        userStatusRepository.save(userStatus);
 
-        return mapper.toUserLoginResponseDto(user, userStatus);
+        return authMapper.toUserLoginResponseDto(user, userStatus);
     }
 }

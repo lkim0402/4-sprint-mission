@@ -1,10 +1,11 @@
 package com.sprint.mission.discodeit.service.basic;
+import com.sprint.mission.discodeit.dto.UserService.UpdateUserResponseDto;
 import com.sprint.mission.discodeit.dto.UserStatusService.UpdateUserStatusDto;
 import com.sprint.mission.discodeit.dto.UserStatusService.UserStatusRequestDto;
 import com.sprint.mission.discodeit.dto.UserStatusService.UserStatusResponseDto;
 import com.sprint.mission.discodeit.dto.UserStatusService.UserStatusResponseDtos;
 import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.mapper.Mapper;
+import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserStatusService;
@@ -19,7 +20,7 @@ public class BasicUserStatusService implements UserStatusService {
 
     private final UserStatusRepository userStatusRepository;
     private final UserRepository userRepository;
-    private final Mapper mapper;
+    private final UserStatusMapper userStatusMapper;
 
     @Override
     public UserStatus create(UserStatusRequestDto userStatusRequestDto) {
@@ -32,32 +33,34 @@ public class BasicUserStatusService implements UserStatusService {
         userStatusRepository.findByUserId(userStatusRequestDto.userId())
                 .orElseThrow(() -> new IllegalArgumentException("User status already exists"));
 
-        UserStatus newUserStatus = mapper.toUserStatus(userStatusRequestDto);
+        UserStatus newUserStatus = userStatusMapper.toUserStatus(userStatusRequestDto);
         return userStatusRepository.save(newUserStatus);
     }
 
     @Override
     public UserStatusResponseDto find(UUID id) {
         return userStatusRepository.findById(id)
-                .map(mapper::toUserStatusResponseDto)
+                .map(userStatusMapper::toUserStatusResponseDto)
                 .orElseThrow(() -> new NoSuchElementException("UserStatus with id " + id + " not found"));
     }
 
     @Override
     public UserStatusResponseDtos findAll() {
-        return mapper.toUserStatusResponseDtos(userStatusRepository.findAll());
+        return userStatusMapper.toUserStatusResponseDtos(userStatusRepository.findAll());
     }
 
+    /**
+     * 사용자의 마지막 활동 시간을 현재 시간으로 갱신만 하고 별도의 응답 데이터를 반환하지 않습니다 (void).
+     */
     @Override
     // updating timestamp
-    public UserStatus update(UpdateUserStatusDto updateUserStatusDto) {
+    public void update(UpdateUserStatusDto updateUserStatusDto) {
         UserStatus userStatus = userStatusRepository.findById(updateUserStatusDto.userId())
                 .orElseThrow(() -> new NoSuchElementException(
                         "userStatus with id " + updateUserStatusDto.userId() + " not found"));
 
         userStatus.updateLastActiveTime();
-        return userStatusRepository.save(userStatus);
-
+        userStatusRepository.save(userStatus);
     }
 
     @Override

@@ -22,6 +22,7 @@ public class DiscodeitApplication {
 				new BinaryContentRequestDto(
 						null,
 						null,
+						null,
 						"이미지",
 						"PROFILE"
 				)
