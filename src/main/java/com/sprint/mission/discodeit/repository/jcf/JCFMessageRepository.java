@@ -7,34 +7,42 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import java.util.*;
 
 public class JCFMessageRepository implements MessageRepository {
+
+    /**
+     * channelMsgIndex: Channel Id를 key로 사용하여 O(1) 시간에 채널의 메세지 ID 목록을 조회합니다.
+     * Key: UUID ChannelId, Value: List<UUID> messageUUIDs
+     * 채널 아이디로 조회할때 O(n)에서 O(1) 시간 복잡도로 줄일 수 있어서 구현했습니다.
+     */
     private final Map<UUID, Message> data; // Message Id : Message
-    private final Map<UUID, List<Message>> channelIndex; // Channel Id : List<Message>
+    private final Map<UUID, List<UUID>> channelMsgIndex; // Channel Id : List<UUID>
 
     public JCFMessageRepository() {
         this.data = new HashMap<>();
-        this.channelIndex = new HashMap<>();
+        this.channelMsgIndex = new HashMap<>();
     }
 
     @Override
     public Message save(Message message) {
         this.data.put(message.getId(), message);
 
-        this.channelIndex.computeIfAbsent(
+        this.channelMsgIndex.computeIfAbsent(
                 message.getChannelId(),
                 k -> new ArrayList<>()
-        ).add(message);
+        ).add(message.getId());
 
         return message;
     }
 
     @Override
     public Optional<Message> findById(UUID id) {
+
         return Optional.ofNullable(this.data.get(id));
     }
 
     @Override
     public List<Message> findByChannelId(UUID channelId) {
-        return channelIndex.getOrDefault(channelId, Collections.emptyList());
+        List<UUID> channelMsgUUIDList = channelMsgIndex.getOrDefault(channelId, Collections.emptyList());
+        return toMessageList(channelMsgUUIDList);
     }
 
     @Override
@@ -53,13 +61,20 @@ public class JCFMessageRepository implements MessageRepository {
         Message deletedMessage = this.data.remove(messageId);
 
         if (deletedMessage != null) {
-            List<Message> channelMessageList = channelIndex.get(deletedMessage.getChannelId());
+            List<UUID> channelMessageList = channelMsgIndex.get(deletedMessage.getChannelId());
             if (channelMessageList != null) {
-                channelMessageList.remove(deletedMessage);
+                channelMessageList.remove(deletedMessage.getId());
                 if (channelMessageList.isEmpty()) {
-                    channelIndex.remove(deletedMessage.getChannelId());
+                    channelMsgIndex.remove(deletedMessage.getChannelId());
                 }
             }
         }
+    }
+
+    private List<Message> toMessageList(List<UUID> messageUUIDList) {
+        return messageUUIDList.stream()
+                .map(this::findById)
+                .flatMap(Optional::stream) // Stream<Optional<T>> -> Stream<T>
+                .toList();
     }
 }

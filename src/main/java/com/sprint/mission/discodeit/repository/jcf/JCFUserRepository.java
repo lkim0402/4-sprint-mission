@@ -8,8 +8,14 @@ import java.util.*;
 
 @Repository
 public class JCFUserRepository implements UserRepository {
+
+    /**
+     * nameIndex: username을 key로 사용하여 O(1) 시간에 User Id를 조회합니다.
+     * Key: String username, Value: UUID UserId
+     * 유저네임으로 조회할 때 O(n)에서 O(1) 시간 복잡도로 줄일 수 있어서 구현했습니다.
+     */
     private final Map<UUID, User> data; // User Id : User
-    private final Map<String, User> nameIndex; // Username : User
+    private final Map<String, UUID> nameIndex; // Username : User
 
     public JCFUserRepository() {
         this.data = new HashMap<>();
@@ -19,7 +25,7 @@ public class JCFUserRepository implements UserRepository {
     @Override
     public User save(User user) {
         this.data.put(user.getId(), user);
-        this.nameIndex.put(user.getUsername(), user);
+        this.nameIndex.put(user.getUsername(), user.getId());
         return user;
     }
 
@@ -30,7 +36,8 @@ public class JCFUserRepository implements UserRepository {
 
     @Override
     public Optional<User> findByUsername(String username) {
-        return Optional.ofNullable(nameIndex.get(username));
+        return Optional.ofNullable(nameIndex.get(username))
+                .map(this.data::get);
     }
 
     @Override
