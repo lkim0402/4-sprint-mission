@@ -6,15 +6,18 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import java.util.*;
 
 public class JCFChannelRepository implements ChannelRepository {
-    private final Map<UUID, Channel> data;
+    private final Map<UUID, Channel> data; // ChannelId: Channel
+    private final Map<String, Channel> nameIndex; // Channel name : Channel
 
     public JCFChannelRepository() {
         this.data = new HashMap<>();
+        this.nameIndex = new HashMap<>();
     }
 
     @Override
     public Channel save(Channel channel) {
         this.data.put(channel.getId(), channel);
+        this.nameIndex.put(channel.getName(), channel);
         return channel;
     }
 
@@ -25,7 +28,7 @@ public class JCFChannelRepository implements ChannelRepository {
 
     @Override
     public List<Channel> findAll() {
-        return this.data.values().stream().toList();
+        return new ArrayList<>(this.data.values());
     }
 
     @Override
@@ -34,7 +37,16 @@ public class JCFChannelRepository implements ChannelRepository {
     }
 
     @Override
-    public void deleteById(UUID id) {
-        this.data.remove(id);
+    public boolean existsByName(String channelName) {
+        return this.nameIndex.containsKey(channelName);
+    }
+
+    @Override
+    public void deleteById(UUID channelId) {
+        Channel removedChannel = this.data.remove(channelId);
+
+        if (removedChannel != null) {
+            this.nameIndex.remove(removedChannel.getName());
+        }
     }
 }
