@@ -2,12 +2,20 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
+@Repository
 public class JCFChannelRepository implements ChannelRepository {
+
+    /**
+     * nameIndex: Channel name을 key로 사용하여 O(1) 시간에 채널을 조회합니다.
+     * Key: String ChannelName, Value: UUID channelId
+     * 채널 이름으로 조회할때 O(n)에서 O(1) 시간 복잡도로 줄일 수 있어서 구현했습니다.
+     */
     private final Map<UUID, Channel> data; // ChannelId: Channel
-    private final Map<String, Channel> nameIndex; // Channel name : Channel
+    private final Map<String, UUID> nameIndex; // Channel name : Channel Id
 
     public JCFChannelRepository() {
         this.data = new HashMap<>();
@@ -17,7 +25,7 @@ public class JCFChannelRepository implements ChannelRepository {
     @Override
     public Channel save(Channel channel) {
         this.data.put(channel.getId(), channel);
-        this.nameIndex.put(channel.getName(), channel);
+        this.nameIndex.put(channel.getName(), channel.getId());
         return channel;
     }
 

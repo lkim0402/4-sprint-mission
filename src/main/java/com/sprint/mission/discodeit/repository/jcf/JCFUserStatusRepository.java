@@ -7,8 +7,13 @@ import java.util.*;
 
 @Repository
 public class JCFUserStatusRepository implements UserStatusRepository {
+    /**
+     * userIndex: userId를 키로 사용하여 O(1) 시간에 UserStatus Id를 조회합니다.
+     * Key: UUID userId, Value: UUID UserStatusId
+     * 유저 아이디로 조회할 때 O(n)에서 O(1) 시간 복잡도로 줄일 수 있어서 구현했습니다.
+     */
     private final Map<UUID, UserStatus> data; // UserStatusId : UserStatus
-    private final Map<UUID, UserStatus> userIndex; // UserId : UserStatus
+    private final Map<UUID, UUID> userIndex; // UserId : UserStatus ID
 
     public JCFUserStatusRepository() {
         this.data = new HashMap<>();
@@ -18,7 +23,7 @@ public class JCFUserStatusRepository implements UserStatusRepository {
     @Override
     public UserStatus save(UserStatus userStatus) {
         this.data.put(userStatus.getId(), userStatus);
-        this.userIndex.put(userStatus.getUserId(), userStatus);
+        this.userIndex.put(userStatus.getUserId(), userStatus.getUserId());
         return userStatus;
     }
 
@@ -29,7 +34,8 @@ public class JCFUserStatusRepository implements UserStatusRepository {
 
     @Override
     public Optional<UserStatus> findByUserId(UUID userId) {
-        return Optional.ofNullable(userIndex.get(userId));
+        return Optional.ofNullable(userIndex.get(userId))
+                .map(this.data::get);
     }
 
     @Override
