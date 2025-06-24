@@ -15,6 +15,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class BasicChannelService implements ChannelService {
+
     private final ChannelRepository channelRepository;
     private final ReadStatusRepository readStatusRepository;
     private final MessageRepository messageRepository;

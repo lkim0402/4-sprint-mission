@@ -89,11 +89,10 @@ public class BasicMessageService implements MessageService {
         }
 
         // deleting binary contents attached to the message
-        Optional<List<BinaryContent>> optionalBinaryContents = binaryContentRepository.findByMessageId(message.getId());
+        List<BinaryContent> optionalBinaryContents = binaryContentRepository.findByUserId(message.getAuthorId());
 
-        if (optionalBinaryContents.isPresent()) {
-            List<BinaryContent> binaryContents = optionalBinaryContents.get();
-            for (BinaryContent binaryContent : binaryContents) {
+        if (!optionalBinaryContents.isEmpty()) {
+            for (BinaryContent binaryContent : optionalBinaryContents) {
                 binaryContentRepository.deleteById(binaryContent.getId());
             }
         }
