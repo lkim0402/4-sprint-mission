@@ -17,6 +17,7 @@ public class UserStatusMapper {
     // Response
     public UserStatusResponseDto toUserStatusResponseDto(UserStatus userStatus) {
         return new UserStatusResponseDto(
+                userStatus.getId(),
                 userStatus.getUserId(),
                 userStatus.getLastActiveTime(),
                 userStatus.getStatus()

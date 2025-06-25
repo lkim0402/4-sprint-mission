@@ -12,6 +12,7 @@ import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -31,17 +32,26 @@ public class BasicUserStatusService implements UserStatusService {
 
         // Throw error if userstatus already exists
         userStatusRepository.findByUserId(userStatusRequestDto.userId())
-                .orElseThrow(() -> new IllegalArgumentException("User status already exists"));
+                .ifPresent(s -> {
+                    throw new IllegalArgumentException("User status already exists for user with ID: " + s.getUserId());
+                });
 
         UserStatus newUserStatus = userStatusMapper.toUserStatus(userStatusRequestDto);
         return userStatusRepository.save(newUserStatus);
     }
 
     @Override
-    public UserStatusResponseDto find(UUID id) {
-        return userStatusRepository.findById(id)
+    public UserStatusResponseDto find(UUID userStatusId) {
+        return userStatusRepository.findById(userStatusId)
                 .map(userStatusMapper::toUserStatusResponseDto)
-                .orElseThrow(() -> new NoSuchElementException("UserStatus with id " + id + " not found"));
+                .orElseThrow(() -> new NoSuchElementException("UserStatus with id " + userStatusId + " not found"));
+    }
+
+    @Override
+    public UserStatusResponseDto findByUserId(UUID userId) {
+        return userStatusRepository.findByUserId(userId)
+                .map(userStatusMapper::toUserStatusResponseDto)
+                .orElseThrow(() -> new NoSuchElementException("UserStatus with user id " + userId + " not found"));
     }
 
     @Override
@@ -55,9 +65,9 @@ public class BasicUserStatusService implements UserStatusService {
     @Override
     // updating timestamp
     public void update(UpdateUserStatusDto updateUserStatusDto) {
-        UserStatus userStatus = userStatusRepository.findById(updateUserStatusDto.userId())
+        UserStatus userStatus = userStatusRepository.findById(updateUserStatusDto.userStatusId())
                 .orElseThrow(() -> new NoSuchElementException(
-                        "userStatus with id " + updateUserStatusDto.userId() + " not found"));
+                        "userStatus with id " + updateUserStatusDto.userStatusId() + " not found"));
 
         userStatus.updateLastActiveTime();
         userStatusRepository.save(userStatus);

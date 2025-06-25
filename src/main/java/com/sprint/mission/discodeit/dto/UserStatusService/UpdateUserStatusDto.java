@@ -3,5 +3,5 @@ import com.sprint.mission.discodeit.entity.UserStatus;
 import java.util.UUID;
 
 public record UpdateUserStatusDto(
-        UUID userId
+        UUID userStatusId
 ) {}

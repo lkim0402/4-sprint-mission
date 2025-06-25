@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record UserStatusResponseDto(
+    UUID userStatusId,
     UUID userid,
     Instant lastActiveTime,
     UserStatus.UserState userState
@@ -14,6 +15,7 @@ public record UserStatusResponseDto(
     public String toString() {
         return "\n" +
                 "    UserStatusResponseDto {" + "\n" +
+                "    userStatusId   = " + this.userStatusId + ",\n" +
                 "    userid         = " + this.userid + ",\n" +
                 "    lastActiveTime = " + this.lastActiveTime + ",\n" +
                 "    userState      = " + this.userState + "\n" +
