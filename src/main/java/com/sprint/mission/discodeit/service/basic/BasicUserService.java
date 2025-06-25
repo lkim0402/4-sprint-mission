@@ -100,8 +100,17 @@ public class BasicUserService implements UserService {
             throw new NoSuchElementException("User with id " + id+ " not found");
         }
         userRepository.deleteById(id);
-        userStatusRepository.deleteById(id);
-        binaryContentRepository.deleteById(id);
+
+        // deleting in userstatus
+        UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new NoSuchElementException("UserStatus for user id " + user.getId() + " does not exist!"));
+        userStatusRepository.deleteById(userStatus.getId());
+
+        // deleting in binarycontent
+        List<BinaryContent> binaryContentList = binaryContentRepository.findByUserId(user.getId());
+        for (BinaryContent binaryContent : binaryContentList){
+            binaryContentRepository.deleteById(binaryContent.getId());
+        }
     }
 
     @Override

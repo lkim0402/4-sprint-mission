@@ -4,6 +4,8 @@ import com.sprint.mission.discodeit.dto.BinaryContentService.BinaryContentReques
 import com.sprint.mission.discodeit.dto.ChannelService.PrivateChannelRequestDto;
 import com.sprint.mission.discodeit.dto.ChannelService.PublicChannelRequestDto;
 import com.sprint.mission.discodeit.dto.ChannelService.UpdateChannelRequestDto;
+import com.sprint.mission.discodeit.dto.UserService.UpdateUserRequestDto;
+import com.sprint.mission.discodeit.dto.UserService.UpdateUserResponseDto;
 import com.sprint.mission.discodeit.dto.UserService.UserRequestDto;
 import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.service.*;
@@ -51,9 +53,9 @@ public class DiscodeitApplication {
 		userStatusService.deleteAll();
 
 		// =============================== 서비스 테스팅 ===============================
-		channelServiceTest(channelService, messageService, userService);
+//		channelServiceTest(channelService);
+        userServiceTest(userService);
 //        messageServiceTest(channelService, messageService, userService);
-//        userServiceTest(channelService, messageService, userService);
 
 
 //		 ====================== Entity 테스팅  ======================
@@ -95,8 +97,10 @@ public class DiscodeitApplication {
 	/**
 	 * ChannelService 기능을 테스트하는 메서드입니다.
 	 * 채널 생성, 조회, 수정, 삭제, 유저 입장/퇴장 등을 검증합니다.
+	 * [x] file repo 테스트 완료
+	 * [] jcf repo 테스트 완료
 	 */
-	public static void channelServiceTest(ChannelService channelService, MessageService messageService, UserService userService) {
+	public static void channelServiceTest(ChannelService channelService) {
 
 		// =================== test users ===================
 		User user1 = new User(
@@ -163,17 +167,105 @@ public class DiscodeitApplication {
 		System.out.println("See all channels of user1: "
 				+ channelService.findAllByUserId(user1.getId()));
 		channelService.delete(privateChannel);
-		System.out.println("See all channels of user1 (after deletion)"
+		System.out.println("See all channels of user1 (after deletion):"
 				+ channelService.findAllByUserId(user1.getId()));
-//
-//        // 삭제를 한 후 read, update, delete 진행할때 -> throws Error
-//        System.out.println("Read study channel name (deleted): "
-//                + channelService.getChannel(studyChannel.getId()));
-//        System.out.println("Update study channel name (deleted): "
-//                + channelService.updateChannel(studyChannel.getId(), "study-channel-edited"));
-//
-//        channelService.deleteChannel(studyChannel.getId());
-//        System.out.println("Delete channel (deleted): " + channelService.getChannels());
+		channelService.deleteAll(); // deleting both public and private
+		System.out.println("\n[Delete] Delete ALL public channels: "
+				+ channelService.findAllPublicChannels());
+
+
+		// 삭제를 한 후 read, update, delete 진행할때 에러 던짐
+//        System.out.println("Read study channel name (deleted): " + channelService.find(studyChannel.getId()));
+//        System.out.println("Update study channel name (deleted): " + channelService.update(updateChannelRequestDto));
+//        channelService.delete(studyChannel);
+//        System.out.println("Delete channel (deleted): " + channelService.findAllPublicChannels());
+	}
+
+	/**
+	 * UserService 기능을 테스트하는 메서드입니다.
+	 * 유저 생성, 조회, 수정, 삭제 등의 기능을 검증합니다.
+	 * [x] file repo 테스트 완료
+	 * [] jcf repo 테스트 완료
+	 */
+	public static void userServiceTest(UserService userService) {
+
+		// =================== 등록 + 조회 ===================
+		System.out.println("\n[CREATE] Users created:");
+		UserRequestDto userRequestDto1 = new UserRequestDto(
+				"codeit",
+				"codeit@gmail.com",
+				"q1w2e3",
+				new BinaryContentRequestDto(
+						null,
+						null,
+						null,
+						null,
+						null
+				)
+		);
+		UserRequestDto userRequestDto2 = new UserRequestDto(
+				"woody",
+				"woody@gmail.com",
+				"w2e3r4",
+				new BinaryContentRequestDto(
+						null,
+						null,
+						null,
+						null,
+						null
+				)
+		);
+		User newUser1 = userService.create(userRequestDto1);
+		User newUser2 = userService.create(userRequestDto2);
+		System.out.println("Find one specific user by Id (userRequestDto1): " + userService.find(newUser1.getId()));
+		System.out.println("Find one specific user by Id (userRequestDto2): " + userService.find(newUser2.getId()));
+		System.out.println("See all users: " + userService.findAll());
+
+
+		// =================== 수정 ===================
+		// 수정된 데이터 조회
+		System.out.println("\n[Update] Update individual user (userRequestDto1):");
+		System.out.println("Find newUser1: "
+				+ userService.find(newUser1.getId()));
+		UpdateUserRequestDto updateUserRequestDto = new UpdateUserRequestDto(
+				newUser1.getId(),
+				"codeit-changed-username",
+				"changed-name!",
+				null,
+				UUID.randomUUID()
+		);
+		System.out.println("Read updated newUser2: "
+				+ userService.update(updateUserRequestDto));
+
+		// =================== 삭제 ===================
+		// 조회를 통해 삭제되었는지 확인
+		System.out.println("\n[Delete] Delete individual user (newUser2):");
+		System.out.println("See all users before deletion: "
+				+ userService.findAll());
+		userService.delete(newUser2);
+		System.out.println("See all users after deletion (newUser2): "
+				+ userService.findAll());
+		System.out.println("\n[Delete] Delete ALL users (clear):");
+		userService.deleteAll();
+		System.out.println("See all users: "
+				+ userService.findAll());
+
+//		 삭제를 한 후 read, update, delete 진행할때 에러 던짐
+//        System.out.println("Read newUser1 (deleted): "
+//                + userService.find(newUser1.getId()));
+//		UpdateUserRequestDto updateUserRequestDtoTest = new UpdateUserRequestDto(
+//				newUser1.getId(),
+//				"codeit-changed-username-after-deletion",
+//				"changed-name!",
+//				null,
+//				UUID.randomUUID()
+//		);
+//        System.out.println("Update test1 username (deleted): "
+//                + userService.update(updateUserRequestDtoTest));
+//        userService.delete(newUser1);
+//        System.out.println("Delete User (deleted): ");
+//        userService.findAll();
+
 	}
 
 	/**
@@ -230,65 +322,7 @@ public class DiscodeitApplication {
 
 	}
 
-	/**
-	 * UserService 기능을 테스트하는 메서드입니다.
-	 * 유저 생성, 조회, 수정, 삭제 등의 기능을 검증합니다.
-	 */
-	public static void userServiceTest(ChannelService channelService, MessageService messageService, UserService userService) {
 
-//		//등록
-//		System.out.println("\n[CREATE] Users created:");
-//		User newUser1 = userService.createUser("newUser1", "test@gmail.com", "pw1");
-//		User newUser2 = userService.createUser("newUser2", "test2@gmail.com", "pw2");
-//
-//		System.out.println("See all users: " + userService.getUsers());
-//
-//		System.out.println("See all users2: " + userService.getUsers());
-//
-//
-//		// 조회(단건, 다건)
-//		System.out.println("\n[DEBUG] About to search for ID: " + newUser1.getId());
-//		System.out.println("\n[READ] Read one user (newUser1):");
-//		System.out.println("\n[DEBUG] About to search for ID (again): " + newUser1.getId());
-//		System.out.println(userService.findVerifiedUser(newUser1.getId()));
-//		System.out.println("\n[READ] Read all users:");
-//		System.out.println("See all users: " + userService.getUsers());
-//
-//		// 수정
-//		// 수정된 데이터 조회
-//		System.out.println("\n[Update] Update (newUser2):");
-//		System.out.println("Read newUser2: "
-//				+ userService.findVerifiedUser(newUser2.getId()));
-//		User userInfo = new User(null, "testchanged@gmail.com", "CHANGED PASSWORD!!");
-//		userService.updateUser(newUser2.getId(), userInfo);
-//		System.out.println("Read updated newUser2 (new email and pw): " + newUser2);
-//
-//		// 삭제
-//		// 조회를 통해 삭제되었는지 확인
-//		System.out.println("\n[Delete] Delete individual user (newUser2):");
-//		System.out.println("See all users before deletion: "
-//				+ userService.getUsers());
-//		userService.deleteUser(newUser2.getId());
-//		System.out.println("See all users after deletion (newUser2): "
-//				+ userService.getUsers());
-//		System.out.println("Check deleted user status/info (newUser2): "
-//				+ newUser2);
-//		System.out.println("\n[Delete] Delete all users (clear):");
-//		userService.clearUsers();
-//		System.out.println("See all users: "
-//				+ userService.getUsers());
-
-		// 삭제를 한 후 read, update, delete 진행할때 -> throws Error
-//        System.out.println("Read newUser1 (deleted): "
-//                + userService.getUser(newUser1.getId()));
-//        User userInfoTest = new User(null, "CHANGED EMAIL AGAIN!!", "CHANGED PASSWORD AGAIN!!");
-//        System.out.println("Update test1 username (deleted): "
-//                + userService.updateUser(newUser1.getId(), userInfoTest));
-//        userService.deleteUser(newUser1.getId());
-//        System.out.println("Delete channel (deleted): ");
-//        userService.getUsers();
-
-	}
 
 	/**
 	 * Entity 클래스들(User, Channel, Message)의 기본 동작을 테스트하는 메서드입니다.

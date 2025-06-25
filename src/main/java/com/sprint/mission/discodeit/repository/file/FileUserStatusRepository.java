@@ -1,5 +1,4 @@
 package com.sprint.mission.discodeit.repository.file;
-import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import org.springframework.context.annotation.Primary;
@@ -20,7 +19,8 @@ public class FileUserStatusRepository implements UserStatusRepository {
     private final String EXTENSION = ".ser";
 
     public FileUserStatusRepository() {
-        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), "file-data-map", ReadStatus.class.getSimpleName());
+        this.DIRECTORY = Paths.get(System.getProperty("user.dir"),
+                "file-data-map", UserStatus.class.getSimpleName());
         if (Files.notExists(DIRECTORY)) {
             try {
                 Files.createDirectories(DIRECTORY);
@@ -37,13 +37,15 @@ public class FileUserStatusRepository implements UserStatusRepository {
     @Override
     public UserStatus save(UserStatus userStatus) {
         Path path = resolvePath(userStatus.getId());
-        try {
+        try (
             FileOutputStream fos = new FileOutputStream(path.toFile());
             ObjectOutputStream oos = new ObjectOutputStream(fos);
+        ) {
             oos.writeObject(userStatus);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
         return userStatus;
     }
 
@@ -51,9 +53,10 @@ public class FileUserStatusRepository implements UserStatusRepository {
     public Optional<UserStatus> findById(UUID id) {
         UserStatus userStatusNullable = null;
         Path path = resolvePath(id);
-        try {
-            FileInputStream fis = new FileInputStream(path.toFile());
-            ObjectInputStream ois = new ObjectInputStream(fis);
+        try (
+                FileInputStream fis = new FileInputStream(path.toFile());
+                ObjectInputStream ois = new ObjectInputStream(fis);
+        ){
             userStatusNullable = (UserStatus) ois.readObject();
         } catch (ClassNotFoundException | IOException e) {
             throw new RuntimeException(e);
@@ -92,6 +95,8 @@ public class FileUserStatusRepository implements UserStatusRepository {
         Path path = resolvePath(id);
         try {
             Files.delete(path);
+//            Files.deleteIfExists(path);
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
