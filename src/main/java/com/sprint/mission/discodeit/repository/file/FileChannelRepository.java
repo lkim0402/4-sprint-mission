@@ -68,16 +68,7 @@ public class FileChannelRepository implements ChannelRepository {
         try {
             return Files.list(DIRECTORY)
                     .filter(path -> path.toString().endsWith(EXTENSION))
-                    .map(path -> {
-                        try (
-                                FileInputStream fis = new FileInputStream(path.toFile());
-                                ObjectInputStream ois = new ObjectInputStream(fis)
-                        ) {
-                            return (Channel) ois.readObject();
-                        } catch (IOException | ClassNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
+                    .map(FileChannelRepository::getChannel)
                     .toList();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -95,20 +86,22 @@ public class FileChannelRepository implements ChannelRepository {
         try {
             return Files.list(DIRECTORY)
                     .filter(path -> path.toString().endsWith(EXTENSION))
-                    .map(path -> {
-                        try (
-                                FileInputStream fis = new FileInputStream(path.toFile());
-                                ObjectInputStream ois = new ObjectInputStream(fis)
-                        ) {
-                            return (Channel) ois.readObject();
-                        } catch (IOException | ClassNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
+                    .map(FileChannelRepository::getChannel)
                     .anyMatch(c -> c.getName().equals(channelName));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }    }
+
+    private static Channel getChannel(Path path) {
+        try (
+                FileInputStream fis = new FileInputStream(path.toFile());
+                ObjectInputStream ois = new ObjectInputStream(fis)
+        ) {
+            return (Channel) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     public void deleteById(UUID id) {

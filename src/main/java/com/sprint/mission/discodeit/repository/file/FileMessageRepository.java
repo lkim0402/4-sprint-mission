@@ -68,21 +68,14 @@ public class FileMessageRepository implements MessageRepository {
             return Files.list(DIRECTORY)
                     .filter(path -> path.toString().endsWith(EXTENSION))
                     // convert each object in path
-                    .map(path -> {
-                        try (
-                                FileInputStream fis = new FileInputStream(path.toFile());
-                                ObjectInputStream ois = new ObjectInputStream(fis)
-                        ) {
-                            return (Message) ois.readObject();
-                        } catch (IOException | ClassNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
+                    .map(FileMessageRepository::getMessage)
                     .toList();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
+
+
 
     @Override
     public List<Message> findByChannelId(UUID channelId) {
@@ -90,16 +83,7 @@ public class FileMessageRepository implements MessageRepository {
             return Files.list(DIRECTORY)
                     .filter(path -> path.toString().endsWith(EXTENSION))
                     // convert each object in path
-                    .map(path -> {
-                        try (
-                                FileInputStream fis = new FileInputStream(path.toFile());
-                                ObjectInputStream ois = new ObjectInputStream(fis)
-                        ) {
-                            return (Message) ois.readObject();
-                        } catch (IOException | ClassNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
+                    .map(FileMessageRepository::getMessage)
                     .filter(message -> message.getChannelId().equals(channelId))
                     .toList();
         } catch (IOException e) {
@@ -119,6 +103,17 @@ public class FileMessageRepository implements MessageRepository {
         try {
             Files.delete(path);
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static Message getMessage(Path path) {
+        try (
+                FileInputStream fis = new FileInputStream(path.toFile());
+                ObjectInputStream ois = new ObjectInputStream(fis)
+        ) {
+            return (Message) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
