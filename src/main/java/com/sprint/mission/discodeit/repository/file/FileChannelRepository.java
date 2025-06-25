@@ -91,6 +91,26 @@ public class FileChannelRepository implements ChannelRepository {
     }
 
     @Override
+    public boolean existsByName(String channelName) {
+        try {
+            return Files.list(DIRECTORY)
+                    .filter(path -> path.toString().endsWith(EXTENSION))
+                    .map(path -> {
+                        try (
+                                FileInputStream fis = new FileInputStream(path.toFile());
+                                ObjectInputStream ois = new ObjectInputStream(fis)
+                        ) {
+                            return (Channel) ois.readObject();
+                        } catch (IOException | ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .anyMatch(c -> c.getName().equals(channelName));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }    }
+
+    @Override
     public void deleteById(UUID id) {
         Path path = resolvePath(id);
         try {
