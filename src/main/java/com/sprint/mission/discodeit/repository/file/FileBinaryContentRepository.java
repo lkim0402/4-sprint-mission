@@ -71,16 +71,7 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
             return Files.list(DIRECTORY)
                 .filter(path -> path.toString().endsWith(EXTENSION))
                 // convert each object in path
-                .map(path -> {
-                    try (
-                        FileInputStream fis = new FileInputStream(path.toFile());
-                        ObjectInputStream ois = new ObjectInputStream(fis);
-                    ) {
-                        return (BinaryContent) ois.readObject();
-                    } catch (IOException | ClassNotFoundException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
+                .map(FileBinaryContentRepository::getBinaryContent)
                 .filter(b -> b.getUserId().equals(userId))
                 .toList();
         } catch (IOException e) {
@@ -93,37 +84,19 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
         try {
             return Files.list(DIRECTORY)
                 .filter(p -> p.toString().endsWith(EXTENSION))
-                .map(p -> {
-                    try (
-                        FileInputStream fis = new FileInputStream(p.toFile());
-                        ObjectInputStream ois = new ObjectInputStream(fis);
-                    ) {
-                        return (BinaryContent) ois.readObject();
-                    } catch (IOException | ClassNotFoundException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
+                .map(FileBinaryContentRepository::getBinaryContent)
                 .toList();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
+    
     @Override
     public List<BinaryContent> findAllByIdIn(List<UUID> binaryContentIds) {
         try {
             return Files.list(DIRECTORY)
                     .filter(p -> p.toString().endsWith(EXTENSION))
-                    .map(p -> {
-                        try (
-                                FileInputStream fis = new FileInputStream(p.toFile());
-                                ObjectInputStream ois = new ObjectInputStream(fis);
-                        ) {
-                            return (BinaryContent) ois.readObject();
-                        } catch (IOException | ClassNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
+                    .map(FileBinaryContentRepository::getBinaryContent)
                     .filter(b ->  binaryContentIds.contains(b.getId()))
                     .toList();
         } catch (IOException e) {
@@ -143,6 +116,17 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
         try {
             Files.delete(path);
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static BinaryContent getBinaryContent(Path p) {
+        try (
+                FileInputStream fis = new FileInputStream(p.toFile());
+                ObjectInputStream ois = new ObjectInputStream(fis);
+        ) {
+            return (BinaryContent) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }

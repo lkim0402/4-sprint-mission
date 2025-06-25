@@ -69,23 +69,15 @@ public class FileUserStatusRepository implements UserStatusRepository {
     @Override
     public List<UserStatus> findAll() {
         try {
+            // mapping each file to ois.readObject()
             return Files.list(DIRECTORY) // get all the files in DIRECTORY as a list
                     .filter(path -> path.toString().endsWith(EXTENSION))
-                    .map(path -> {
-                        // mapping each file to ois.readObject()
-                        try (
-                            FileInputStream fis = new FileInputStream(path.toFile());
-                            ObjectInputStream ois = new ObjectInputStream(fis)
-                        ) {
-                            return (UserStatus) ois.readObject();
-                        } catch (IOException | ClassNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }).toList();
+                    .map(FileUserStatusRepository::getUserStatus).toList();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
+
 
     @Override
     public boolean existsById(UUID id) {
@@ -99,6 +91,17 @@ public class FileUserStatusRepository implements UserStatusRepository {
         try {
             Files.delete(path);
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static UserStatus getUserStatus(Path path) {
+        try (
+                FileInputStream fis = new FileInputStream(path.toFile());
+                ObjectInputStream ois = new ObjectInputStream(fis)
+        ) {
+            return (UserStatus) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }

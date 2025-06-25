@@ -65,19 +65,10 @@ public class FileUserRepository implements UserRepository {
     @Override
     public Optional<User> findByUsername(String username) {
         try {
+            // mapping each file to ois.readObject()
             return Files.list(DIRECTORY)// get all the files in DIRECTORY as a list
                     .filter(path -> path.toString().endsWith(EXTENSION))
-                    .map(path -> {
-                        // mapping each file to ois.readObject()
-                        try (
-                                FileInputStream fis = new FileInputStream(path.toFile());
-                                ObjectInputStream ois = new ObjectInputStream(fis)
-                        ) {
-                            return (User) ois.readObject();
-                        } catch (IOException | ClassNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
+                    .map(FileUserRepository::getUser)
                     .filter(user -> user.getUsername().equals(username))
                     .findFirst();
         } catch (IOException e) {
@@ -88,19 +79,10 @@ public class FileUserRepository implements UserRepository {
     @Override
     public List<User> findAll() {
         try {
+            // mapping each file to ois.readObject()
             return Files.list(DIRECTORY)// get all the files in DIRECTORY as a list
                     .filter(path -> path.toString().endsWith(EXTENSION))
-                    .map(path -> {
-                        // mapping each file to ois.readObject()
-                        try (
-                            FileInputStream fis = new FileInputStream(path.toFile());
-                            ObjectInputStream ois = new ObjectInputStream(fis)
-                        ) {
-                            return (User) ois.readObject();
-                        } catch (IOException | ClassNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
+                    .map(FileUserRepository::getUser)
                     .toList();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -119,6 +101,17 @@ public class FileUserRepository implements UserRepository {
         try {
             Files.delete(path);
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static User getUser(Path path) {
+        try (
+                FileInputStream fis = new FileInputStream(path.toFile());
+                ObjectInputStream ois = new ObjectInputStream(fis)
+        ) {
+            return (User) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }

@@ -70,16 +70,8 @@ public class FileReadStatusRepository implements ReadStatusRepository {
             return Files.list(DIRECTORY)
                     .filter(path -> path.toString().endsWith(EXTENSION))
                     // convert each object in path
-                    .map(path -> {
-                        try (
-                            FileInputStream fis = new FileInputStream(path.toFile());
-                            ObjectInputStream ois = new ObjectInputStream(fis);
-                        ) {
-                            return (ReadStatus) ois.readObject();
-                        } catch (IOException | ClassNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
+                    .map(FileReadStatusRepository::getReadStatus
+                    )
                     .filter(r -> r.getChannelId().equals(channelId))
                     .toList();
         } catch (IOException e){
@@ -93,16 +85,7 @@ public class FileReadStatusRepository implements ReadStatusRepository {
             return Files.list(DIRECTORY)
                     .filter(path -> path.toString().endsWith(EXTENSION))
                     // convert each object in path
-                    .map(path -> {
-                        try (
-                            FileInputStream fis = new FileInputStream(path.toFile());
-                            ObjectInputStream ois = new ObjectInputStream(fis);
-                        ) {
-                            return (ReadStatus) ois.readObject();
-                        } catch (IOException | ClassNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
+                    .map(FileReadStatusRepository::getReadStatus)
                     .filter(readStatus -> readStatus.getUserId().equals(userId))
                     .toList();
         } catch (IOException e) {
@@ -117,16 +100,7 @@ public class FileReadStatusRepository implements ReadStatusRepository {
             return Files.list(DIRECTORY)
                     .filter(path -> path.toString().endsWith(".ser"))
                     // convert each object in path
-                    .map(path -> {
-                        try (
-                            FileInputStream fis = new FileInputStream(path.toFile());
-                            ObjectInputStream ois = new ObjectInputStream(fis);
-                        ) {
-                            return (ReadStatus) ois.readObject();
-                        } catch (IOException | ClassNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
+                    .map(FileReadStatusRepository::getReadStatus)
                     .filter(r -> r.getUserId().equals(userId) && r.getChannelId().equals(channelId))
                     .findFirst();
         } catch (IOException e) {
@@ -140,16 +114,7 @@ public class FileReadStatusRepository implements ReadStatusRepository {
             return Files.list(DIRECTORY)
                     .filter(path -> path.toString().endsWith(".ser"))
                     // convert each object in path
-                    .map(path -> {
-                        try (
-                                FileInputStream fis = new FileInputStream(path.toFile());
-                                ObjectInputStream ois = new ObjectInputStream(fis);
-                        ) {
-                            return (ReadStatus) ois.readObject();
-                        } catch (IOException | ClassNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
+                    .map(FileReadStatusRepository::getReadStatus)
                     .toList();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -168,6 +133,17 @@ public class FileReadStatusRepository implements ReadStatusRepository {
         try {
             Files.delete(path);
         } catch (IOException e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static ReadStatus getReadStatus(Path path) {
+        try (
+                FileInputStream fis = new FileInputStream(path.toFile());
+                ObjectInputStream ois = new ObjectInputStream(fis);
+        ) {
+            return (ReadStatus) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
