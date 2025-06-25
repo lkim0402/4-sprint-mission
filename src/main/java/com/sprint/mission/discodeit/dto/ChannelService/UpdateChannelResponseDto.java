@@ -9,4 +9,14 @@ public record UpdateChannelResponseDto(
         String name,
         String description
 ) {
+    @Override
+    public String toString() {
+        return "\n" +
+                "    UpdateChannelResponseDto {" + "\n" +
+                "    channelId         = " + this.channelId + ",\n" +
+                "    channelType       = " + this.channelType + ",\n" +
+                "    name              = " + this.name + ",\n" +
+                "    description       = " + this.description + ",\n" +
+                "  }";
+    }
 }

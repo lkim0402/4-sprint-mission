@@ -70,4 +70,9 @@ public class BasicUserStatusService implements UserStatusService {
         }
         userStatusRepository.deleteById(id);
     }
+
+    @Override
+    public void deleteAll() {
+        userStatusRepository.deleteAll();
+    }
 }

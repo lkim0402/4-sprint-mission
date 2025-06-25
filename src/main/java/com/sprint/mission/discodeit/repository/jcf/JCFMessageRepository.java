@@ -71,6 +71,13 @@ public class JCFMessageRepository implements MessageRepository {
         }
     }
 
+    @Override
+    public void deleteAll() {
+        this.data.clear();
+        this.channelMsgIndex.clear();
+    }
+
+
     private List<Message> toMessageList(List<UUID> messageUUIDList) {
         return messageUUIDList.stream()
                 .map(this::findById)

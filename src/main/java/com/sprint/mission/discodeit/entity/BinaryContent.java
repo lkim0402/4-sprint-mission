@@ -31,5 +31,16 @@ public class BinaryContent extends ImmutableBaseEntity {
         this.fileName = fileName;
         this.fileType = fileType;
     }
+
+    @Override
+    public String toString() {
+        return "\n" +
+                "BinaryContent {" + "\n" +
+                "  UserId    = " + this.userId + ",\n" +
+                "  fileName  = '" + this.fileName + "',\n" +
+                "  fileType  = " + this.fileType + "\n" +
+                "}";
+    }
+
 }
 

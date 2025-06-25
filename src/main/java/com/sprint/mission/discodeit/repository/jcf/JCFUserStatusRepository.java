@@ -56,4 +56,10 @@ public class JCFUserStatusRepository implements UserStatusRepository {
             this.userIndex.remove(deletedUserStatus.getUserId());
         }
     }
+
+    @Override
+    public void deleteAll() {
+        this.data.clear();
+        this.userIndex.clear();
+    }
 }

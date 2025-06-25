@@ -59,4 +59,10 @@ public class JCFUserRepository implements UserRepository {
             this.nameIndex.remove(user.getUsername());
         }
     }
+
+    @Override
+    public void deleteAll() {
+        this.data.clear();
+        this.nameIndex.clear();
+    }
 }

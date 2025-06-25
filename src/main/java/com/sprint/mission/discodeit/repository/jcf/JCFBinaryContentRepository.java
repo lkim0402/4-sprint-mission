@@ -80,6 +80,12 @@ public class JCFBinaryContentRepository implements BinaryContentRepository {
         }
     }
 
+    @Override
+    public void deleteAll() {
+        this.data.clear();
+        this.userIndex.clear();
+    }
+
     private List<BinaryContent> toBinaryContentList(List<UUID> binaryContentUUIDList) {
         return binaryContentUUIDList.stream()
                 .map(this::findById)

@@ -38,4 +38,14 @@ public class Channel extends BaseEntity {
             this.updateTimeStamp();
         }
     }
+
+    @Override
+    public String toString() {
+        return "\n" +
+                "Channel {" + "\n" +
+                "  Name = '" + this.name + "',\n" +
+                "  ID   = " + this.getId() + ",\n" +
+                "  type = " + this.type + "\n" +
+                "}";
+    }
 }

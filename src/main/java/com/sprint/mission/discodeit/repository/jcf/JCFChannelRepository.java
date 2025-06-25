@@ -57,4 +57,10 @@ public class JCFChannelRepository implements ChannelRepository {
             this.nameIndex.remove(removedChannel.getName());
         }
     }
+
+    @Override
+    public void deleteAll() {
+        this.data.clear();
+        this.nameIndex.clear();
+    }
 }

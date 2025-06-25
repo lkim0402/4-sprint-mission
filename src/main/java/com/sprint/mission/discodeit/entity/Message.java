@@ -34,4 +34,15 @@ public class Message extends BaseEntity {
             this.updateTimeStamp();
         }
     }
+
+    @Override
+    public String toString() {
+        return "\n" +
+                "Message {" + "\n" +
+                "  ID         = " + this.getId() + ",\n" +
+                "  UserId     = " + this.authorId + ",\n" +
+                "  ChannelId  = " + this.channelId + "\n" +
+                "  Content    = '" + content + "',\n" +
+                "}";
+    }
 }

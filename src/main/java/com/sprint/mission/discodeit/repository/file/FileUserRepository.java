@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.repository.file;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Primary
 @Repository
 public class FileUserRepository implements UserRepository {
     private final Path DIRECTORY;
@@ -102,6 +104,23 @@ public class FileUserRepository implements UserRepository {
             Files.delete(path);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void deleteAll() {
+        try {
+            Files.list(DIRECTORY)
+                    .filter(path -> path.toString().endsWith(EXTENSION))
+                    .forEach(path -> {
+                        try {
+                            Files.delete(path);
+                        } catch (IOException e) {
+                            throw new UncheckedIOException(e);
+                        }
+                    });
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to list directory for deletion: " + DIRECTORY, e);
         }
     }
 

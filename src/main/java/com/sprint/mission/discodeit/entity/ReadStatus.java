@@ -26,4 +26,15 @@ public class ReadStatus extends BaseEntity{
         this.lastReadAt = Instant.now();
         this.updateTimeStamp();
     }
+
+    @Override
+    public String toString() {
+        return "\n" +
+                "ReadStatus {" + "\n" +
+                "  ID         = " + this.getId() + ",\n" +
+                "  UserId     = " + this.userId  + ",\n" +
+                "  ChannelId  = " + this.channelId + ",\n" +
+                "  lastReadAt = " + this.lastReadAt + "\n" +
+                "}";
+    }
 }

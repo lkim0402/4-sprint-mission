@@ -47,4 +47,15 @@ public class UserStatus extends BaseEntity {
         this.updateTimeStamp();
     }
 
+        @Override
+        public String toString() {
+            return "\n" +
+                    "UserStatus {" + "\n" +
+                    "  ID             = " + this.getId() + ",\n" +
+                    "  UserId         = " + this.userId  + ",\n" +
+                    "  Status         = " + this.status + ",\n" +
+                    "  lastActiveTime = " + this.lastActiveTime + "\n" +
+                    "}";
+        }
+
 }
