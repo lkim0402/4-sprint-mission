@@ -1,5 +1,4 @@
 package com.sprint.mission.discodeit.repository.file;
-
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import org.springframework.stereotype.Repository;
@@ -65,19 +64,37 @@ public class FileUserRepository implements UserRepository {
 
     @Override
     public Optional<User> findByUsername(String username) {
-        User userNullable = null;
-        // TO DO LATER
+        try {
+            return Files.list(DIRECTORY)// get all the files in DIRECTORY as a list
+                    .filter(path -> path.toString().endsWith(EXTENSION))
+                    .map(path -> {
+                        // mapping each file to ois.readObject()
+                        try (
+                                FileInputStream fis = new FileInputStream(path.toFile());
+                                ObjectInputStream ois = new ObjectInputStream(fis)
+                        ) {
+                            return (User) ois.readObject();
+                        } catch (IOException | ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .filter(user -> user.getUsername().equals(username))
+                    .findFirst();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public List<User> findAll() {
         try {
-            return Files.list(DIRECTORY)
+            return Files.list(DIRECTORY)// get all the files in DIRECTORY as a list
                     .filter(path -> path.toString().endsWith(EXTENSION))
                     .map(path -> {
+                        // mapping each file to ois.readObject()
                         try (
-                                FileInputStream fis = new FileInputStream(path.toFile());
-                                ObjectInputStream ois = new ObjectInputStream(fis)
+                            FileInputStream fis = new FileInputStream(path.toFile());
+                            ObjectInputStream ois = new ObjectInputStream(fis)
                         ) {
                             return (User) ois.readObject();
                         } catch (IOException | ClassNotFoundException e) {

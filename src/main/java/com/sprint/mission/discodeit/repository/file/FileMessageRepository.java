@@ -1,5 +1,4 @@
 package com.sprint.mission.discodeit.repository.file;
-
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import org.springframework.stereotype.Repository;
@@ -68,6 +67,7 @@ public class FileMessageRepository implements MessageRepository {
         try {
             return Files.list(DIRECTORY)
                     .filter(path -> path.toString().endsWith(EXTENSION))
+                    // convert each object in path
                     .map(path -> {
                         try (
                                 FileInputStream fis = new FileInputStream(path.toFile());
@@ -85,11 +85,26 @@ public class FileMessageRepository implements MessageRepository {
     }
 
     @Override
-    // 확장성 고려해야 함
     public List<Message> findByChannelId(UUID channelId) {
-        return findAll().stream().
-                filter(m -> m.getChannelId().equals(channelId))
-                .toList();
+        try {
+            return Files.list(DIRECTORY)
+                    .filter(path -> path.toString().endsWith(EXTENSION))
+                    // convert each object in path
+                    .map(path -> {
+                        try (
+                                FileInputStream fis = new FileInputStream(path.toFile());
+                                ObjectInputStream ois = new ObjectInputStream(fis)
+                        ) {
+                            return (Message) ois.readObject();
+                        } catch (IOException | ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .filter(message -> message.getChannelId().equals(channelId))
+                    .toList();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
