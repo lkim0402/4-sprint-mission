@@ -50,4 +50,15 @@ public class User extends BaseEntity {
             this.updateTimeStamp();
         }
     }
+
+    @Override
+    public String toString() {
+        return "\n" +
+                "User {" + "\n" +
+                "  ID        = " + this.getId() + ",\n" +
+                "  username  = " + this.username + ",\n" +
+                "  email     = " + this.email + ",\n" +
+                "  updatedAt = " + this.getUpdatedAt() + "\n" +
+                "}";
+    }
 }

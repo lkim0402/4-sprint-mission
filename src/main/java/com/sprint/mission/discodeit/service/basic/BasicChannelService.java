@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.dto.ChannelService.*;
-import com.sprint.mission.discodeit.dto.UserService.ChannelResponseDtos;
+import com.sprint.mission.discodeit.dto.ChannelService.ChannelResponseDtos;
 import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -112,6 +112,19 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
+    public ChannelResponseDtos findAllPublicChannels() {
+        return channelMapper.toChannelResponseDtos(channelRepository.findAll()
+                .stream()
+                .filter(c -> c.getType() == ChannelType.PUBLIC)
+                .map(c -> channelMapper.toChannelResponseDto(c, null, messageRepository.findByChannelId(c.getId())
+                        .stream()
+                        .map(BaseEntity::getCreatedAt)
+                        .max(Instant::compareTo)
+                        .orElse(null)))
+                .toList()
+        );
+    }
+    @Override
     public UpdateChannelResponseDto update(UpdateChannelRequestDto updateChannelRequestDto) {
 
         if (updateChannelRequestDto.type() == ChannelType.PRIVATE) {
@@ -150,5 +163,10 @@ public class BasicChannelService implements ChannelService {
         for (ReadStatus readStatus : readStatusList) {
             readStatusRepository.deleteById(readStatus.getId());
         }
+    }
+
+    @Override
+    public void deleteAll() {
+        channelRepository.deleteAll();
     }
 }

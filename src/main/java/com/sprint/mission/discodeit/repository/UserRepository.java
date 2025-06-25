@@ -13,4 +13,5 @@ public interface UserRepository {
     List<User> findAll();
     boolean existsById(UUID id);
     void deleteById(UUID id);
+    void deleteAll(); // 테스팅
 }

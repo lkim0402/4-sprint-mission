@@ -12,4 +12,5 @@ public interface UserService {
     UserResponseDtos findAll();
     UpdateUserResponseDto update(UpdateUserRequestDto updateUserRequestDto);
     void delete(User user);
+    void deleteAll();
 }

@@ -10,4 +10,5 @@ public interface ReadStatusService {
     ReadStatusResponseDtos findAllByUserId(UUID id);
     void update(UUID readStatusId);
     void delete(UUID id);
+    void deleteAll();
 }

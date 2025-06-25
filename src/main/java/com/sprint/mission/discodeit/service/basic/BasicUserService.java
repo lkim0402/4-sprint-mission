@@ -104,6 +104,11 @@ public class BasicUserService implements UserService {
         binaryContentRepository.deleteById(id);
     }
 
+    @Override
+    public void deleteAll() {
+        userRepository.deleteAll();
+    }
+
     private boolean existsByUsernameOrEmail(String username, String email) {
         List<User> users = userRepository.findAll();
 

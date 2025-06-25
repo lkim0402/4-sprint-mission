@@ -12,5 +12,5 @@ public interface MessageService {
     MessageResponseDtos findallByChannelId(UUID channelId);
     UpdateMessageResponseDto update(UUID messageId, UpdateMessageRequestDto updateMessageRequestDto);
     void delete(Message message);
-
+    void deleteAll();
 }

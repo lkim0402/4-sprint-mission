@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.repository.file;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Primary
 @Repository
 public class FileBinaryContentRepository implements BinaryContentRepository {
     private final Path DIRECTORY;
@@ -90,7 +92,7 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
             throw new RuntimeException(e);
         }
     }
-    
+
     @Override
     public List<BinaryContent> findAllByIdIn(List<UUID> binaryContentIds) {
         try {
@@ -118,6 +120,25 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    // 테스트에 사용
+    @Override
+    public void deleteAll() {
+        try {
+            Files.list(DIRECTORY)
+                    .filter(path -> path.toString().endsWith(EXTENSION))
+                    .forEach(path -> {
+                        try {
+                            Files.delete(path);
+                        } catch (IOException e) {
+                            throw new UncheckedIOException(e);
+                        }
+                    });
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to list directory for deletion: " + DIRECTORY, e);
+        }
+
     }
 
     private static BinaryContent getBinaryContent(Path p) {

@@ -112,6 +112,13 @@ public class JCFReadStatusRepository implements ReadStatusRepository {
         }
     }
 
+    @Override
+    public void deleteAll() {
+        this.data.clear();
+        this.userIndex.clear();
+        this.channelIndex.clear();
+    }
+
     private List<ReadStatus> toReadStatusList(List<UUID> readStatusUUIDList) {
         return readStatusUUIDList.stream()
                 .map(this.data::get)

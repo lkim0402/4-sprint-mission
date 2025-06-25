@@ -14,4 +14,5 @@ public interface UserStatusService {
     UserStatusResponseDtos findAll();
     void update(UpdateUserStatusDto updateUserStatusDto);
     void delete(UUID id);
+    void deleteAll();
 }
