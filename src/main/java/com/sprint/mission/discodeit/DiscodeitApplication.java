@@ -13,6 +13,9 @@ import com.sprint.mission.discodeit.dto.ReadStatusService.UpdateReadStatusDto;
 import com.sprint.mission.discodeit.dto.UserService.UpdateUserRequestDto;
 import com.sprint.mission.discodeit.dto.UserService.UpdateUserResponseDto;
 import com.sprint.mission.discodeit.dto.UserService.UserRequestDto;
+import com.sprint.mission.discodeit.dto.UserStatusService.UpdateUserStatusDto;
+import com.sprint.mission.discodeit.dto.UserStatusService.UserStatusRequestDto;
+import com.sprint.mission.discodeit.dto.UserStatusService.UserStatusResponseDto;
 import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.service.*;
 import org.springframework.boot.SpringApplication;
@@ -57,6 +60,7 @@ public class DiscodeitApplication {
 
 
 		/**
+		 * 아래 각 서비스 테스트는 독립적으로 실행됩니다.
 		 * 테스트하고 싶은 서비스의 해당 라인 앞 주석(//)을 제거하여 실행하고,
 		 * 테스트가 끝나면 다시 주석 처리하는 방식으로 하나씩 확인해주세요.
 		 */
@@ -66,8 +70,8 @@ public class DiscodeitApplication {
 //        messageServiceTest(messageService, channelService, userService);
 //		authServiceTest(authService, userService);
 //		binaryContentServiceTest(binaryContentService);
-		readStatusServiceTest(readStatusService, userService, channelService);
-		userStatusServiceTest(userStatusService);
+//		readStatusServiceTest(readStatusService, userService, channelService);
+		userStatusServiceTest(userStatusService, userService);
 	}
 
 	/**
@@ -561,7 +565,7 @@ public class DiscodeitApplication {
 		// 수정된 데이터 조회
 		System.out.println("\n[Update] Update individual readstatus (readStatus1):");
 		System.out.println("Find readStatus1: "
-				+ userService.find(newUser1.getId()));
+				+ readStatusService.find(newUser1.getId()));
 //		UpdateReadStatusDto updateReadStatusDto = new UpdateReadStatusDto(
 //				Instant.now()
 //		);
@@ -596,19 +600,86 @@ public class DiscodeitApplication {
 	 * [x] file repo 테스트 완료
 	 * [x] jcf repo 테스트 완료
 	 */
-	public static void userStatusServiceTest(UserStatusService userStatusService) {
+	public static void userStatusServiceTest(UserStatusService userStatusService, UserService userService) {
+		// =================== test users and channels ===================
+		System.out.println("\nTest Users created:");
+		UserRequestDto userRequestDto1 = new UserRequestDto(
+				"codeit",
+				"codeit@gmail.com",
+				"q1w2e3",
+				new BinaryContentRequestDto(
+						null,
+						null,
+						null,
+						null,
+						null
+				)
+		);
+		UserRequestDto userRequestDto2 = new UserRequestDto(
+				"woody",
+				"woody@gmail.com",
+				"w2e3r4",
+				new BinaryContentRequestDto(
+						null,
+						null,
+						null,
+						null,
+						null
+				)
+		);
+		User User1 = userService.create(userRequestDto1);
+		User User2 = userService.create(userRequestDto2);
+		UUID User1Id = User1.getId();
+		UUID User2Id = User2.getId();
+
+		// =================== 등록 + 조회 ===================
+		System.out.println("\n[CREATE] userStatusServices created:");
+
+		// UserStatus is created during user creation
+		UserStatusResponseDto userStatusResponseDto1 = userStatusService.findByUserId(User1Id);
+		UserStatusResponseDto userStatusResponseDto2 = userStatusService.findByUserId(User2Id);
+		System.out.println("Find userStatus1 by userId: "
+				+ userStatusResponseDto1);
+		System.out.println("Find userStatus2 by userId: "
+				+ userStatusResponseDto2);
+		System.out.println("See all UserStatus: " + userStatusService.findAll());
+
+		// =================== 수정 ===================
+		// 수정된 데이터 조회
+		System.out.println("\n[Update] Update userStatus1 (updating User1's updateLastActiveTime: ");
+		System.out.println("Find userStatus1: "
+				+ userStatusService.find(userStatusResponseDto1.userStatusId()));
+		UpdateUserStatusDto updateUserStatusDto = new UpdateUserStatusDto(
+				userStatusResponseDto1.userStatusId()
+		);
+		userStatusService.update(updateUserStatusDto);
+		UserStatusResponseDto statusAfterUpdate = userStatusService.find(userStatusResponseDto1.userStatusId());
+		System.out.println("Status AFTER update:  " + statusAfterUpdate);
+
+		// =================== 삭제 ===================
+		// 조회를 통해 삭제되었는지 확인
+		System.out.println("\n[Delete] Delete updateUserStatusDto:");
+		System.out.println("See all userStatus before deletion: "
+				+ userStatusService.findAll());
+		userStatusService.delete(userStatusResponseDto1.userStatusId());
+		System.out.println("See all userStatus after deletion (userStatus1): "
+				+ userStatusService.findAll());
+		System.out.println("\n[Delete] Delete ALL userStatus (clear):");
+		userStatusService.deleteAll();
+		System.out.println("See all userStatus: "
+				+ userStatusService.findAll());
+
+//		 삭제를 한 후 read, update, delete 진행할때 에러 던짐
+//        System.out.println("Read userStatus (deleted): "
+//                + userStatusService.find(userStatusResponseDto1.userStatusId()));
+//		userStatusService.update(updateUserStatusDto);
+//		userStatusService.delete(userStatusResponseDto1.userid());
 
 	}
 	// ========================= Helper methods =========================
 
 	/**
 	 * 테스트 하기 전 모든 데이터 초기화합니다.
-	 * @param channelService
-	 * @param userService
-	 * @param messageService
-	 * @param binaryContentService
-	 * @param readStatusService
-	 * @param userStatusService
 	 */
 	private static void clearAllData(ChannelService channelService, UserService userService, MessageService messageService, BinaryContentService binaryContentService, ReadStatusService readStatusService, UserStatusService userStatusService) {
 		channelService.deleteAll();
