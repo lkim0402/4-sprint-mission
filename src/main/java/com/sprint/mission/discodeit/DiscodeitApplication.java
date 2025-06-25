@@ -4,6 +4,8 @@ import com.sprint.mission.discodeit.dto.BinaryContentService.BinaryContentReques
 import com.sprint.mission.discodeit.dto.ChannelService.PrivateChannelRequestDto;
 import com.sprint.mission.discodeit.dto.ChannelService.PublicChannelRequestDto;
 import com.sprint.mission.discodeit.dto.ChannelService.UpdateChannelRequestDto;
+import com.sprint.mission.discodeit.dto.MessageService.MessageRequestDto;
+import com.sprint.mission.discodeit.dto.MessageService.UpdateMessageRequestDto;
 import com.sprint.mission.discodeit.dto.UserService.UpdateUserRequestDto;
 import com.sprint.mission.discodeit.dto.UserService.UpdateUserResponseDto;
 import com.sprint.mission.discodeit.dto.UserService.UserRequestDto;
@@ -54,9 +56,8 @@ public class DiscodeitApplication {
 
 		// =============================== 서비스 테스팅 ===============================
 //		channelServiceTest(channelService);
-        userServiceTest(userService);
-//        messageServiceTest(channelService, messageService, userService);
-
+//        userServiceTest(userService);
+        messageServiceTest(messageService, channelService, userService);
 
 //		 ====================== Entity 테스팅  ======================
 //        entityTest(channelService, messageService, userService);
@@ -98,7 +99,7 @@ public class DiscodeitApplication {
 	 * ChannelService 기능을 테스트하는 메서드입니다.
 	 * 채널 생성, 조회, 수정, 삭제, 유저 입장/퇴장 등을 검증합니다.
 	 * [x] file repo 테스트 완료
-	 * [] jcf repo 테스트 완료
+	 * [x] jcf repo 테스트 완료
 	 */
 	public static void channelServiceTest(ChannelService channelService) {
 
@@ -137,7 +138,7 @@ public class DiscodeitApplication {
 				List.of(user1.getId(), user2.getId())
 		);
 		Channel privateChannel = channelService.createPrivate(privateChannelRequestDto);
-		System.out.println("See all private channels for user1 (id " + user1.getId() + ")" +
+		System.out.println("See all channels for user1 (id " + user1.getId() + ")" +
 				channelService.findAllByUserId(user1.getId()));
 
 
@@ -185,7 +186,7 @@ public class DiscodeitApplication {
 	 * UserService 기능을 테스트하는 메서드입니다.
 	 * 유저 생성, 조회, 수정, 삭제 등의 기능을 검증합니다.
 	 * [x] file repo 테스트 완료
-	 * [] jcf repo 테스트 완료
+	 * [x] jcf repo 테스트 완료
 	 */
 	public static void userServiceTest(UserService userService) {
 
@@ -271,62 +272,135 @@ public class DiscodeitApplication {
 	/**
 	 * MessageService 기능을 테스트하는 메서드입니다.
 	 * 메시지 생성, 조회, 수정, 삭제 기능을 검증합니다.
+	 * [x] file repo 테스트 완료
+	 * [x] jcf repo 테스트 완료
 	 */
-	public static void messageServiceTest(ChannelService channelService, MessageService messageService, UserService userService) {
+	public static void messageServiceTest(MessageService messageService, ChannelService channelService, UserService userService) {
 
-//		User newUser = new User("newUser", "test@gmail.com", "pw1");
-//		System.out.println("\n[CREATE] New user: " + newUser);
-//		Channel newChannel = new Channel("newChannel1");
-//		Channel newChannel2 = new Channel("newChannel2");
-//
-//		// 등록
-//		System.out.println("\n[CREATE] Messages created:");
-//		Message test1 = messageService.createMessage(newUser, "testmessage1", newChannel);
-//		Message test2 = messageService.createMessage( newUser, "testmessage2",newChannel2);
-//		System.out.println("See all messages: " + messageService.getMessages());
-//
-//		// 조회(단건, 다건)
-//		System.out.println("\n[READ] Read one message (test1):");
-//		System.out.println(messageService.findVerifiedMessage(test1.getId()));
-//		System.out.println("\n[READ] Read all messages:");
-//		System.out.println("See all messages: " + messageService.getMessages());
-//
-//		// 수정
-//		// 수정된 데이터 조회
-//		System.out.println("\n[Update] Update individual message (test2):");
-//		System.out.println("Read test2 message: "
-//				+ messageService.findVerifiedMessage(test2.getId()));
-//		System.out.println("Read updated test2 message: " +
-//				messageService.updateMessage(test2.getId(), "testmessage2 updated!!"));
-//
-//		// 삭제
-//		// 조회를 통해 삭제되었는지 확인
-//		System.out.println("\n[Delete] Delete individual message (test2):");
-//		System.out.println("See all messages before deletion: "
-//				+ messageService.getMessages());
-//		messageService.deleteMessage(test2.getId());
-//		System.out.println("See all messages after deletion: "
-//				+ messageService.getMessages());
-//		System.out.println("\n[Delete] Delete all messages:");
-//		messageService.clearMessages();
-//		System.out.println("See all messages: "
-//				+ messageService.getMessages());
+		// =================== test channel and users ===================
 
-		// 삭제를 한 후 read, update, delete 진행할때 -> throws error
-//        System.out.println("Read test1 (deleted): "
-//                + messageService.findById(test1.getId()));
+		PublicChannelRequestDto publicChannelRequestDto1 = new PublicChannelRequestDto(
+				ChannelType.PUBLIC,
+				"Study-channel"
+				,"This is a study channel"
+		);
+		Channel studyChannel = channelService.createPublic(publicChannelRequestDto1);
+
+		UserRequestDto userRequestDto1 = new UserRequestDto(
+				"codeit",
+				"codeit@gmail.com",
+				"q1w2e3",
+				new BinaryContentRequestDto(
+						null,
+						null,
+						null,
+						null,
+						"PROFILE"
+				)
+		);
+		UserRequestDto userRequestDto2 = new UserRequestDto(
+				"woody",
+				"woody@gmail.com",
+				"w2e3r4",
+				new BinaryContentRequestDto(
+						null,
+						null,
+						null,
+						null,
+						"PROFILE"
+				)
+		);
+		User newUser1 = userService.create(userRequestDto1);
+		User newUser2 = userService.create(userRequestDto2);
+
+
+		// =================== 등록 + 조회 ===================
+		System.out.println("\n[CREATE] Users created:");
+		UUID channelId1 = studyChannel.getId();
+		UUID authorId1 = newUser1.getId();
+		UUID authorId2 = newUser2.getId();
+		MessageRequestDto messageRequestDto1 = new MessageRequestDto(
+				"content1",
+				channelId1,
+				authorId1,
+				List.of()
+		);
+		MessageRequestDto messageRequestDto2 = new MessageRequestDto(
+				"content2",
+				channelId1,
+				authorId2, // different author at same channel
+				List.of(
+						new BinaryContentRequestDto(
+							null, // set in create() in service
+							null, // // set in create() in service
+							null,
+							"이미지1",
+							"PNG"),
+						new BinaryContentRequestDto(
+							null, // set in create() in service
+							null, // // set in create() in service
+							null,
+							"이미지2",
+							"PNG"
+						))
+		);
+
+		Message newMessage1 = messageService.create(messageRequestDto1);
+		Message newMessage2 = messageService.create(messageRequestDto2);
+		System.out.println("Find one specific message by Id (messageRequestDto1): "
+				+ messageService.find(newMessage1.getId()));
+		System.out.println("Find one specific message by Id (messageRequestDto2): "
+				+ messageService.find(newMessage2.getId()));
+		System.out.println("See all messages in channel id " + channelId1 + ": " +
+				messageService.findallByChannelId(channelId1));
+
+
+		// =================== 수정 ===================
+		// 수정된 데이터 조회
+		System.out.println("\n[Update] Update individual message (messageRequestDto1):");
+		System.out.println("Find one specific message by Id (messageRequestDto1): "
+				+ messageService.find(newMessage1.getId()));
+		UpdateMessageRequestDto updateMessageRequestDto = new UpdateMessageRequestDto(
+			"content1 - CHANGED CONTENT OF MESSAGE"
+		);
+		System.out.println("Read updated message: "
+				+ messageService.update(newMessage1.getId(), updateMessageRequestDto));
+		System.out.println("See all messages in channel id " + channelId1 + " after update: " +
+				messageService.findallByChannelId(channelId1));
+
+
+		// =================== 삭제 ===================
+		// 조회를 통해 삭제되었는지 확인
+		System.out.println("\n[Delete] Delete individual message (messageRequestDto1):");
+		System.out.println("See all messages in channel1 before deletion: "
+				+ messageService.findallByChannelId(channelId1));
+		messageService.delete(newMessage1);
+		System.out.println("See all messages after deleting message1: "
+				+ messageService.findallByChannelId(channelId1));
+		System.out.println("\n[Delete] Delete ALL messages (clear):");
+		messageService.deleteAll();
+		System.out.println("See all messages in channel: "
+				+ messageService.findallByChannelId(channelId1));
+
+//		 삭제를 한 후 read, update, delete 진행할때 에러 던짐
+//		System.out.println("Find deleted message by Id (messageRequestDto1): "
+//				+ messageService.find(newMessage1.getId()));
+//		UpdateMessageRequestDto updateMessageRequestDtoTest = new UpdateMessageRequestDto(
+//				"CHANGED CONTENT OF MESSAGE"
+//		);
 //        System.out.println("Update test1 username (deleted): "
-//                + messageService.updateMessage(test1.getId(), "study-channel-edited"));
-//        messageService.deleteById(test1.getId());
-//        System.out.println("Delete channel (deleted): " + messageService.getMessages());
-
+//                + messageService.update(newMessage1.getId(), updateMessageRequestDtoTest));
+//        System.out.println("Delete Message (deleted): ");
+//		messageService.delete(newMessage1);
+//		messageService.findallByChannelId(channelId1);
 	}
-
 
 
 	/**
 	 * Entity 클래스들(User, Channel, Message)의 기본 동작을 테스트하는 메서드입니다.
 	 * 각 엔티티의 관계 연결 등을 검증합니다.
+	 * [] file repo 테스트 완료
+	 * [] jcf repo 테스트 완료
 	 */
 	public static void entityTest(ChannelService channelService, MessageService messageService, UserService userService) {
 
