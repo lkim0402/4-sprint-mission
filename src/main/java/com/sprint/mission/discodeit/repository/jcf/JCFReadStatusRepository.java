@@ -32,19 +32,23 @@ public class JCFReadStatusRepository implements ReadStatusRepository {
     public ReadStatus save(ReadStatus readStatus) {
         this.data.put(readStatus.getId(), readStatus);
 
-        this.userIndex.computeIfAbsent(
+        List<UUID> readStatusIdsForUser = this.userIndex.computeIfAbsent(
                         readStatus.getUserId(),  // key
                         // mapping function (only when key is absent)
                         key -> new ArrayList<>()
-                )
-                .add(readStatus.getId());
+                );
+        if (!readStatusIdsForUser.contains(readStatus.getId())) {
+            readStatusIdsForUser.add(readStatus.getId());
+        }
 
-        this.channelIndex.computeIfAbsent(
+        List<UUID> readStatusIdsForChannel = this.channelIndex.computeIfAbsent(
                         readStatus.getChannelId(),  // key
                         // mapping function (only when key is absent)
                         key -> new ArrayList<>()
-                )
-                .add(readStatus.getId());
+                );
+        if (!readStatusIdsForChannel.contains(readStatus.getId())) {
+            readStatusIdsForChannel.add(readStatus.getId());
+        }
 
         return readStatus;
     }

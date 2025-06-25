@@ -8,6 +8,8 @@ import com.sprint.mission.discodeit.dto.ChannelService.PublicChannelRequestDto;
 import com.sprint.mission.discodeit.dto.ChannelService.UpdateChannelRequestDto;
 import com.sprint.mission.discodeit.dto.MessageService.MessageRequestDto;
 import com.sprint.mission.discodeit.dto.MessageService.UpdateMessageRequestDto;
+import com.sprint.mission.discodeit.dto.ReadStatusService.ReadStatusRequestDto;
+import com.sprint.mission.discodeit.dto.ReadStatusService.UpdateReadStatusDto;
 import com.sprint.mission.discodeit.dto.UserService.UpdateUserRequestDto;
 import com.sprint.mission.discodeit.dto.UserService.UpdateUserResponseDto;
 import com.sprint.mission.discodeit.dto.UserService.UserRequestDto;
@@ -18,6 +20,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -49,14 +52,22 @@ public class DiscodeitApplication {
 		ReadStatusService readStatusService = context.getBean(ReadStatusService.class);
 		UserStatusService userStatusService = context.getBean(UserStatusService.class);
 
+		// 테스트 전 모든 데이터 초기화
 		clearAllData(channelService, userService, messageService, binaryContentService, readStatusService, userStatusService);
 
+
+		/**
+		 * 테스트하고 싶은 서비스의 해당 라인 앞 주석(//)을 제거하여 실행하고,
+		 * 테스트가 끝나면 다시 주석 처리하는 방식으로 하나씩 확인해주세요.
+		 */
 		// =============================== 서비스 테스팅 ===============================
 //		channelServiceTest(channelService);
 //        userServiceTest(userService);
 //        messageServiceTest(messageService, channelService, userService);
 //		authServiceTest(authService, userService);
-		binaryContentServiceTest(binaryContentService);
+//		binaryContentServiceTest(binaryContentService);
+		readStatusServiceTest(readStatusService, userService, channelService);
+		userStatusServiceTest(userStatusService);
 	}
 
 	/**
@@ -470,6 +481,124 @@ public class DiscodeitApplication {
 
 	}
 
+	/**
+	 * ReadStatusService 기능을 테스트하는 메서드입니다.
+	 * ReadStatus 생성, 조회, 삭제 기능을 검증합니다.
+	 * [x] file repo 테스트 완료
+	 * [x] jcf repo 테스트 완료
+	 */
+	public static void readStatusServiceTest(ReadStatusService readStatusService, UserService userService, ChannelService channelService) {
+
+		// =================== test users and channels ===================
+		System.out.println("\nTest Users created:");
+		UserRequestDto userRequestDto1 = new UserRequestDto(
+				"codeit",
+				"codeit@gmail.com",
+				"q1w2e3",
+				new BinaryContentRequestDto(
+						null,
+						null,
+						null,
+						null,
+						null
+				)
+		);
+		UserRequestDto userRequestDto2 = new UserRequestDto(
+				"woody",
+				"woody@gmail.com",
+				"w2e3r4",
+				new BinaryContentRequestDto(
+						null,
+						null,
+						null,
+						null,
+						null
+				)
+		);
+		User newUser1 = userService.create(userRequestDto1);
+		User newUser2 = userService.create(userRequestDto2);
+		UUID newUser1Id = newUser1.getId();
+		UUID newUser2Id = newUser2.getId();
+
+		PublicChannelRequestDto publicChannelRequestDto1 = new PublicChannelRequestDto(
+				ChannelType.PUBLIC,
+				"Study-channel"
+				,"This is a study channel"
+		);
+		PublicChannelRequestDto publicChannelRequestDto2 = new PublicChannelRequestDto(
+				ChannelType.PUBLIC,
+				"game-channel"
+				,"This is a game channel"
+		);
+		Channel studyChannel = channelService.createPublic(publicChannelRequestDto1);
+		Channel gameChannel = channelService.createPublic(publicChannelRequestDto2);
+
+
+		// =================== 등록 + 조회 ===================
+		System.out.println("\n[CREATE] ReadStatuses created:");
+		ReadStatusRequestDto readStatusRequestDto1 = new ReadStatusRequestDto(
+				newUser1Id,
+				studyChannel.getId(),
+				Instant.now()
+		);
+		ReadStatusRequestDto readStatusRequestDto2 = new ReadStatusRequestDto(
+				newUser1Id,
+				gameChannel.getId(),
+				Instant.now()
+		);
+
+		ReadStatus readStatus1 = readStatusService.create(readStatusRequestDto1);
+		ReadStatus readStatus2 = readStatusService.create(readStatusRequestDto2);
+		System.out.println("Find readstatus by Id (readStatus1): "
+				+ readStatusService.find(readStatus1.getId()));
+		System.out.println("Find readstatus by Id (readStatus2): "
+				+ readStatusService.find(readStatus2.getId()));
+		System.out.println("See all ReadStatus of user1: " + readStatusService.findAllByUserId(newUser1Id));
+		System.out.println("See all ReadStatus of user2: " + readStatusService.findAllByUserId(newUser2Id));
+
+
+		// =================== 수정 ===================
+		// 수정된 데이터 조회
+		System.out.println("\n[Update] Update individual readstatus (readStatus1):");
+		System.out.println("Find readStatus1: "
+				+ userService.find(newUser1.getId()));
+//		UpdateReadStatusDto updateReadStatusDto = new UpdateReadStatusDto(
+//				Instant.now()
+//		);
+		readStatusService.update(readStatus1.getId());
+		System.out.println("Read updated readStatus1: "
+				+ readStatus1);
+
+		// =================== 삭제 ===================
+		// 조회를 통해 삭제되었는지 확인
+		System.out.println("\n[Delete] Delete individual readStatus (readStatus1):");
+		System.out.println("See all readStatus of user1 before deletion: "
+				+ readStatusService.findAllByUserId(newUser1Id));
+		readStatusService.delete(readStatus1.getId());
+		System.out.println("See all readStatus after deletion (readStatus1): "
+				+ readStatusService.findAllByUserId(newUser1Id));
+		System.out.println("\n[Delete] Delete ALL users (clear):");
+		readStatusService.deleteAll();
+		System.out.println("See all readStatus: "
+				+ readStatusService.findAllByUserId(newUser1Id));
+
+//		 삭제를 한 후 read, update, delete 진행할때 에러 던짐
+//        System.out.println("Read readStatus1 (deleted): "
+//                + readStatusService.find(readStatus1.getId()));
+//		readStatusService.update(readStatus1.getId());
+//		readStatusService.delete(readStatus1.getId());
+
+	}
+
+	/**
+	 * UserStatusService 기능을 테스트하는 메서드입니다.
+	 * UserStatus 생성, 조회, 삭제 기능을 검증합니다.
+	 * [x] file repo 테스트 완료
+	 * [x] jcf repo 테스트 완료
+	 */
+	public static void userStatusServiceTest(UserStatusService userStatusService) {
+
+	}
 	// ========================= Helper methods =========================
 
 	/**
