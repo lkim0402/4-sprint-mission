@@ -18,5 +18,4 @@ public record ChannelResponseDtos(
                         .map(ChannelResponseDto::toString) //
                         .collect(Collectors.joining(","));
     }
-
 }

@@ -1,11 +1,14 @@
 package com.sprint.mission.discodeit.repository.jcf;
-
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
+//@Primary
+@Repository
 public class JCFMessageRepository implements MessageRepository {
 
     /**
@@ -25,10 +28,15 @@ public class JCFMessageRepository implements MessageRepository {
     public Message save(Message message) {
         this.data.put(message.getId(), message);
 
-        this.channelMsgIndex.computeIfAbsent(
+        List<UUID> messageIdsForChannel = this.channelMsgIndex.computeIfAbsent(
                 message.getChannelId(),
                 k -> new ArrayList<>()
-        ).add(message.getId());
+        );
+
+        // add only when message doesn't exist
+        if (!messageIdsForChannel.contains(message.getId())) {
+            messageIdsForChannel.add(message.getId());
+        }
 
         return message;
     }

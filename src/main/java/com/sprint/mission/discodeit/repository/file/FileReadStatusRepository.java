@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Primary
+//@Primary
 @Repository
 public class FileReadStatusRepository implements ReadStatusRepository {
     private final Path DIRECTORY;

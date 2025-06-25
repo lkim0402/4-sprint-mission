@@ -7,4 +7,16 @@ public record MessageResponseDto(
         String content,
         UUID channelId,
         UUID authorId
-) {}
+) {
+    @Override
+    public String toString() {
+        return "\n" +
+                "    MessageResponseDto {" + "\n" +
+                "    messageId = " + this.messageId + ",\n" +
+                "    content   = " + this.content + ",\n" +
+                "    channelId = " + this.channelId + ",\n" +
+                "    authorId  = " + this.authorId + ",\n" +
+                "  }";
+    }
+
+}
