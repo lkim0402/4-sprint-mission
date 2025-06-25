@@ -17,6 +17,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -412,12 +413,61 @@ public class DiscodeitApplication {
 
 	/**
 	 * BinaryContentService 기능을 테스트하는 메서드입니다.
-	 * BinaryContent 생성, 조회, 수정, 삭제 기능을 검증합니다.
-	 * [] file repo 테스트 완료
-	 * [] jcf repo 테스트 완료
+	 * BinaryContent 생성, 조회, 삭제 기능을 검증합니다.
+	 * [x] file repo 테스트 완료
+	 * [x] jcf repo 테스트 완료
 	 */
 	public static void binaryContentServiceTest(BinaryContentService binaryContentService) {
-		
+		// =================== 등록 + 조회 ===================
+		System.out.println("\n[CREATE] BinaryContents created:");
+		UUID userId = UUID.randomUUID();
+		UUID messageId = UUID.randomUUID();
+
+		String dummyContent1 = "First file's content.";
+		String dummyContent2 = "Second file's content.";
+		byte[] fileBytes1 = dummyContent1.getBytes(StandardCharsets.UTF_8);
+		byte[] fileBytes2 = dummyContent2.getBytes(StandardCharsets.UTF_8);
+
+		BinaryContentRequestDto binaryContentRequestDto1 = new BinaryContentRequestDto(
+				userId,
+				messageId,
+				fileBytes1,
+		"testFileName1",
+				"PNG"
+		);
+		BinaryContentRequestDto binaryContentRequestDto2 = new BinaryContentRequestDto(
+				userId,
+				messageId,
+				fileBytes2,
+				"testFileName2",
+				"JPG"
+		);
+
+		BinaryContent binaryContent1 = binaryContentService.create(binaryContentRequestDto1);
+		BinaryContent binaryContent2 = binaryContentService.create(binaryContentRequestDto2);
+		System.out.println("Find one specific binary content by Id (binaryContentRequestDto1): " + binaryContentService.find(binaryContent1.getId()));
+		System.out.println("Find one specific binary content by Id (binaryContentRequestDto2): " + binaryContentService.find(binaryContent2.getId()));
+		List<UUID> binaryContentIds = List.of(binaryContent1.getId(), binaryContent2.getId());
+		System.out.println("See all binaryContents: " + binaryContentService.findAllByIdIn(binaryContentIds));
+
+		// =================== 삭제 ===================
+		// 조회를 통해 삭제되었는지 확인
+		System.out.println("\n[Delete] Delete individual binaryContent (binaryContentRequestDto1):");
+		System.out.println("See all binary content before deletion: "
+				+ binaryContentService.findAllByIdIn(binaryContentIds));
+		binaryContentService.delete(binaryContent1.getId());
+		System.out.println("Successfully Deleted! \n Deleting binaryContentRequestDto1 will give an error");
+//		binaryContentService.delete(binaryContent1.getId());
+		System.out.println("\n[Delete] Delete ALL users (clear):");
+		binaryContentService.deleteAll();
+		System.out.println("Successfully Deleted! \n Deleting any binary content will give an error");
+//		binaryContentService.delete(binaryContent2.getId());
+
+
+//		 삭제를 한 후 read 진행할때 에러 던짐
+//        System.out.println("Read binaryContent1 (deleted): "
+//                + binaryContentService.find(binaryContent1.getId()));
+
 	}
 
 	// ========================= Helper methods =========================
