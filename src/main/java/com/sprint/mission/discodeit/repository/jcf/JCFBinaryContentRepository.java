@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import java.util.*;
 
-//@Primary
+@Primary
 @Repository
 public class JCFBinaryContentRepository implements BinaryContentRepository {
 

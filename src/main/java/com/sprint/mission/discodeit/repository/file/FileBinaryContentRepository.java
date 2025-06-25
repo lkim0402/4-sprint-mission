@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Primary
+//@Primary
 @Repository
 public class FileBinaryContentRepository implements BinaryContentRepository {
     private final Path DIRECTORY;
