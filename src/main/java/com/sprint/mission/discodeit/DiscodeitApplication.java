@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit;
 
+import com.sprint.mission.discodeit.dto.AuthService.UserLoginRequestDto;
+import com.sprint.mission.discodeit.dto.AuthService.UserLoginResponseDto;
 import com.sprint.mission.discodeit.dto.BinaryContentService.BinaryContentRequestDto;
 import com.sprint.mission.discodeit.dto.ChannelService.PrivateChannelRequestDto;
 import com.sprint.mission.discodeit.dto.ChannelService.PublicChannelRequestDto;
@@ -46,54 +48,15 @@ public class DiscodeitApplication {
 		ReadStatusService readStatusService = context.getBean(ReadStatusService.class);
 		UserStatusService userStatusService = context.getBean(UserStatusService.class);
 
-		// 테스트 하기 전 모든 데이터 초기화
-		channelService.deleteAll();
-		userService.deleteAll();
-		messageService.deleteAll();
-		binaryContentService.deleteAll();
-		readStatusService.deleteAll();
-		userStatusService.deleteAll();
+		clearAllData(channelService, userService, messageService, binaryContentService, readStatusService, userStatusService);
 
 		// =============================== 서비스 테스팅 ===============================
 //		channelServiceTest(channelService);
 //        userServiceTest(userService);
-        messageServiceTest(messageService, channelService, userService);
-
-//		 ====================== Entity 테스팅  ======================
-//        entityTest(channelService, messageService, userService);
-
+//        messageServiceTest(messageService, channelService, userService);
+//		authServiceTest(authService, userService);
+		binaryContentServiceTest(binaryContentService);
 	}
-
-//    static User setupUser(UserService userService) {
-//
-//		UserRequestDto userRequestDto = new UserRequestDto(
-//				"woody",
-//				"woody@codeit.com",
-//				"woody1234",
-//				new BinaryContentRequestDto(
-//						null,
-//						null,
-//						null,
-//						"이미지",
-//						"PROFILE"
-//				)
-//		);
-//
-//		return userService.create(userRequestDto);
-//	}
-//
-//
-//	static Channel setupChannel(ChannelService channelService) {
-//		Channel newChannel = new Channel(ChannelType.PUBLIC, "공지", "공지 채널입니다.");
-//		return channelService.create(newChannel);
-//	}
-//
-//	static void messageCreateTest(MessageService messageService, Channel channel, User author) {
-//		Message newMessage = new Message("안녕하세요.", channel.getId(), author.getId());
-//		System.out.println("메시지 생성: " + newMessage.getId() + ": " + newMessage.getContent());
-//	}
-//
-//	// new methods
 
 	/**
 	 * ChannelService 기능을 테스트하는 메서드입니다.
@@ -395,78 +358,88 @@ public class DiscodeitApplication {
 //		messageService.findallByChannelId(channelId1);
 	}
 
+	/**
+	 * AuthService 기능을 테스트하는 메서드입니다.
+	 * login 기능을 검증합니다.
+	 * [x] file repo 테스트 완료
+	 * [x] jcf repo 테스트 완료
+	 */
+	public static void authServiceTest(AuthService authService, UserService userService) {
+
+		// =================== test users ===================
+
+		System.out.println("\n Test user created:");
+		UserRequestDto userRequestDto1 = new UserRequestDto(
+				"codeit",
+				"codeit@gmail.com",
+				"q1w2e3",
+				new BinaryContentRequestDto(
+						null,
+						null,
+						null,
+						null,
+						null
+				)
+		);
+		User newUser1 = userService.create(userRequestDto1);
+
+		// =============== [Success] testing login ===============
+		UserLoginRequestDto userLoginRequestDto = new UserLoginRequestDto(
+				"codeit",
+				"q1w2e3"
+		);
+
+		UserLoginResponseDto userLoginResponseDto = authService.login(userLoginRequestDto);
+		System.out.println("Successful Log in: " + userLoginResponseDto);
+
+		// =============== [Failure - wrong password] testing login ===============
+		// Will throw error
+//		UserLoginRequestDto userLoginRequestDto2 = new UserLoginRequestDto(
+//				"codeit",
+//				"q1w2e3567"
+//		);
+//		authService.login(userLoginRequestDto2);
+
+		// =============== [Failure - non existent id] testing login ===============
+		// Will throw error
+//		UserLoginRequestDto userLoginRequestDto3 = new UserLoginRequestDto(
+//				"codeit11223344",
+//				"q1w2e3"
+//		);
+//		authService.login(userLoginRequestDto3);
+//		System.out.println("Successful Log in: " + userLoginResponseDto);
+	}
 
 	/**
-	 * Entity 클래스들(User, Channel, Message)의 기본 동작을 테스트하는 메서드입니다.
-	 * 각 엔티티의 관계 연결 등을 검증합니다.
+	 * BinaryContentService 기능을 테스트하는 메서드입니다.
+	 * BinaryContent 생성, 조회, 수정, 삭제 기능을 검증합니다.
 	 * [] file repo 테스트 완료
 	 * [] jcf repo 테스트 완료
 	 */
-	public static void entityTest(ChannelService channelService, MessageService messageService, UserService userService) {
-
-//		// memberIds 확인
-//		System.out.println("\n========== Channel's user Test ==========");
-//		Channel testChannel = channelService.createChannel("Study-channel");
-//		System.out.println("Created channel: " + testChannel);
-//
-//		// 멤버 생성 + 추가
-//		System.out.println("\n[CREATE] Users created:");
-//		User newUser1 = userService.createUser("newUser1", "test@gmail.com", "pw1");
-//		User newUser2 = userService.createUser("newUser1", "test2@gmail.com", "pw2");
-//		channelService.joinChannel(testChannel, newUser1);
-//		channelService.joinChannel(testChannel, newUser2);
-//		System.out.println("After adding users: " + testChannel.getUsers());
-//		System.out.println("ChannelList of newUser1: " + newUser2.getChannels());
-//		System.out.println("ChannelList of newUser2: " + newUser2.getChannels());
-//
-//		// 멤버 삭제
-//		channelService.leaveChannel(testChannel, newUser2);
-//		System.out.println("All users after deleting newUser2: " + testChannel.getUsers());
-//		System.out.println("Deleted newUser status: " + newUser2);
-//
-//
-//		// messages 확인
-//		System.out.println("\n========== Channel's Message Test ==========");
-//		System.out.println("Messages in testChannel: " + testChannel.getMessages());
-//		System.out.println("MessageList of newUser1: " + newUser1.getMessagesList());
-//		System.out.println("MessageList of newUser2: " + newUser2.getMessagesList());
-//
-//		// 메세지 + 추가
-//		Message testMsg1 = new Message(newUser1, "Hello test", testChannel);
-//		newUser1.addMessage(testMsg1);
-//		System.out.println("Messages in testChannel after adding: " + testChannel.getMessages());
-//		System.out.println("MessageList of newUser1: " + newUser1.getMessagesList());
-//		System.out.println("MessageList of newUser2: " + newUser2.getMessagesList());
-//
-//
-//		// 멤버 삭제
-//		testChannel.deleteMessage(testMsg1);
-//		System.out.println("After deleting testMsg1: " + testChannel.getMessages());
-//		System.out.println("MessageList of newUser1: " + newUser2.getMessagesList());
-
+	public static void binaryContentServiceTest(BinaryContentService binaryContentService) {
+		
 	}
 
+	// ========================= Helper methods =========================
 
-//	static User setupUser(UserService userService) {
-//		User user = userService.createUser("woody", "woody@codeit.com", "woody1234");
-//		System.out.println("유저 생성: " + user);
-//		return user;
-//	}
-//
-//	static Channel setupChannel(ChannelService channelService) {
-//		Channel channel = channelService.createChannel( "공지");
-//		System.out.println("채널 생성: " + channel);
-//		return channel;
-//	}
-//
-//	static void messageCreateTest(MessageService messageService, Channel channel, User author) {
-//		Message message = messageService.createMessage(
-//				new User("woody", "woody@codeit.com", "woody1234"),
-//				"안녕하세요.",
-//				new Channel("testChannel")
-//		);
-//		System.out.println("메시지 생성: " + message);
-//	}
+	/**
+	 * 테스트 하기 전 모든 데이터 초기화합니다.
+	 * @param channelService
+	 * @param userService
+	 * @param messageService
+	 * @param binaryContentService
+	 * @param readStatusService
+	 * @param userStatusService
+	 */
+	private static void clearAllData(ChannelService channelService, UserService userService, MessageService messageService, BinaryContentService binaryContentService, ReadStatusService readStatusService, UserStatusService userStatusService) {
+		channelService.deleteAll();
+		userService.deleteAll();
+		messageService.deleteAll();
+		binaryContentService.deleteAll();
+		readStatusService.deleteAll();
+		userStatusService.deleteAll();
+	}
+
 
 
 }

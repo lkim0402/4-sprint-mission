@@ -25,5 +25,4 @@ public record UserResponseDto (
                 "    userStatusResponseDto = " + this.userStatusResponseDto + "\n" +
                 "  }";
     }
-
 }

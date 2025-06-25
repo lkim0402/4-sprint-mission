@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
-//@Primary
+@Primary
 @Repository
 public class JCFUserRepository implements UserRepository {
 
