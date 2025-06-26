@@ -70,7 +70,7 @@ public class DiscodeitApplication {
 		String type = repositorySettings.getType();
 		System.out.println("Repository used: " + type);
 
-		
+
 		// =============================== 서비스 테스팅 ===============================
 		/**
 		 * 아래 각 서비스 테스트는 독립적으로 실행됩니다.

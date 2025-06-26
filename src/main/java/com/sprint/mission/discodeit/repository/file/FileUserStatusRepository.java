@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.repository.file;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import java.io.*;
@@ -14,21 +16,26 @@ import java.util.UUID;
 @Repository
 public class FileUserStatusRepository implements UserStatusRepository {
 
-    @Value("${discodeit.repository.file-directory}")
+    @Value("${discodeit.repository:file-directory}")
     private String fileDirectory;
 
-    private final Path DIRECTORY;
+    private Path DIRECTORY;
     private final String EXTENSION = ".ser";
 
-    public FileUserStatusRepository() {
-        this.DIRECTORY = Paths.get(System.getProperty(fileDirectory),
-                "file-data-map", UserStatus.class.getSimpleName());
-        if (Files.notExists(DIRECTORY)) {
-            try {
+    @PostConstruct
+    public void initDirectory() {
+        // 예: ~/discodeit/file-data-map/BinaryContent
+        this.DIRECTORY = Paths.get(System.getProperty("user.dir"),
+                fileDirectory,
+                "file-data-map",
+                UserStatus.class.getSimpleName());
+
+        try {
+            if (Files.notExists(DIRECTORY)) {
                 Files.createDirectories(DIRECTORY);
-            } catch (IOException e) {
-                throw new RuntimeException();
             }
+        } catch (IOException e) {
+            throw new RuntimeException("파일 저장 디렉토리 생성 실패", e);
         }
     }
 
