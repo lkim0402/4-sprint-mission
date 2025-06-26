@@ -10,7 +10,7 @@ import java.util.UUID;
  * */
 
 public record UserResponseDto (
-    UUID userId,
+    UUID id,
     String username,
     String email,
     UserStatusResponseDto userStatusResponseDto
@@ -19,7 +19,7 @@ public record UserResponseDto (
     public String toString() {
         return "\n" +
                 "    UserResponseDto {" + "\n" +
-                "    userId                = " + this.userId + ",\n" +
+                "    id                    = " + this.id + ",\n" +
                 "    username              = " + this.username + ",\n" +
                 "    email                 = " + this.email + ",\n" +
                 "    userStatusResponseDto = " + this.userStatusResponseDto + "\n" +

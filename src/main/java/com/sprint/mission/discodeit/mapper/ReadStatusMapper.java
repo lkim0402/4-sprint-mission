@@ -18,7 +18,7 @@ public class ReadStatusMapper {
     }
 
     // Response
-    public ReadStatusResponseDto toReadStatusDto(ReadStatus readStatus) {
+    public ReadStatusResponseDto toReadStatusResponseDto(ReadStatus readStatus) {
         return new ReadStatusResponseDto(
             readStatus.getId(),
             readStatus.getUserId(),
@@ -32,7 +32,7 @@ public class ReadStatusMapper {
         return new ReadStatusResponseDtos(
             readStatuses
                 .stream()
-                .map(this::toReadStatusDto)
+                .map(this::toReadStatusResponseDto)
                 .toList()
         );
     }

@@ -25,7 +25,9 @@ public class BinaryContentMapper {
     // Response
     public BinaryContentResponseDto toBinaryContentResponseDto(BinaryContent binaryContent) {
         return new BinaryContentResponseDto(
-                binaryContent.getBytes(),
+                binaryContent.getId(),
+                binaryContent.getUserId(),
+                binaryContent.getMessageId(),
                 binaryContent.getFileName(),
                 binaryContent.getFileType()
         );

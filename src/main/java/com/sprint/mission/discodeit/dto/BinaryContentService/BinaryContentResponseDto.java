@@ -1,7 +1,11 @@
 package com.sprint.mission.discodeit.dto.BinaryContentService;
 
+import java.util.UUID;
+
 public record BinaryContentResponseDto(
-    byte[] bytes,
+    UUID id,
+    UUID userId,
+    UUID messageId,
     String fileName,
     String fileType
 ) {
@@ -9,8 +13,11 @@ public record BinaryContentResponseDto(
     public String toString() {
         return "\n" +
                 "    BinaryContentResponseDto {" + "\n" +
-                "    fileName = " + this.fileName + ",\n" +
-                "    fileType = " + this.fileType + "\n" +
+                "    id        = " + this.id + ",\n" +
+                "    userId    = " + this.userId + ",\n" +
+                "    messageId = " + this.messageId + ",\n" +
+                "    fileName  = " + this.fileName + ",\n" +
+                "    fileType  = " + this.fileType + "\n" +
                 "  }";
     }
 }

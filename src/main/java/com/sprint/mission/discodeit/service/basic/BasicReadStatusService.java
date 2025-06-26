@@ -22,7 +22,7 @@ public class BasicReadStatusService implements ReadStatusService {
     private final ReadStatusMapper readStatusMapper;
 
     @Override
-    public ReadStatus create(ReadStatusRequestDto readStatusRequestDto) {
+    public ReadStatusResponseDto create(ReadStatusRequestDto readStatusRequestDto) {
 
         // Throw error if channel or user does not exist
         if (!channelRepository.existsById(readStatusRequestDto.channelId())) {
@@ -41,13 +41,13 @@ public class BasicReadStatusService implements ReadStatusService {
         }
 
         ReadStatus newReadStatus = readStatusMapper.toReadStatus(readStatusRequestDto);
-        return readStatusRepository.save(newReadStatus);
+        return readStatusMapper.toReadStatusResponseDto(readStatusRepository.save(newReadStatus));
     }
 
     @Override
     public ReadStatusResponseDto find(UUID id) {
         return readStatusRepository.findById(id)
-                .map(readStatusMapper::toReadStatusDto)
+                .map(readStatusMapper::toReadStatusResponseDto)
                 .orElseThrow(() -> new NoSuchElementException("User with id " + id + " not found"));
     }
 

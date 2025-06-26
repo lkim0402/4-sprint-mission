@@ -13,8 +13,8 @@ public record UpdateChannelResponseDto(
     public String toString() {
         return "\n" +
                 "    UpdateChannelResponseDto {" + "\n" +
-                "    channelId         = " + this.channelId + ",\n" +
                 "    channelType       = " + this.channelType + ",\n" +
+                "    channelId         = " + this.channelId + ",\n" +
                 "    name              = " + this.name + ",\n" +
                 "    description       = " + this.description + ",\n" +
                 "  }";

@@ -24,7 +24,7 @@ public class BasicUserService implements UserService {
     private final BinaryContentMapper binaryContentMapper;
 
     @Override
-    public User create(UserRequestDto userRequestDto) {
+    public UserResponseDto create(UserRequestDto userRequestDto) {
         User user = userMapper.toUser(userRequestDto);
         if (existsByUsernameOrEmail(user.getUsername(), user.getEmail())) {
             throw new IllegalStateException("User with the same username or email already exists.");
@@ -46,7 +46,7 @@ public class BasicUserService implements UserService {
         UserStatus userStatus = new UserStatus(savedUser.getId());
         userStatusRepository.save(userStatus);
 
-        return savedUser;
+        return userMapper.toUserResponseDto(savedUser, userStatus);
     }
 
     @Override
@@ -94,20 +94,19 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public void delete(User user) {
-        UUID id = user.getId();
+    public void delete(UUID id) {
         if (!userRepository.existsById(id)) {
             throw new NoSuchElementException("User with id " + id+ " not found");
         }
         userRepository.deleteById(id);
 
         // deleting in userstatus
-        UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new NoSuchElementException("UserStatus for user id " + user.getId() + " does not exist!"));
+        UserStatus userStatus = userStatusRepository.findByUserId(id)
+                .orElseThrow(() -> new NoSuchElementException("UserStatus for user id " + id + " does not exist!"));
         userStatusRepository.deleteById(userStatus.getId());
 
         // deleting in binarycontent
-        List<BinaryContent> binaryContentList = binaryContentRepository.findByUserId(user.getId());
+        List<BinaryContent> binaryContentList = binaryContentRepository.findByUserId(id);
         for (BinaryContent binaryContent : binaryContentList){
             binaryContentRepository.deleteById(binaryContent.getId());
         }

@@ -29,6 +29,8 @@ public class ChannelMapper {
         );
     }
 
+//    public Channel
+
     // Response
     public ChannelResponseDto toChannelResponseDto(Channel channel, List<UUID> userIds, Instant lastMessageTime) {
         return switch (channel.getType()) {

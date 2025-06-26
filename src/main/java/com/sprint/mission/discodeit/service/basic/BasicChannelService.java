@@ -22,18 +22,23 @@ public class BasicChannelService implements ChannelService {
     private final ChannelMapper channelMapper;
 
     @Override
-    public Channel createPublic(PublicChannelRequestDto channelRequestDto) {
+    public ChannelResponseDto createPublic(PublicChannelRequestDto channelRequestDto) {
 
         if (channelRepository.existsByName(channelRequestDto.name())) {
             throw new IllegalArgumentException("Channel name already exists");
         }
 
         Channel channel = channelMapper.toPublicChannel(channelRequestDto);
-        return channelRepository.save(channel);
+
+        return channelMapper.toChannelResponseDto(
+                channelRepository.save(channel),
+                null,
+                null
+        );
     }
 
     @Override
-    public Channel createPrivate(PrivateChannelRequestDto channelRequestDto) {
+    public ChannelResponseDto createPrivate(PrivateChannelRequestDto channelRequestDto) {
         List<UUID> userIds = channelRequestDto.userIds();
         Channel channel = channelMapper.toPrivateChannel(channelRequestDto);
 
@@ -42,7 +47,11 @@ public class BasicChannelService implements ChannelService {
             readStatusRepository.save(readStatus);
         }
 
-        return channelRepository.save(channel);
+        return channelMapper.toChannelResponseDto(
+                channelRepository.save(channel),
+                userIds,
+                null
+        );
     }
 
     @Override
@@ -134,6 +143,9 @@ public class BasicChannelService implements ChannelService {
         Channel channel = channelRepository.findById(updateChannelRequestDto.channelId())
                 .orElseThrow(() -> new NoSuchElementException("Channel with id " + updateChannelRequestDto.channelId() + " not found"));
 
+        if (channelRepository.existsByName(updateChannelRequestDto.name())) {
+            throw new IllegalArgumentException("Channel with name " + updateChannelRequestDto.name() + " already exists!");
+        }
 
         channel.update(
                 updateChannelRequestDto.name(),
@@ -145,8 +157,7 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public void delete(Channel channel) {
-        UUID id = channel.getId();
+    public void delete(UUID id) {
         if (!channelRepository.existsById(id)) {
             throw new NoSuchElementException("Channel with id " + id + " not found");
         }

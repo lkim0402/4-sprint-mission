@@ -30,7 +30,7 @@ public class BasicMessageService implements MessageService {
     private final MessageMapper messageMapper;
 
     @Override
-    public Message create(MessageRequestDto messageRequestDto) {
+    public MessageResponseDto create(MessageRequestDto messageRequestDto) {
 
         Message newMessage = messageMapper.toMessage(messageRequestDto);
         UUID channelId = newMessage.getChannelId();
@@ -52,7 +52,7 @@ public class BasicMessageService implements MessageService {
             binaryContent.setMessageId(savedMessage.getId());
             binaryContentRepository.save(binaryContent);
         }
-        return savedMessage;
+        return messageMapper.toMessageResponseDto(savedMessage);
     }
 
     @Override
@@ -82,14 +82,16 @@ public class BasicMessageService implements MessageService {
     }
 
     @Override
-    public void delete(Message message) {
-        UUID id = message.getId();
+    public void delete(UUID id) {
         if (!messageRepository.existsById(id)) {
             throw new NoSuchElementException("Message with id " + id + " not found");
         }
 
+        Message messageToDelete = messageRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Message with id " + id + " not found"));
+
         // deleting binary contents attached to the message
-        List<BinaryContent> optionalBinaryContents = binaryContentRepository.findByUserId(message.getAuthorId());
+        List<BinaryContent> optionalBinaryContents = binaryContentRepository.findByUserId(messageToDelete.getAuthorId());
 
         if (!optionalBinaryContents.isEmpty()) {
             for (BinaryContent binaryContent : optionalBinaryContents) {
