@@ -1,4 +1,6 @@
 package com.sprint.mission.discodeit.repository.file;
+import com.sprint.mission.discodeit.config.RepositorySettings;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import jakarta.annotation.PostConstruct;
@@ -14,24 +16,20 @@ import java.util.UUID;
 
 @Repository
 public class FileMessageRepository implements MessageRepository {
+    private final Path directory;
+    private final String extension;
 
-    @Value("${discodeit.repository:file-directory}")
-    private String fileDirectory;
-
-    private  Path DIRECTORY;
-    private final String EXTENSION = ".ser";
-
-    @PostConstruct
-    public void initDirectory() {
-        // 예: ~/discodeit/file-data-map/BinaryContent
-        this.DIRECTORY = Paths.get(System.getProperty("user.dir"),
+    public FileMessageRepository(RepositorySettings repositorySettings) {
+        this.extension = repositorySettings.getExtension();
+        String fileDirectory = repositorySettings.getFileDirectory();
+        this.directory = Paths.get(System.getProperty("user.dir"),
                 fileDirectory,
                 "file-data-map",
                 Message.class.getSimpleName());
 
         try {
-            if (Files.notExists(DIRECTORY)) {
-                Files.createDirectories(DIRECTORY);
+            if (Files.notExists(directory)) {
+                Files.createDirectories(directory);
             }
         } catch (IOException e) {
             throw new RuntimeException("파일 저장 디렉토리 생성 실패", e);
@@ -39,7 +37,7 @@ public class FileMessageRepository implements MessageRepository {
     }
 
     private Path resolvePath(UUID id) {
-        return DIRECTORY.resolve(id + EXTENSION);
+        return directory.resolve(id + extension);
     }
 
     @Override
@@ -76,8 +74,8 @@ public class FileMessageRepository implements MessageRepository {
     @Override
     public List<Message> findAll() {
         try {
-            return Files.list(DIRECTORY)
-                    .filter(path -> path.toString().endsWith(EXTENSION))
+            return Files.list(directory)
+                    .filter(path -> path.toString().endsWith(extension))
                     // convert each object in path
                     .map(FileMessageRepository::getMessage)
                     .toList();
@@ -91,8 +89,8 @@ public class FileMessageRepository implements MessageRepository {
     @Override
     public List<Message> findByChannelId(UUID channelId) {
         try {
-            return Files.list(DIRECTORY)
-                    .filter(path -> path.toString().endsWith(EXTENSION))
+            return Files.list(directory)
+                    .filter(path -> path.toString().endsWith(extension))
                     // convert each object in path
                     .map(FileMessageRepository::getMessage)
                     .filter(message -> message.getChannelId().equals(channelId))
@@ -121,8 +119,8 @@ public class FileMessageRepository implements MessageRepository {
     @Override
     public void deleteAll() {
         try {
-            Files.list(DIRECTORY)
-                    .filter(path -> path.toString().endsWith(EXTENSION))
+            Files.list(directory)
+                    .filter(path -> path.toString().endsWith(extension))
                     .forEach(path -> {
                         try {
                             Files.delete(path);
@@ -131,7 +129,7 @@ public class FileMessageRepository implements MessageRepository {
                         }
                     });
         } catch (IOException e) {
-            throw new RuntimeException("Failed to list directory for deletion: " + DIRECTORY, e);
+            throw new RuntimeException("Failed to list directory for deletion: " + directory, e);
         }
     }
 
