@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.repository.file;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import java.io.*;
@@ -14,20 +16,26 @@ import java.util.UUID;
 @Repository
 public class FileMessageRepository implements MessageRepository {
 
-    @Value("${discodeit.repository.file-directory}")
+    @Value("${discodeit.repository:file-directory}")
     private String fileDirectory;
 
-    private final Path DIRECTORY;
+    private  Path DIRECTORY;
     private final String EXTENSION = ".ser";
 
-    public FileMessageRepository() {
-        this.DIRECTORY = Paths.get(System.getProperty(fileDirectory), "file-data-map", Message.class.getSimpleName());
-        if (Files.notExists(DIRECTORY)) {
-            try {
+    @PostConstruct
+    public void initDirectory() {
+        // 예: ~/discodeit/file-data-map/BinaryContent
+        this.DIRECTORY = Paths.get(System.getProperty("user.dir"),
+                fileDirectory,
+                "file-data-map",
+                Message.class.getSimpleName());
+
+        try {
+            if (Files.notExists(DIRECTORY)) {
                 Files.createDirectories(DIRECTORY);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
+        } catch (IOException e) {
+            throw new RuntimeException("파일 저장 디렉토리 생성 실패", e);
         }
     }
 
