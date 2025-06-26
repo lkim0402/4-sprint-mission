@@ -1,4 +1,5 @@
 package com.sprint.mission.discodeit;
+import com.sprint.mission.discodeit.config.RepositorySettings;
 import com.sprint.mission.discodeit.dto.AuthService.UserLoginRequestDto;
 import com.sprint.mission.discodeit.dto.AuthService.UserLoginResponseDto;
 import com.sprint.mission.discodeit.dto.BinaryContentService.BinaryContentRequestDto;
@@ -12,46 +13,37 @@ import com.sprint.mission.discodeit.dto.MessageService.MessageResponseDto;
 import com.sprint.mission.discodeit.dto.MessageService.UpdateMessageRequestDto;
 import com.sprint.mission.discodeit.dto.ReadStatusService.ReadStatusRequestDto;
 import com.sprint.mission.discodeit.dto.ReadStatusService.ReadStatusResponseDto;
-import com.sprint.mission.discodeit.dto.ReadStatusService.UpdateReadStatusDto;
 import com.sprint.mission.discodeit.dto.UserService.UpdateUserRequestDto;
-import com.sprint.mission.discodeit.dto.UserService.UpdateUserResponseDto;
 import com.sprint.mission.discodeit.dto.UserService.UserRequestDto;
 import com.sprint.mission.discodeit.dto.UserService.UserResponseDto;
 import com.sprint.mission.discodeit.dto.UserStatusService.UpdateUserStatusDto;
-import com.sprint.mission.discodeit.dto.UserStatusService.UserStatusRequestDto;
 import com.sprint.mission.discodeit.dto.UserStatusService.UserStatusResponseDto;
 import com.sprint.mission.discodeit.entity.*;
-import com.sprint.mission.discodeit.mapper.*;
 import com.sprint.mission.discodeit.service.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ConfigurableApplicationContext;
-
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @SpringBootApplication
+@EnableConfigurationProperties(RepositorySettings.class)
 public class DiscodeitApplication {
-
-	static AuthMapper authMapper;
-	static BinaryContentMapper binaryContentMapper;
-	static ChannelMapper channelMapper;
-	static MessageMapper messageMapper;
-	static ReadStatusMapper readStatusMapper;
-	static UserMapper userMapper;
-	static UserStatusMapper userStatusMapper;
 
 	public static void main(String[] args) {
 
 		/**
 		 * =============== Repository 테스팅 ===============
 		 * Repository를 테스트 할때 File, Jcf 번갈아가면서 테스팅 하기
-		 * 방법: Repository 클래스 위에 @Primary 어노테이션 추가
+		 *
+		 * 방법1: Repository 클래스 위에 @Primary 어노테이션 추가
 		 * 1차 테스트: File*Repository
 		 * 2차 테스트: JCF*Repository
+		 *
+		 * 방법2 (심화과정): RepositorySettings를 통해 application.yml값 받아오기
 		 *
 		 * =============== Mapper ===============
 		 * 서비스 별로 들어있는 Mapper 클래스는 @Component 어노테이션이 붙혀져 있으므로
@@ -68,17 +60,24 @@ public class DiscodeitApplication {
 		ReadStatusService readStatusService = context.getBean(ReadStatusService.class);
 		UserStatusService userStatusService = context.getBean(UserStatusService.class);
 
-		// 테스트 전 모든 데이터 초기화
+
+		// =============================== 테스트 전 모든 데이터 초기화 ===============================
 		clearAllData(channelService, userService, messageService, binaryContentService, readStatusService, userStatusService);
 
 
+		// =============================== 심화 요구사항 테스트 ===============================
+		RepositorySettings repositorySettings = context.getBean(RepositorySettings.class);
+		String type = repositorySettings.getType();
+		System.out.println("Repository used: " + type);
+
+		
+		// =============================== 서비스 테스팅 ===============================
 		/**
 		 * 아래 각 서비스 테스트는 독립적으로 실행됩니다.
 		 * 테스트하고 싶은 서비스의 해당 라인 앞 주석(//)을 제거하여 실행하고,
 		 * 테스트가 끝나면 다시 주석 처리하는 방식으로 하나씩 확인해주세요.
 		 */
 
-		// =============================== 서비스 테스팅 ===============================
 //		channelServiceTest(channelService);
 //        userServiceTest(userService);
 //        messageServiceTest(messageService, channelService, userService);
