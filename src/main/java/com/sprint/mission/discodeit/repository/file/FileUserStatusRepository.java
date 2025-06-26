@@ -1,5 +1,4 @@
 package com.sprint.mission.discodeit.repository.file;
-import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import jakarta.annotation.PostConstruct;
