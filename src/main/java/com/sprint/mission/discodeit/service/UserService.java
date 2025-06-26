@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
-    User create(UserRequestDto userRequestDto);
+    UserResponseDto create(UserRequestDto userRequestDto);
     UserResponseDto find(UUID userId);
     UserResponseDtos findAll();
     UpdateUserResponseDto update(UpdateUserRequestDto updateUserRequestDto);
-    void delete(User user);
+    void delete(UUID id);
     void deleteAll();
 }

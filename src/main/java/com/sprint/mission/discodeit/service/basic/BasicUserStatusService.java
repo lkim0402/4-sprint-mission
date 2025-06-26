@@ -24,7 +24,7 @@ public class BasicUserStatusService implements UserStatusService {
     private final UserStatusMapper userStatusMapper;
 
     @Override
-    public UserStatus create(UserStatusRequestDto userStatusRequestDto) {
+    public UserStatusResponseDto create(UserStatusRequestDto userStatusRequestDto) {
         // Throw error if user not found
         if (!userRepository.existsById(userStatusRequestDto.userId())) {
             throw new IllegalArgumentException("User not found");
@@ -37,7 +37,7 @@ public class BasicUserStatusService implements UserStatusService {
                 });
 
         UserStatus newUserStatus = userStatusMapper.toUserStatus(userStatusRequestDto);
-        return userStatusRepository.save(newUserStatus);
+        return userStatusMapper.toUserStatusResponseDto(userStatusRepository.save(newUserStatus));
     }
 
     @Override

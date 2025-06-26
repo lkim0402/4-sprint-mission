@@ -19,10 +19,12 @@ public class BasicBinaryContentService implements BinaryContentService {
     private final BinaryContentMapper binaryContentMapper;
 
     @Override
-    public BinaryContent create(BinaryContentRequestDto binaryContentRequestDto) {
-        return binaryContentRepository.save(
+    public BinaryContentResponseDto create(BinaryContentRequestDto binaryContentRequestDto) {
+         BinaryContent newBinaryContent = binaryContentRepository.save(
                 binaryContentMapper.toBinaryContent(binaryContentRequestDto)
         );
+
+        return binaryContentMapper.toBinaryContentResponseDto(newBinaryContent);
     }
 
     @Override

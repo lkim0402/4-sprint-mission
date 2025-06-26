@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 public record ChannelResponseDto(
-        UUID channelId,
+        UUID id,
         Instant latestMessageTime,
         ChannelType channelType,
         String name, // null for private
@@ -16,10 +16,10 @@ public record ChannelResponseDto(
     public String toString() {
         return "\n" +
                 "    ChannelResponseDto {" + "\n" +
-                "    channelId         = " + this.channelId + ",\n" +
+                "    channelType       = " + this.channelType + ",\n" +
+                "    id                = " + this.id + ",\n" +
                 "    name              = " + this.name + ",\n" +
                 "    description       = " + this.description + ",\n" +
-                "    channelType       = " + this.channelType + ",\n" +
                 "    latestMessageTime = " + this.latestMessageTime + ",\n" +
                 "    userIds           = " + this.userIds + "\n" +
                 "  }";

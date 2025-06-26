@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.dto.MessageService;
 import java.util.UUID;
 
 public record MessageResponseDto(
-        UUID messageId,
+        UUID id,
         String content,
         UUID channelId,
         UUID authorId
@@ -12,7 +12,7 @@ public record MessageResponseDto(
     public String toString() {
         return "\n" +
                 "    MessageResponseDto {" + "\n" +
-                "    messageId = " + this.messageId + ",\n" +
+                "    id        = " + this.id + ",\n" +
                 "    content   = " + this.content + ",\n" +
                 "    channelId = " + this.channelId + ",\n" +
                 "    authorId  = " + this.authorId + ",\n" +

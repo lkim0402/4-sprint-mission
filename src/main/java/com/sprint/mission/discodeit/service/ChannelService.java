@@ -7,12 +7,12 @@ import com.sprint.mission.discodeit.entity.Channel;
 import java.util.UUID;
 
 public interface ChannelService {
-    Channel createPublic(PublicChannelRequestDto channelRequestDto);
-    Channel createPrivate(PrivateChannelRequestDto channelRequestDto);
+    ChannelResponseDto createPublic(PublicChannelRequestDto channelRequestDto);
+    ChannelResponseDto createPrivate(PrivateChannelRequestDto channelRequestDto);
     ChannelResponseDto find(UUID channelId);
     ChannelResponseDtos findAllByUserId(UUID userId);
     ChannelResponseDtos findAllPublicChannels();
     UpdateChannelResponseDto update(UpdateChannelRequestDto updateChannelRequestDto);
-    void delete(Channel channel);
+    void delete(UUID id);
     void deleteAll();
 }
