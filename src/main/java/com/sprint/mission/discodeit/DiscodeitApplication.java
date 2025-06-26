@@ -493,8 +493,8 @@ public class DiscodeitApplication {
 
 
 //		 삭제를 한 후 read 진행할때 에러 던짐
-        System.out.println("Read binaryContent1 (deleted): "
-                + binaryContentService.find(binaryContent1.id()));
+//        System.out.println("Read binaryContent1 (deleted): "
+//                + binaryContentService.find(binaryContent1.id()));
 
 	}
 

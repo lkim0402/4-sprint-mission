@@ -1,5 +1,4 @@
 package com.sprint.mission.discodeit.repository.file;
-import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import jakarta.annotation.PostConstruct;
@@ -98,7 +97,7 @@ public class FileChannelRepository implements ChannelRepository {
             return Files.list(DIRECTORY)
                     .filter(path -> path.toString().endsWith(EXTENSION))
                     .map(FileChannelRepository::getChannel)
-                    .anyMatch(c -> c.getName().equals(channelName));
+                    .anyMatch(c -> channelName.equals(c.getName()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }    }
