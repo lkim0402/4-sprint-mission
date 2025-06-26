@@ -1,8 +1,10 @@
 package com.sprint.mission.discodeit.repository.file;
+import com.sprint.mission.discodeit.config.RepositorySettings;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import java.io.*;
 import java.nio.file.Files;
@@ -14,32 +16,28 @@ import java.util.UUID;
 
 @Repository
 public class FileChannelRepository implements ChannelRepository {
-    @Value("${discodeit.repository.file-directory}")
-    private String fileDirectory;
+    private final Path directory;
+    private final String extension;
 
-    private Path DIRECTORY;
-    private final String EXTENSION = ".ser";
-
-    @PostConstruct
-    public void initDirectory() {
-        // 예: ~/discodeit/file-data-map/BinaryContent
-        this.DIRECTORY = Paths.get(System.getProperty("user.dir"),
+    public FileChannelRepository(RepositorySettings repositorySettings) {
+        this.extension = repositorySettings.getExtension();
+        String fileDirectory = repositorySettings.getFileDirectory();
+        this.directory = Paths.get(System.getProperty("user.dir"),
                 fileDirectory,
                 "file-data-map",
                 Channel.class.getSimpleName());
 
         try {
-            if (Files.notExists(DIRECTORY)) {
-                Files.createDirectories(DIRECTORY);
+            if (Files.notExists(directory)) {
+                Files.createDirectories(directory);
             }
         } catch (IOException e) {
             throw new RuntimeException("파일 저장 디렉토리 생성 실패", e);
         }
     }
 
-
     private Path resolvePath(UUID id) {
-        return DIRECTORY.resolve(id + EXTENSION);
+        return directory.resolve(id + extension);
     }
 
     @Override
@@ -76,8 +74,8 @@ public class FileChannelRepository implements ChannelRepository {
     @Override
     public List<Channel> findAll() {
         try {
-            return Files.list(DIRECTORY)
-                    .filter(path -> path.toString().endsWith(EXTENSION))
+            return Files.list(directory)
+                    .filter(path -> path.toString().endsWith(extension))
                     .map(FileChannelRepository::getChannel)
                     .toList();
         } catch (IOException e) {
@@ -94,8 +92,8 @@ public class FileChannelRepository implements ChannelRepository {
     @Override
     public boolean existsByName(String channelName) {
         try {
-            return Files.list(DIRECTORY)
-                    .filter(path -> path.toString().endsWith(EXTENSION))
+            return Files.list(directory)
+                    .filter(path -> path.toString().endsWith(extension))
                     .map(FileChannelRepository::getChannel)
                     .anyMatch(c -> channelName.equals(c.getName()));
         } catch (IOException e) {
@@ -126,8 +124,8 @@ public class FileChannelRepository implements ChannelRepository {
     @Override
     public void deleteAll() {
         try {
-            Files.list(DIRECTORY)
-                    .filter(path -> path.toString().endsWith(EXTENSION))
+            Files.list(directory)
+                    .filter(path -> path.toString().endsWith(extension))
                     .forEach(path -> {
                         try {
                             Files.delete(path);
@@ -136,7 +134,7 @@ public class FileChannelRepository implements ChannelRepository {
                         }
                     });
         } catch (IOException e) {
-            throw new RuntimeException("Failed to list directory for deletion: " + DIRECTORY, e);
+            throw new RuntimeException("Failed to list directory for deletion: " + directory, e);
         }
     }
 }

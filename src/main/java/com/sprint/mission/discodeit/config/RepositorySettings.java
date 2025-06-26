@@ -8,5 +8,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RepositorySettings {
-    private String type = "jcf"; // jcf | file
+    // default values unless stated otherwise
+    private String type = "jcf";
+    private String fileDirectory = ".discodeit";
+    private String extension = ".ser";
 }

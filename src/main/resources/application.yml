@@ -8,3 +8,4 @@ discodeit:
     # jcf | file
     type: file
     file-directory: .discodeit
+    extension: .ser

@@ -42,6 +42,6 @@ public class JCFRepositoryConfig {
 
     @Bean
     public UserStatusRepository userStatusRepository() {
-        return new FileUserStatusRepository();
+        return new JCFUserStatusRepository();
     }
 }

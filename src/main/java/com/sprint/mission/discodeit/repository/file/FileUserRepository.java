@@ -1,4 +1,6 @@
 package com.sprint.mission.discodeit.repository.file;
+import com.sprint.mission.discodeit.config.RepositorySettings;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
@@ -14,24 +16,20 @@ import java.util.UUID;
 
 @Repository
 public class FileUserRepository implements UserRepository {
+    private final Path directory;
+    private final String extension;
 
-    @Value("${discodeit.repository:file-directory}")
-    private String fileDirectory;
-
-    private Path DIRECTORY;
-    private final String EXTENSION = ".ser";
-
-    @PostConstruct
-    public void initDirectory() {
-        // 예: ~/discodeit/file-data-map/BinaryContent
-        this.DIRECTORY = Paths.get(System.getProperty("user.dir"),
+    public FileUserRepository(RepositorySettings repositorySettings) {
+        this.extension = repositorySettings.getExtension();
+        String fileDirectory = repositorySettings.getFileDirectory();
+        this.directory = Paths.get(System.getProperty("user.dir"),
                 fileDirectory,
                 "file-data-map",
                 User.class.getSimpleName());
 
         try {
-            if (Files.notExists(DIRECTORY)) {
-                Files.createDirectories(DIRECTORY);
+            if (Files.notExists(directory)) {
+                Files.createDirectories(directory);
             }
         } catch (IOException e) {
             throw new RuntimeException("파일 저장 디렉토리 생성 실패", e);
@@ -39,7 +37,7 @@ public class FileUserRepository implements UserRepository {
     }
 
     private Path resolvePath(UUID id) {
-        return DIRECTORY.resolve(id + EXTENSION);
+        return directory.resolve(id + extension);
     }
 
     @Override
@@ -77,8 +75,8 @@ public class FileUserRepository implements UserRepository {
     public Optional<User> findByUsername(String username) {
         try {
             // mapping each file to ois.readObject()
-            return Files.list(DIRECTORY)// get all the files in DIRECTORY as a list
-                    .filter(path -> path.toString().endsWith(EXTENSION))
+            return Files.list(directory)// get all the files in DIRECTORY as a list
+                    .filter(path -> path.toString().endsWith(extension))
                     .map(FileUserRepository::getUser)
                     .filter(user -> user.getUsername().equals(username))
                     .findFirst();
@@ -91,8 +89,8 @@ public class FileUserRepository implements UserRepository {
     public List<User> findAll() {
         try {
             // mapping each file to ois.readObject()
-            return Files.list(DIRECTORY)// get all the files in DIRECTORY as a list
-                    .filter(path -> path.toString().endsWith(EXTENSION))
+            return Files.list(directory)// get all the files in DIRECTORY as a list
+                    .filter(path -> path.toString().endsWith(extension))
                     .map(FileUserRepository::getUser)
                     .toList();
         } catch (IOException e) {
@@ -119,8 +117,8 @@ public class FileUserRepository implements UserRepository {
     @Override
     public void deleteAll() {
         try {
-            Files.list(DIRECTORY)
-                    .filter(path -> path.toString().endsWith(EXTENSION))
+            Files.list(directory)
+                    .filter(path -> path.toString().endsWith(extension))
                     .forEach(path -> {
                         try {
                             Files.delete(path);
@@ -129,7 +127,7 @@ public class FileUserRepository implements UserRepository {
                         }
                     });
         } catch (IOException e) {
-            throw new RuntimeException("Failed to list directory for deletion: " + DIRECTORY, e);
+            throw new RuntimeException("Failed to list directory for deletion: " + directory, e);
         }
     }
 

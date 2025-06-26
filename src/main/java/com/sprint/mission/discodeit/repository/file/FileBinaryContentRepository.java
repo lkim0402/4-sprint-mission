@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.repository.file;
+import com.sprint.mission.discodeit.config.RepositorySettings;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,24 +16,20 @@ import java.util.UUID;
 
 @Repository
 public class FileBinaryContentRepository implements BinaryContentRepository {
+    private final Path directory;
+    private final String extension;
 
-    @Value("${discodeit.repository:file-directory}")
-    private String fileDirectory;
-
-    private Path DIRECTORY;
-    private final String EXTENSION = ".ser";
-
-    @PostConstruct
-    public void initDirectory() {
-        // 예: ~/discodeit/file-data-map/BinaryContent
-        this.DIRECTORY = Paths.get(System.getProperty("user.dir"),
+    public FileBinaryContentRepository(RepositorySettings repositorySettings) {
+        this.extension = repositorySettings.getExtension();
+        String fileDirectory = repositorySettings.getFileDirectory();
+        this.directory = Paths.get(System.getProperty("user.dir"),
                 fileDirectory,
                 "file-data-map",
                 BinaryContent.class.getSimpleName());
 
         try {
-            if (Files.notExists(DIRECTORY)) {
-                Files.createDirectories(DIRECTORY);
+            if (Files.notExists(directory)) {
+                Files.createDirectories(directory);
             }
         } catch (IOException e) {
             throw new RuntimeException("파일 저장 디렉토리 생성 실패", e);
@@ -39,7 +37,7 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
     }
 
     private Path resolvePath(UUID id) {
-        return DIRECTORY.resolve(id + EXTENSION);
+        return directory.resolve(id + extension);
     }
 
     @Override
@@ -76,8 +74,8 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
     @Override
     public List<BinaryContent> findByUserId(UUID userId) {
         try {
-            return Files.list(DIRECTORY)
-                .filter(path -> path.toString().endsWith(EXTENSION))
+            return Files.list(directory)
+                .filter(path -> path.toString().endsWith(extension))
                 // convert each object in path
                 .map(FileBinaryContentRepository::getBinaryContent)
                 .filter(b -> b.getUserId().equals(userId))
@@ -90,8 +88,8 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
     @Override
     public List<BinaryContent> findAll() {
         try {
-            return Files.list(DIRECTORY)
-                .filter(p -> p.toString().endsWith(EXTENSION))
+            return Files.list(directory)
+                .filter(p -> p.toString().endsWith(extension))
                 .map(FileBinaryContentRepository::getBinaryContent)
                 .toList();
         } catch (IOException e) {
@@ -102,8 +100,8 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
     @Override
     public List<BinaryContent> findAllByIdIn(List<UUID> binaryContentIds) {
         try {
-            return Files.list(DIRECTORY)
-                    .filter(p -> p.toString().endsWith(EXTENSION))
+            return Files.list(directory)
+                    .filter(p -> p.toString().endsWith(extension))
                     .map(FileBinaryContentRepository::getBinaryContent)
                     .filter(b ->  binaryContentIds.contains(b.getId()))
                     .toList();
@@ -134,8 +132,8 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
     @Override
     public void deleteAll() {
         try {
-            Files.list(DIRECTORY)
-                    .filter(path -> path.toString().endsWith(EXTENSION))
+            Files.list(directory)
+                    .filter(path -> path.toString().endsWith(extension))
                     .forEach(path -> {
                         try {
                             Files.delete(path);
@@ -144,7 +142,7 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
                         }
                     });
         } catch (IOException e) {
-            throw new RuntimeException("Failed to list directory for deletion: " + DIRECTORY, e);
+            throw new RuntimeException("Failed to list directory for deletion: " + directory, e);
         }
 
     }
