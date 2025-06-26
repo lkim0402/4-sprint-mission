@@ -1,5 +1,4 @@
 package com.sprint.mission.discodeit.service.basic;
-
 import com.sprint.mission.discodeit.dto.AuthService.UserLoginRequestDto;
 import com.sprint.mission.discodeit.dto.AuthService.UserLoginResponseDto;
 import com.sprint.mission.discodeit.entity.User;
@@ -10,7 +9,6 @@ import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.NoSuchElementException;
 
 @Service

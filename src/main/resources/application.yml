@@ -1,3 +1,10 @@
 spring:
   application:
     name: discodeit
+
+
+discodeit:
+  repository:
+    # jcf | file
+    type: jcf
+    file-directory: .discodeit

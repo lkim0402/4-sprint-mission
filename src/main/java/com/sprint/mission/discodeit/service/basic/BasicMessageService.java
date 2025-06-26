@@ -1,5 +1,4 @@
 package com.sprint.mission.discodeit.service.basic;
-import com.sprint.mission.discodeit.dto.ChannelService.UpdateChannelResponseDto;
 import com.sprint.mission.discodeit.dto.MessageService.*;
 import com.sprint.mission.discodeit.dto.BinaryContentService.BinaryContentRequestDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
@@ -13,10 +12,8 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service

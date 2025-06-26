@@ -1,12 +1,9 @@
 package com.sprint.mission.discodeit.repository.jcf;
-import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import java.util.*;
 
-//@Primary
 @Repository
 public class JCFUserStatusRepository implements UserStatusRepository {
     /**

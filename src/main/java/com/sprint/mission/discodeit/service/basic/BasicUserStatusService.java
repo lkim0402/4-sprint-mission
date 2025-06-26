@@ -1,5 +1,4 @@
 package com.sprint.mission.discodeit.service.basic;
-import com.sprint.mission.discodeit.dto.UserService.UpdateUserResponseDto;
 import com.sprint.mission.discodeit.dto.UserStatusService.UpdateUserStatusDto;
 import com.sprint.mission.discodeit.dto.UserStatusService.UserStatusRequestDto;
 import com.sprint.mission.discodeit.dto.UserStatusService.UserStatusResponseDto;
@@ -12,7 +11,6 @@ import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
