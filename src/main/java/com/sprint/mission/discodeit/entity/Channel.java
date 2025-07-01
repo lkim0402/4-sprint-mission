@@ -1,119 +1,51 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.*;
+import java.time.Instant;
+import java.util.UUID;
 
+@Getter
 public class Channel extends BaseEntity {
-
-    // new fields
-    private String channelName;
-
-    //  extra fields
-    private final List<User> users;
-    private List<Message> messages;
-
     @Serial
-    private static final long serialVersionUID = 1L; // channel's version
+    private static final long serialVersionUID = 1L;
 
-    public Channel(String channelName) {
+    private final ChannelType type;
+    private String name;
+    private String description;
+
+    public Channel(ChannelType type, String name, String description) {
         super();
-        this.channelName = channelName;
-
-        // added
-        this.users = new ArrayList<>();
-        this.messages = new ArrayList<>();
+        this.type = type;
+        this.name = name;
+        this.description = description;
     }
 
-    // ============ User ============ (linked with user)
+    public void update(String newName, String newDescription) {
+        boolean anyValueUpdated = false;
+        if (newName != null && !newName.equals(this.name)) {
+            this.name = newName;
+            anyValueUpdated = true;
+        }
+        if (newDescription != null && !newDescription.equals(this.description)) {
+            this.description = newDescription;
+            anyValueUpdated = true;
+        }
 
-
-    // utility methods
-    private boolean containsUser(User user) {
-        return users.contains(user);
-    }
-
-
-    public void addUser(User user) {
-
-        if (!containsUser(user)) {
-            users.add(user);
-
-            // extra safe checking
-            if (!user.getChannels().contains(this)) {
-                    user.addChannel(this);
-            }
+        if (anyValueUpdated) {
+            this.updateTimeStamp();
         }
     }
-
-    public void deleteUser(User user) {
-
-        if (containsUser(user)) {
-
-            users.remove(user);
-            if (user.getChannels().contains(this)) {
-                user.deleteChannel(this);
-            }
-        }
-    }
-
-    public List<User> getUsers() {
-        return new ArrayList<>(users);
-    }
-
-    // ============ Message ============ (linked with User & Message)
-
-    public void addMessage(Message message) {
-
-        if (!messages.contains(message)) {
-            messages.add(message);
-
-            if (!message.getChannel().equals(this)) {
-                message.setChannel(this);
-            }
-        }
-    }
-
-    public void deleteMessage(Message message) {
-
-        if (messages.contains(message)) {
-            messages.remove(message);
-
-            User user = message.getUser();
-            if (user.getMessagesList().contains(message)) {
-                user.deleteMessage(message);
-            }
-
-        }
-    }
-
-    public List<Message> getMessages() {
-        return new ArrayList<>(messages);
-    }
-
-    public void setMessages(List<Message> newList)
-    {
-        messages = newList;
-    }
-
-    // ============ Channel name ============
-
-    public String getChannelName() {
-        return channelName;
-    }
-
-    public void setChannelName(String channelName) {
-        this.channelName = channelName;
-    }
-
 
     @Override
     public String toString() {
         return "\n" +
                 "Channel {" + "\n" +
-                "  Channel Name = '" + channelName + "',\n" +
-                "  ID           = " + this.getId() + "\n" +
+                "  Name = '" + this.name + "',\n" +
+                "  ID   = " + this.getId() + ",\n" +
+                "  type = " + this.type + "\n" +
                 "}";
     }
-
 }

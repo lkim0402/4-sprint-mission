@@ -1,90 +1,129 @@
 package com.sprint.mission.discodeit.service.basic;
-
-import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.dto.UserService.*;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
+import com.sprint.mission.discodeit.mapper.UserMapper;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import java.util.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
+@Service
+@RequiredArgsConstructor
 public class BasicUserService implements UserService {
     private final UserRepository userRepository;
-
-    public BasicUserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
-
-    @Override
-    public User createUser(String userName, String email, String pw) {
-        User newUser = new User(userName, email, pw);
-        userRepository.save(newUser);
-        return newUser;
-    }
+    private final UserStatusRepository userStatusRepository;
+    private final BinaryContentRepository binaryContentRepository;
+    private final UserMapper userMapper;
+    private final BinaryContentMapper binaryContentMapper;
 
     @Override
-    public User findVerifiedUser(UUID id) {
-        return userRepository.findVerifiedUser(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
-    }
+    public UserResponseDto create(UserRequestDto userRequestDto) {
+        User user = userMapper.toUser(userRequestDto);
+        if (existsByUsernameOrEmail(user.getUsername(), user.getEmail())) {
+            throw new IllegalStateException("User with the same username or email already exists.");
+        }
+        // Save user
+        User savedUser =  userRepository.save(user);
 
+        //Save profile in binaryContentRepository
+        BinaryContent profile = binaryContentMapper.toBinaryContent(userRequestDto.profilePicture());
+        if (profile != null) {
+            // setting user's profile id
+            savedUser.setProfileId(profile.getId());
+            // setting profile's user id
+            profile.setUserId(savedUser.getId());
+            binaryContentRepository.save(profile);
+        }
 
-    @Override
-    public List<User> getUsersByStatus(UserStatus userStatus) {
-        List<User> users = getUsers();
+        // Save userStatus in userStatusRepository
+        UserStatus userStatus = new UserStatus(savedUser.getId());
+        userStatusRepository.save(userStatus);
 
-        return users.stream()
-                .filter(u -> u.getUserStatus() == userStatus)
-                .collect(Collectors.toList());
-    }
-
-    // update user 합침
-    @Override
-    public void updateUser(UUID id, User partialUser) {
-        User user = findVerifiedUser(id);
-
-        // replace if same ID, add if none
-        Optional.ofNullable(partialUser.getUserName())
-                .ifPresent(name -> user.setUserName(partialUser.getUserName()));
-
-        // setting email
-        Optional.ofNullable(partialUser.getEmail())
-                .ifPresent(email -> user.setEmail(partialUser.getEmail()));
-
-        // setting password
-        Optional.ofNullable(partialUser.getPassword())
-                .ifPresent(pw -> user.setPassword(partialUser.getPassword()));
-
-        // setting status
-        Optional.ofNullable(partialUser.getUserStatus())
-                .ifPresent(status -> user.setUserStatus(partialUser.getUserStatus()));
-
-        //partialUser updatedAt
-        user.updateTimeStamp();
-
-        userRepository.save(user);
+        return userMapper.toUserResponseDto(savedUser, userStatus);
     }
 
     @Override
-    public void deleteUser(UUID id) {
-        userRepository.deleteUser(id);
+    public UserResponseDto find(UUID userId) {
+
+        // find the userStatus
+        Optional<UserStatus> userStatus = userStatusRepository.findByUserId(userId);
+
+        return userRepository.findById(userId)
+                .map(u -> userMapper.toUserResponseDto(u, userStatus))
+                .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
     }
 
     @Override
-    public List<User> getUsers() {
-        return userRepository.findAll();
+    public UserResponseDtos findAll() {
+        List<User> users = userRepository.findAll();
+        if (users.isEmpty()) {
+            return new UserResponseDtos(Collections.emptyList());
+        }
+
+        List<UserResponseDto> userList =  users.stream()
+                .map(u -> {
+                    Optional<UserStatus> userStatus = userStatusRepository.findByUserId(u.getId());
+                    return userMapper.toUserResponseDto(u, userStatus);
+                })
+                .toList();
+
+        return userMapper.toUserResponseDtos(userList);
     }
 
     @Override
-    public void clearUsers() {
-        List<User> users = new ArrayList<>();
-        userRepository.saveAll(users);
+    public UpdateUserResponseDto update(UpdateUserRequestDto updateUserRequestDto) {
 
+        User existingUser = userRepository.findById(updateUserRequestDto.userId())
+                .orElseThrow(() -> new NoSuchElementException("User with id " + updateUserRequestDto.userId() + " not found"));
+
+        existingUser.update(
+                updateUserRequestDto.username(),
+                updateUserRequestDto.email(),
+                updateUserRequestDto.password(),
+                updateUserRequestDto.profileId()
+        );
+
+        return userMapper.toUpdateUserResponseDto(userRepository.save(existingUser));
+    }
+
+    @Override
+    public void delete(UUID id) {
+        if (!userRepository.existsById(id)) {
+            throw new NoSuchElementException("User with id " + id+ " not found");
+        }
+        userRepository.deleteById(id);
+
+        // deleting in userstatus
+        UserStatus userStatus = userStatusRepository.findByUserId(id)
+                .orElseThrow(() -> new NoSuchElementException("UserStatus for user id " + id + " does not exist!"));
+        userStatusRepository.deleteById(userStatus.getId());
+
+        // deleting in binarycontent
+        List<BinaryContent> binaryContentList = binaryContentRepository.findByUserId(id);
+        for (BinaryContent binaryContent : binaryContentList){
+            binaryContentRepository.deleteById(binaryContent.getId());
+        }
+    }
+
+    @Override
+    public void deleteAll() {
+        userRepository.deleteAll();
+    }
+
+    private boolean existsByUsernameOrEmail(String username, String email) {
+        List<User> users = userRepository.findAll();
+
+        List<User> filtered = users.stream().
+                filter(u -> Objects.equals(u.getUsername(), username) || Objects.equals(u.getEmail(), email))
+                .toList();
+
+        return !filtered.isEmpty();
     }
 
 }

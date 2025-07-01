@@ -1,63 +1,66 @@
 package com.sprint.mission.discodeit.repository.jcf;
-import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.stereotype.Repository;
+import java.util.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
+@Repository
 public class JCFUserRepository implements UserRepository {
-    List<User> data = new ArrayList<>();
+
+    /**
+     * nameIndex: username을 key로 사용하여 O(1) 시간에 User Id를 조회합니다.
+     * Key: String username, Value: UUID UserId
+     * 유저네임으로 조회할 때 O(n)에서 O(1) 시간 복잡도로 줄일 수 있어서 구현했습니다.
+     */
+    private final Map<UUID, User> data; // User Id : User
+    private final Map<String, UUID> nameIndex; // Username : User
+
+    public JCFUserRepository() {
+        this.data = new HashMap<>();
+        this.nameIndex = new HashMap<>();
+    }
 
     @Override
-    public void saveAll(List<User> users) {
-        data = users;
+    public User save(User user) {
+        this.data.put(user.getId(), user);
+        this.nameIndex.put(user.getUsername(), user.getId());
+        return user;
+    }
+
+    @Override
+    public Optional<User> findById(UUID id) {
+            return Optional.ofNullable(this.data.get(id));
+    }
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return Optional.ofNullable(nameIndex.get(username))
+                .map(this.data::get);
     }
 
     @Override
     public List<User> findAll() {
-        return data.stream()
-                .filter(u -> u.getUserStatus() == (UserStatus.ACTIVE))
-                .collect(Collectors.toList());
+        return new ArrayList<>(data.values());
     }
 
     @Override
-    public Optional<User> findVerifiedUser(UUID id) {
-        System.out.println(findAll());
-        return findAll().stream()
-                .filter(u -> u.getId().equals(id))
-                .findFirst();
+    public boolean existsById(UUID id) {
+        return this.data.containsKey(id);
     }
 
     @Override
-    public void save(User user) {
+    public void deleteById(UUID id) {
 
-        List<User> users = findAll();
+        User user = this.data.remove(id);
 
-        // replace if same ID, add if none
-        boolean updated = false;
-
-        for (int i = 0; i < users.size(); i++) {
-            if (users.get(i).getId().equals(user.getId())) {
-                users.set(i, user);
-                updated = true;
-                break;
-            }
+        if (user != null) {
+            this.nameIndex.remove(user.getUsername());
         }
-
-        if (!updated) {
-            users.add(user);
-        }
-
-        saveAll(users);
     }
 
     @Override
-    public void deleteUser(UUID id) {
-        data.removeIf(u -> u.getId().equals(id));
+    public void deleteAll() {
+        this.data.clear();
+        this.nameIndex.clear();
     }
 }

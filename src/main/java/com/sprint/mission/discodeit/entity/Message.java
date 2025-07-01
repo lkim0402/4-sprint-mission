@@ -1,69 +1,49 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.UUID;
 
+@Getter
 public class Message extends BaseEntity {
 
-
-    // new fields
-    private User user;
-    private String message;
-    private Channel channel;
-
     @Serial
-    private static final long serialVersionUID = 1L; // message's version
+    private static final long serialVersionUID = 1L;
 
-    public Message(User user, String message, Channel channel) {
+    private String content;
+    private final UUID channelId;
+    private final UUID authorId;
+
+    public Message(String content, UUID channelId, UUID authorId) {
         super();
-
-        // new fields
-        this.user = user;
-        this.channel = channel;
-        this.message = message;
+        this.content = content;
+        this.channelId = channelId;
+        this.authorId = authorId;
     }
 
-    // ============ Channel ============
+    public void update(String newContent) {
+        boolean anyValueUpdated = false;
+        if (newContent != null && !newContent.equals(this.content)) {
+            this.content = newContent;
+            anyValueUpdated = true;
+        }
 
-    public Channel getChannel() {
-        return channel;
+        if (anyValueUpdated) {
+            this.updateTimeStamp();
+        }
     }
-
-    public void setChannel(Channel channel) {
-        this.channel = channel;
-    }
-
-    // ============ User (sender) ============
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    // ============ Message ============
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
 
     @Override
     public String toString() {
         return "\n" +
                 "Message {" + "\n" +
                 "  ID         = " + this.getId() + ",\n" +
-                "  Username   = " + user.getUserName() + ",\n" +
-                "  Message    = '" + message + "',\n" +
-                "  Channel    = " + channel.getChannelName() + "\n" +
+                "  UserId     = " + this.authorId + ",\n" +
+                "  ChannelId  = " + this.channelId + "\n" +
+                "  Content    = '" + content + "',\n" +
                 "}";
     }
-
 }

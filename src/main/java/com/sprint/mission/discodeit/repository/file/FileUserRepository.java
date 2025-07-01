@@ -1,76 +1,141 @@
 package com.sprint.mission.discodeit.repository.file;
-import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.config.RepositorySettings;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.stereotype.Repository;
 import java.io.*;
-import java.util.ArrayList;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
+@Repository
 public class FileUserRepository implements UserRepository {
-    private static final String FILE_PATH = "data/users.ser";
+    private final static String PATH = "user.dir";
+    private final Path DIRECTORY;
+    private final String EXTENSION;
+
+    public FileUserRepository(RepositorySettings repositorySettings) {
+        this.EXTENSION = repositorySettings.getEXTENSION();
+        String fileDirectory = repositorySettings.getFILEDIRECTORY();
+        this.DIRECTORY = Paths.get(System.getProperty(PATH),
+                fileDirectory,
+                "file-data-map",
+                User.class.getSimpleName());
+
+        try {
+            if (Files.notExists(DIRECTORY)) {
+                Files.createDirectories(DIRECTORY);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("파일 저장 디렉토리 생성 실패", e);
+        }
+    }
+
+    private Path resolvePath(UUID id) {
+        return DIRECTORY.resolve(id + EXTENSION);
+    }
 
     @Override
-    public void saveAll(List<User> users) {
-        try {
-            FileOutputStream fos = new FileOutputStream(FILE_PATH);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(users);
+    public User save(User user) {
+        Path path = resolvePath(user.getId());
+        try (
+                FileOutputStream fos = new FileOutputStream(path.toFile());
+                ObjectOutputStream oos = new ObjectOutputStream(fos)
+        ) {
+            oos.writeObject(user);
         } catch (IOException e) {
-            System.out.println("Error saving users: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+        return user;
+    }
+
+    @Override
+    public Optional<User> findById(UUID id) {
+        User userNullable = null;
+        Path path = resolvePath(id);
+        if (Files.exists(path)) {
+            try (
+                    FileInputStream fis = new FileInputStream(path.toFile());
+                    ObjectInputStream ois = new ObjectInputStream(fis)
+            ) {
+                userNullable = (User) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return Optional.ofNullable(userNullable);
+    }
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        try (Stream<Path> paths = Files.list(DIRECTORY)){
+            return paths
+                    .filter(path -> path.toString().endsWith(EXTENSION))
+                    .map(FileUserRepository::getUser)
+                    .filter(user -> user.getUsername().equals(username))
+                    .findFirst();
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
     public List<User> findAll() {
-        List<User> users = null;
+        try (Stream<Path> paths = Files.list(DIRECTORY)){
+            return paths
+                    .filter(path -> path.toString().endsWith(EXTENSION))
+                    .map(FileUserRepository::getUser)
+                    .toList();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean existsById(UUID id) {
+        Path path = resolvePath(id);
+        return Files.exists(path);
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        Path path = resolvePath(id);
         try {
-            FileInputStream fis = new FileInputStream(FILE_PATH);
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            users = (List<User>) ois.readObject();
+            Files.delete(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void deleteAll() {
+        try (Stream<Path> paths = Files.list(DIRECTORY)){
+            paths
+                    .filter(path -> path.toString().endsWith(EXTENSION))
+                    .forEach(path -> {
+                        try {
+                            Files.delete(path);
+                        } catch (IOException e) {
+                            throw new UncheckedIOException(e);
+                        }
+                    });
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to list directory for deletion: " + DIRECTORY, e);
+        }
+    }
+
+    private static User getUser(Path path) {
+        try (
+                FileInputStream fis = new FileInputStream(path.toFile());
+                ObjectInputStream ois = new ObjectInputStream(fis)
+        ) {
+            return (User) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            System.err.println("Error reading users: " + e.getMessage());
-            return new ArrayList<>(); // fallback
+            throw new RuntimeException(e);
         }
-        return users;
     }
-
-    @Override
-    public Optional<User> findVerifiedUser(UUID id) {
-        List<User> users = findAll();
-        return users.stream()
-                .filter(u -> u.getId().equals(id))
-                .findFirst();
-    }
-
-    @Override
-    public void save(User user) {
-
-        List<User> users = findAll();
-
-        // replace if same ID, add if none
-        boolean updated = false;
-
-        for (int i = 0; i < users.size(); i++) {
-            if (users.get(i).getId().equals(user.getId())) {
-                users.set(i, user);
-                updated = true;
-                break;
-            }
-        }
-
-        if (!updated) {
-            users.add(user);
-        }
-
-        saveAll(users);
-    }
-
-    @Override
-    public void deleteUser(UUID id) {
-        List<User> users = findAll();
-        users.removeIf(u -> u.getId().equals(id));
-        saveAll(users);
-    }}
+}

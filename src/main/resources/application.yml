@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: discodeit
+
+
+discodeit:
+  repository:
+    # jcf | file
+    TYPE: file
+    file-directory: .discodeit
+    extension: .ser

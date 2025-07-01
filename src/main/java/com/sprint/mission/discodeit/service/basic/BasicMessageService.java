@@ -1,75 +1,105 @@
 package com.sprint.mission.discodeit.service.basic;
-
-import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.dto.MessageService.*;
+import com.sprint.mission.discodeit.dto.BinaryContentService.BinaryContentRequestDto;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
+import com.sprint.mission.discodeit.mapper.MessageMapper;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
-
-import java.util.ArrayList;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
+@Service
+@RequiredArgsConstructor
 public class BasicMessageService implements MessageService {
     private final MessageRepository messageRepository;
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
+    private final BinaryContentRepository binaryContentRepository;
+    private final BinaryContentMapper binaryContentMapper;
+    private final MessageMapper messageMapper;
 
-    public BasicMessageService(MessageRepository messageRepository, ChannelRepository channelRepository, UserRepository userRepository) {
-
-        this.messageRepository = messageRepository;
-        this.channelRepository = channelRepository;
-        this.userRepository = userRepository;
-    }
     @Override
-    public Message createMessage(User user, String message, Channel channel) {
-        if (user.getUserStatus() == UserStatus.WITHDRAWN) {
-            return null;
+    public MessageResponseDto create(MessageRequestDto messageRequestDto) {
+
+        Message newMessage = messageMapper.toMessage(messageRequestDto);
+        UUID channelId = newMessage.getChannelId();
+        UUID authorId = newMessage.getAuthorId();
+        if (!channelRepository.existsById(newMessage.getChannelId())) {
+            throw new NoSuchElementException("Channel not found with id " + channelId);
         }
-        Message msg = new Message(user, message, channel);
+        if (!userRepository.existsById(newMessage.getAuthorId())) {
+            throw new NoSuchElementException("Author not found with id " + authorId);
+        }
 
-        user.addMessage(msg);
-        channel.addMessage(msg);
+        Message savedMessage = messageRepository.save(newMessage);
 
-        channelRepository.save(channel);
-        userRepository.save(user);
-
-        messageRepository.save(msg);
-        return msg;
+        // saving the binary content
+        List<BinaryContentRequestDto> attachments = messageRequestDto.attachments();
+        for (BinaryContentRequestDto attachment : attachments) {
+            BinaryContent binaryContent = binaryContentMapper.toBinaryContent(attachment);
+            binaryContent.setUserId(authorId);
+            binaryContent.setMessageId(savedMessage.getId());
+            binaryContentRepository.save(binaryContent);
+        }
+        return messageMapper.toMessageResponseDto(savedMessage);
     }
 
     @Override
-    public Message findVerifiedMessage(UUID id) {
-        return messageRepository.findVerifiedMessage(id)
-                .orElseThrow(() -> new RuntimeException("Channel not found with id: " + id));
+    public MessageResponseDto find(UUID messageId) {
+        Message msg =  messageRepository.findById(messageId)
+                .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
+
+        return messageMapper.toMessageResponseDto(msg);
     }
 
     @Override
-    public Message updateMessage(UUID id, String message) {
-        findVerifiedMessage(id);
+    public MessageResponseDtos findallByChannelId(UUID channelId) {
 
-        Message msg = findVerifiedMessage(id);
-        msg.setMessage(message);
-        messageRepository.save(msg);
-        return msg;
+        List<Message> messageList = messageRepository.findByChannelId(channelId);
+        return messageMapper.toMessageResponseDtos(
+                messageList
+        );
     }
 
     @Override
-    public void deleteMessage(UUID id) {
-        messageRepository.deleteMessage(id);
+    public UpdateMessageResponseDto update(UUID messageId, UpdateMessageRequestDto updateMessageRequestDto) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
+
+        message.update(updateMessageRequestDto.content());
+        return messageMapper.toUpdateMessageResponseDto(messageRepository.save(message));
     }
 
     @Override
-    public List<Message> getMessages() {
-        return messageRepository.findAll();
+    public void delete(UUID id) {
+        if (!messageRepository.existsById(id)) {
+            throw new NoSuchElementException("Message with id " + id + " not found");
+        }
+
+        Message messageToDelete = messageRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Message with id " + id + " not found"));
+
+        // deleting binary contents attached to the message
+        List<BinaryContent> optionalBinaryContents = binaryContentRepository.findByUserId(messageToDelete.getAuthorId());
+
+        if (!optionalBinaryContents.isEmpty()) {
+            for (BinaryContent binaryContent : optionalBinaryContents) {
+                binaryContentRepository.deleteById(binaryContent.getId());
+            }
+        }
+        messageRepository.deleteById(id);
     }
 
     @Override
-    public void clearMessages() {
-        List<Message> messages = new ArrayList<>();
-        messageRepository.saveAll(messages);
+    public void deleteAll() {
+        messageRepository.deleteAll();
     }
 }
