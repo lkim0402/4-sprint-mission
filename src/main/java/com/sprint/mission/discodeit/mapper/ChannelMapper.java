@@ -29,7 +29,14 @@ public class ChannelMapper {
         );
     }
 
-//    public Channel
+    // used in controller
+    public PublicChannelRequestDto publicChannelRequestDto(ChannelRequestDto channelRequestDto) {
+        return new PublicChannelRequestDto(
+                channelRequestDto.channelType(),
+                channelRequestDto.name(),
+                channelRequestDto.description()
+        );
+    }
 
     // Response
     public ChannelResponseDto toChannelResponseDto(Channel channel, List<UUID> userIds, Instant lastMessageTime) {
@@ -61,14 +68,14 @@ public class ChannelMapper {
     }
 
     // Request
-    public UpdateChannelRequestDto toUpdateChannelRequestDto(Channel channel) {
-        return new UpdateChannelRequestDto(
-                channel.getId(),
-                channel.getType(),
-                channel.getName(),
-                channel.getDescription()
-        );
-    }
+//    public UpdateChannelRequestDto toUpdateChannelRequestDto(Channel channel) {
+//        return new UpdateChannelRequestDto(
+//                channel.getId(),
+//                channel.getType(),
+//                channel.getName(),
+//                channel.getDescription()
+//        );
+//    }
 
     // Response
     public UpdateChannelResponseDto toUpdateChannelResponseDto(Channel channel) {

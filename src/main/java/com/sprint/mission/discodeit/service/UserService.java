@@ -10,7 +10,7 @@ public interface UserService {
     UserResponseDto create(UserRequestDto userRequestDto);
     UserResponseDto find(UUID userId);
     UserResponseDtos findAll();
-    UpdateUserResponseDto update(UpdateUserRequestDto updateUserRequestDto);
+    UpdateUserResponseDto update(UUID userId, UpdateUserRequestDto updateUserRequestDto);
     void delete(UUID id);
     void deleteAll();
 }
