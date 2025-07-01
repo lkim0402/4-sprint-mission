@@ -77,10 +77,10 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public UpdateUserResponseDto update(UpdateUserRequestDto updateUserRequestDto) {
+    public UpdateUserResponseDto update(UUID userId, UpdateUserRequestDto updateUserRequestDto) {
 
-        User existingUser = userRepository.findById(updateUserRequestDto.userId())
-                .orElseThrow(() -> new NoSuchElementException("User with id " + updateUserRequestDto.userId() + " not found"));
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
 
         existingUser.update(
                 updateUserRequestDto.username(),
