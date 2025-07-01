@@ -67,7 +67,7 @@ public class DiscodeitApplication {
 
 		// =============================== 심화 요구사항 테스트 ===============================
 		RepositorySettings repositorySettings = context.getBean(RepositorySettings.class);
-		String type = repositorySettings.getType();
+		String type = repositorySettings.getTYPE();
 		System.out.println("Repository used: " + type);
 
 

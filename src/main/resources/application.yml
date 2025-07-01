@@ -6,6 +6,6 @@ spring:
 discodeit:
   repository:
     # jcf | file
-    type: file
+    TYPE: file
     file-directory: .discodeit
     extension: .ser

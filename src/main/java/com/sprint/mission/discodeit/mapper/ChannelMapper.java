@@ -12,7 +12,7 @@ import java.util.UUID;
 public class ChannelMapper {
 
     // Request - public channel creation
-    public Channel toPublicChannel(PublicChannelRequestDto channelRequestDto) {
+    public Channel requestDtoToPublicChannel(PublicChannelRequestDto channelRequestDto) {
         return new Channel(
                 channelRequestDto.type(),
                 channelRequestDto.name(),
@@ -21,7 +21,7 @@ public class ChannelMapper {
     }
 
     // Request - private channel creation
-    public Channel toPrivateChannel(PrivateChannelRequestDto channelRequestDto) {
+    public Channel requestDtoToPrivateChannel(PrivateChannelRequestDto channelRequestDto) {
         return new Channel(
                 channelRequestDto.type(),
                 null,

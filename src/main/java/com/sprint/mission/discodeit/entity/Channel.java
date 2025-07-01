@@ -12,7 +12,7 @@ public class Channel extends BaseEntity {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    final private ChannelType type;
+    private final ChannelType type;
     private String name;
     private String description;
 

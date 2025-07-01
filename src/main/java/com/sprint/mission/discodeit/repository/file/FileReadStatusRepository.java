@@ -17,14 +17,14 @@ import java.util.UUID;
 
 @Repository
 public class FileReadStatusRepository implements ReadStatusRepository {
-
+    private final static String PATH = "user.dir";
     private final Path directory;
     private final String extension;
 
     public FileReadStatusRepository(RepositorySettings repositorySettings) {
-        this.extension = repositorySettings.getExtension();
-        String fileDirectory = repositorySettings.getFileDirectory();
-        this.directory = Paths.get(System.getProperty("user.dir"),
+        this.extension = repositorySettings.getEXTENSION();
+        String fileDirectory = repositorySettings.getFILEDIRECTORY();
+        this.directory = Paths.get(System.getProperty(PATH),
                 fileDirectory,
                 "file-data-map",
                 ReadStatus.class.getSimpleName());

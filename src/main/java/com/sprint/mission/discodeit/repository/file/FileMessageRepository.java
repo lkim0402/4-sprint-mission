@@ -16,13 +16,15 @@ import java.util.UUID;
 
 @Repository
 public class FileMessageRepository implements MessageRepository {
+    private final static String PATH = "user.dir";
     private final Path directory;
     private final String extension;
 
     public FileMessageRepository(RepositorySettings repositorySettings) {
-        this.extension = repositorySettings.getExtension();
-        String fileDirectory = repositorySettings.getFileDirectory();
-        this.directory = Paths.get(System.getProperty("user.dir"),
+        this.extension = repositorySettings.getEXTENSION();
+        String fileDirectory = repositorySettings.getFILEDIRECTORY();
+
+        this.directory = Paths.get(System.getProperty(PATH),
                 fileDirectory,
                 "file-data-map",
                 Message.class.getSimpleName());
@@ -54,21 +56,38 @@ public class FileMessageRepository implements MessageRepository {
         return message;
     }
 
+//    @Override
+//    public Optional<Message> findById(UUID id) {
+//        Message message = null;
+//        Path path = resolvePath(id);
+//        if (Files.exists(path)) {
+//            try (
+//                    FileInputStream fis = new FileInputStream(path.toFile());
+//                    ObjectInputStream ois = new ObjectInputStream(fis)
+//            ) {
+//                message = (Message) ois.readObject();
+//            } catch (IOException | ClassNotFoundException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
+//        return Optional.of(message);
+//    }
+
     @Override
     public Optional<Message> findById(UUID id) {
-        Message messageNullable = null;
         Path path = resolvePath(id);
         if (Files.exists(path)) {
             try (
                     FileInputStream fis = new FileInputStream(path.toFile());
                     ObjectInputStream ois = new ObjectInputStream(fis)
             ) {
-                messageNullable = (Message) ois.readObject();
+                Message message = (Message) ois.readObject();
+                return Optional.of(message);
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
-        return Optional.ofNullable(messageNullable);
+        throw new RuntimeException("File does not exist");
     }
 
     @Override
