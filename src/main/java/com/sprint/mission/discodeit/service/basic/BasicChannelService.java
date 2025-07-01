@@ -134,14 +134,14 @@ public class BasicChannelService implements ChannelService {
         );
     }
     @Override
-    public UpdateChannelResponseDto update(UpdateChannelRequestDto updateChannelRequestDto) {
+    public UpdateChannelResponseDto update(UUID channelId, UpdateChannelRequestDto updateChannelRequestDto) {
 
         if (updateChannelRequestDto.type() == ChannelType.PRIVATE) {
             throw new IllegalArgumentException("Private channel cannot be updated");
         }
 
-        Channel channel = channelRepository.findById(updateChannelRequestDto.channelId())
-                .orElseThrow(() -> new NoSuchElementException("Channel with id " + updateChannelRequestDto.channelId() + " not found"));
+        Channel channel = channelRepository.findById(channelId)
+                .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
 
         if (channelRepository.existsByName(updateChannelRequestDto.name())) {
             throw new IllegalArgumentException("Channel with name " + updateChannelRequestDto.name() + " already exists!");
