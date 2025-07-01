@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.entity;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serial;
 import java.util.UUID;
 
     /**
@@ -22,6 +23,9 @@ public class BinaryContent extends ImmutableBaseEntity {
     private final byte[] bytes;
     private final String fileName;
     private final String fileType;
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     public BinaryContent(UUID userId, UUID messageId, byte[] bytes, String fileName, String fileType) {
         super();

@@ -12,10 +12,7 @@ public class ImmutableBaseEntity implements Serializable {
 
     private final UUID id;
     private final Instant createdAt;
-    Instant updatedAt;
-
-    @Serial
-    private static final long serialVersionUID = 1L; // base entity's version
+    private final Instant updatedAt;
 
     public ImmutableBaseEntity() {
         this.id = UUID.randomUUID();

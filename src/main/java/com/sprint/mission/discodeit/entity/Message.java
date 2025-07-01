@@ -9,6 +9,7 @@ import java.util.UUID;
 
 @Getter
 public class Message extends BaseEntity {
+
     @Serial
     private static final long serialVersionUID = 1L;
 

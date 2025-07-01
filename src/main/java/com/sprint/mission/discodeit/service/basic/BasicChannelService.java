@@ -28,7 +28,7 @@ public class BasicChannelService implements ChannelService {
             throw new IllegalArgumentException("Channel name already exists");
         }
 
-        Channel channel = channelMapper.toPublicChannel(channelRequestDto);
+        Channel channel = channelMapper.requestDtoToPublicChannel(channelRequestDto);
 
         return channelMapper.toChannelResponseDto(
                 channelRepository.save(channel),
@@ -40,7 +40,7 @@ public class BasicChannelService implements ChannelService {
     @Override
     public ChannelResponseDto createPrivate(PrivateChannelRequestDto channelRequestDto) {
         List<UUID> userIds = channelRequestDto.userIds();
-        Channel channel = channelMapper.toPrivateChannel(channelRequestDto);
+        Channel channel = channelMapper.requestDtoToPrivateChannel(channelRequestDto);
 
         for  (UUID uuid : userIds) {
             ReadStatus readStatus = new ReadStatus(uuid, channel.getId());
