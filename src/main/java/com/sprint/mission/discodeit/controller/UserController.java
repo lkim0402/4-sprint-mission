@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-//@RequestMapping("/users")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -33,19 +33,14 @@ public class UserController {
      * [x] 사용자의 온라인 상태를 업데이트할 수 있다.
      */
 
-    @PostMapping("/users") // 등록
+    @PostMapping // 등록
     public ResponseEntity<UserResponseDto> createUser(@ModelAttribute UserRequestDto userRequestDto
     ) {
-        System.out.println("Username: " + userRequestDto.getUsername());
-        System.out.println("ProfilePicture is null: " + (userRequestDto.getProfilePicture() == null));
-        System.out.println("ProfilePicture is empty: " + (userRequestDto.getProfilePicture() != null
-                && userRequestDto.getProfilePicture().isEmpty()));
-
         UserResponseDto user = userService.create(userRequestDto);
         return ResponseEntity.ok().body(user);
     }
 
-    @PatchMapping ("/users/{user-id}")// 수정
+    @PatchMapping ("/{user-id}")// 수정
     public ResponseEntity<UpdateUserResponseDto> updateUser(@PathVariable("user-id") UUID userId,
                                                             @RequestBody UpdateUserRequestDto updateUserRequestDto
         ) {
@@ -53,14 +48,14 @@ public class UserController {
         return ResponseEntity.ok(updateUserResponseDto);
     }
 
-    @DeleteMapping("/users/{user-id}") // 유저 삭제
+    @DeleteMapping("/{user-id}") // 유저 삭제
     public ResponseEntity<String> deleteMember(@PathVariable("user-id") UUID userId) {
         userService.delete(userId);
         return ResponseEntity.ok().body("Member deleted successfully");
     }
 
 
-    @PatchMapping("/users/{user-id}/status") // 유저 상태 업데이트
+    @PatchMapping("/{user-id}/status") // 유저 상태 업데이트
     public ResponseEntity<UserStatusResponseDto>  updateUserStatus(@PathVariable("user-id") UUID userId
     ) {
         UserStatusResponseDto userStatusResponseDto = userStatusService.updateByUserId(userId);
@@ -74,7 +69,7 @@ public class UserController {
      * [x] 응답 - ResponseEntity<List<UserDto>>
      */
 
-    @GetMapping("/api/user/findAll") // 모든 사용자 조회
+    @GetMapping("/findAll") // 모든 사용자 조회
     public ResponseEntity<List<UserDto>> getUsers() {
         UserDtos userDtos = userService.findAll();
         return ResponseEntity.ok(userMapper.toUserDtoList(userDtos));

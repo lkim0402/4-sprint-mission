@@ -11,19 +11,17 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-//@RequestMapping("/binaryFile")
+@RequestMapping("/api/binaryContents")
 @RequiredArgsConstructor
 public class BinaryFileController {
 
     private final BinaryContentService binaryContentService;
-    private final BinaryContentMapper binaryContentMapper;
 
     /**
      * [x] 바이너리 파일을 1개 또는 여러 개 조회할 수 있다.
      */
-
-    @GetMapping("/binaryFile")
-    public ResponseEntity<BinaryContentResponseDtos> getBinaryFiles(@RequestParam("ids") List<UUID> binaryContentUUIDList
+    @GetMapping
+    public ResponseEntity<BinaryContentResponseDtos> getBinaryContents(@RequestParam("ids") List<UUID> binaryContentUUIDList
     ) {
         BinaryContentResponseDtos binaryContentResponseDtos = binaryContentService.findAllByIdIn(binaryContentUUIDList);
         return ResponseEntity.ok(binaryContentResponseDtos);
@@ -33,8 +31,8 @@ public class BinaryFileController {
      * === 심화 ===
      * [x]  BinaryContent 파일 조회
      */
-    @GetMapping("/api/binaryContent/find")
-    public ResponseEntity<BinaryContent> getBinaryFile(@RequestParam("binaryContentId") UUID binaryContentId) {
+    @GetMapping("/find")
+    public ResponseEntity<BinaryContent> getBinaryContent(@RequestParam("binaryContentId") UUID binaryContentId) {
         BinaryContent binaryContent = binaryContentService.find(binaryContentId);
         return ResponseEntity.ok(binaryContent);
     }
@@ -43,7 +41,7 @@ public class BinaryFileController {
      * 심화 부분 적용 전
      */
 //    @GetMapping("/binaryFile/{binaryfile-id}")
-//    public ResponseEntity<BinaryContentResponseDto> getBinaryFile(@PathVariable("binaryfile-id")UUID binaryContentId
+//    public ResponseEntity<BinaryContentResponseDto> getBinaryContent(@PathVariable("binaryfile-id")UUID binaryContentId
 //    ) {
 //        BinaryContentResponseDto binaryContentResponseDto = binaryContentService.find(binaryContentId);
 //        return ResponseEntity.ok(binaryContentResponseDto);
