@@ -1,7 +1,10 @@
 package com.sprint.mission.discodeit.repository.file;
 import com.sprint.mission.discodeit.config.RepositorySettings;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import java.io.*;
 import java.nio.file.Files;
@@ -10,25 +13,24 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 @Repository
 public class FileUserStatusRepository implements UserStatusRepository {
     private final static String PATH = "user.dir";
-    private final Path DIRECTORY;
-    private final String EXTENSION;
+    private final Path directory;
+    private final String extension;
 
     public FileUserStatusRepository(RepositorySettings repositorySettings) {
-        this.EXTENSION = repositorySettings.getEXTENSION();
+        this.extension = repositorySettings.getEXTENSION();
         String fileDirectory = repositorySettings.getFILEDIRECTORY();
-        this.DIRECTORY = Paths.get(System.getProperty(PATH),
+        this.directory = Paths.get(System.getProperty(PATH),
                 fileDirectory,
                 "file-data-map",
                 UserStatus.class.getSimpleName());
 
         try {
-            if (Files.notExists(DIRECTORY)) {
-                Files.createDirectories(DIRECTORY);
+            if (Files.notExists(directory)) {
+                Files.createDirectories(directory);
             }
         } catch (IOException e) {
             throw new RuntimeException("파일 저장 디렉토리 생성 실패", e);
@@ -36,7 +38,7 @@ public class FileUserStatusRepository implements UserStatusRepository {
     }
 
     private Path resolvePath(UUID id) {
-        return DIRECTORY.resolve(id + EXTENSION);
+        return directory.resolve(id + extension);
     }
 
     @Override
@@ -78,9 +80,10 @@ public class FileUserStatusRepository implements UserStatusRepository {
 
     @Override
     public List<UserStatus> findAll() {
-        try (Stream<Path> paths = Files.list(DIRECTORY)){
-            return paths
-                    .filter(path -> path.toString().endsWith(EXTENSION))
+        try {
+            // mapping each file to ois.readObject()
+            return Files.list(directory) // get all the files in DIRECTORY as a list
+                    .filter(path -> path.toString().endsWith(extension))
                     .map(FileUserStatusRepository::getUserStatus).toList();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -108,9 +111,9 @@ public class FileUserStatusRepository implements UserStatusRepository {
 
     @Override
     public void deleteAll() {
-        try (Stream<Path> paths = Files.list(DIRECTORY)){
-            paths
-                    .filter(path -> path.toString().endsWith(EXTENSION))
+        try {
+            Files.list(directory)
+                    .filter(path -> path.toString().endsWith(extension))
                     .forEach(path -> {
                         try {
                             Files.delete(path);
@@ -119,7 +122,7 @@ public class FileUserStatusRepository implements UserStatusRepository {
                         }
                     });
         } catch (IOException e) {
-            throw new RuntimeException("Failed to list directory for deletion: " + DIRECTORY, e);
+            throw new RuntimeException("Failed to list directory for deletion: " + directory, e);
         }
     }
 
