@@ -36,6 +36,8 @@ public class BasicUserService implements UserService {
         if (profile != null) {
             // setting user's profile id
             savedUser.setProfileId(profile.getId());
+            userRepository.save(savedUser);
+
             // setting profile's user id
             profile.setUserId(savedUser.getId());
             binaryContentRepository.save(profile);
@@ -82,14 +84,21 @@ public class BasicUserService implements UserService {
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
 
-        existingUser.update(
-                updateUserRequestDto.username(),
-                updateUserRequestDto.email(),
-                updateUserRequestDto.password(),
-                updateUserRequestDto.profileId()
-        );
+        if (updateUserRequestDto.username() != null) {
+            existingUser.setUsername(updateUserRequestDto.username());
+        }
+        if (updateUserRequestDto.email() != null) {
+            existingUser.setEmail(updateUserRequestDto.email());
+        }
+        if (updateUserRequestDto.password() != null) {
+            existingUser.setPassword(updateUserRequestDto.password());
+        }
+        if (updateUserRequestDto.profileId() != null) {
+            existingUser.setProfileId(updateUserRequestDto.profileId());
+        }
 
-        return userMapper.toUpdateUserResponseDto(userRepository.save(existingUser));
+        User updatedUser = userRepository.save(existingUser);
+        return userMapper.toUpdateUserResponseDto(updatedUser);
     }
 
     @Override

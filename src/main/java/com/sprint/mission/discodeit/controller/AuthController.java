@@ -17,6 +17,7 @@ public class AuthController {
     private final AuthService authService;
 
     /**
+     * === 기능 구현 ===
      * [x] 사용자는 로그인할 수 있다.
      */
 

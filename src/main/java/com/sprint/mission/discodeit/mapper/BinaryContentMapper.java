@@ -19,9 +19,9 @@ public class BinaryContentMapper {
             return new BinaryContent(
                     userId,
                     messageId,
-                    file.getBytes(),
-                    file.getName(),
-                    file.getContentType()
+                    file == null ? null : file.getBytes(),
+                    file == null ? null :file.getName(),
+                    file == null ? null :file.getContentType()
             );
         } catch (IOException e) {
             throw new RuntimeException("Failed to read bytes from multipart file");

@@ -21,7 +21,8 @@ public class UserMapper {
         return new User(
                 userDTO.username(),
                 userDTO.email(),
-                userDTO.password()
+                userDTO.password(),
+                null // set later when creating user
         );
     }
 
@@ -33,7 +34,8 @@ public class UserMapper {
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
-                userStatusMapper.toUserStatusResponseDto(userStatus)
+                user.getProfileId(),
+                userStatus == null ? null : userStatusMapper.toUserStatusResponseDto(userStatus)
         );
     }
 
@@ -43,6 +45,7 @@ public class UserMapper {
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
+                user.getProfileId(),
                 userStatusMapper.toUserStatusResponseDto(userStatus)
         );
     }
