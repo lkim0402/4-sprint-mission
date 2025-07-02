@@ -40,7 +40,7 @@ public class ReadStatusController {
     }
 
     @GetMapping// 특정 사용자의 메시지 수신 정보 조회
-    public ResponseEntity<ReadStatusResponseDtos> getReadStatusByUserId(@RequestParam("userId") UUID userId
+    public ResponseEntity<ReadStatusResponseDtos> getReadStatusByUserId(@RequestParam("user-Id") UUID userId
     ) {
         ReadStatusResponseDtos readStatusResponseDtos = readStatusService.findAllByUserId(userId);
         return ResponseEntity.ok(readStatusResponseDtos);
