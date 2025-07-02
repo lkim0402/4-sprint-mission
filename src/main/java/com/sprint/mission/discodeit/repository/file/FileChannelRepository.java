@@ -1,7 +1,10 @@
 package com.sprint.mission.discodeit.repository.file;
 import com.sprint.mission.discodeit.config.RepositorySettings;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Repository;
 import java.io.*;
 import java.nio.file.Files;
@@ -10,25 +13,24 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 @Repository
 public class FileChannelRepository implements ChannelRepository {
     private final static String PATH = "user.dir";
-    private final Path DIRECTORY;
-    private final String EXTENSION;
+    private final Path directory;
+    private final String extension;
 
     public FileChannelRepository(RepositorySettings repositorySettings) {
-        this.EXTENSION = repositorySettings.getEXTENSION();
+        this.extension = repositorySettings.getEXTENSION();
         String fileDirectory = repositorySettings.getFILEDIRECTORY();
-        this.DIRECTORY = Paths.get(System.getProperty(PATH),
+        this.directory = Paths.get(System.getProperty(PATH),
                 fileDirectory,
                 "file-data-map",
                 Channel.class.getSimpleName());
 
         try {
-            if (Files.notExists(DIRECTORY)) {
-                Files.createDirectories(DIRECTORY);
+            if (Files.notExists(directory)) {
+                Files.createDirectories(directory);
             }
         } catch (IOException e) {
             throw new RuntimeException("파일 저장 디렉토리 생성 실패", e);
@@ -36,7 +38,7 @@ public class FileChannelRepository implements ChannelRepository {
     }
 
     private Path resolvePath(UUID id) {
-        return DIRECTORY.resolve(id + EXTENSION);
+        return directory.resolve(id + extension);
     }
 
     @Override
@@ -72,9 +74,9 @@ public class FileChannelRepository implements ChannelRepository {
 
     @Override
     public List<Channel> findAll() {
-        try (Stream<Path> paths = Files.list(DIRECTORY)){
-            return paths
-                    .filter(path -> path.toString().endsWith(EXTENSION))
+        try {
+            return Files.list(directory)
+                    .filter(path -> path.toString().endsWith(extension))
                     .map(FileChannelRepository::getChannel)
                     .toList();
         } catch (IOException e) {
@@ -90,9 +92,9 @@ public class FileChannelRepository implements ChannelRepository {
 
     @Override
     public boolean existsByName(String channelName) {
-        try (Stream<Path> paths = Files.list(DIRECTORY)){
-            return paths
-                    .filter(path -> path.toString().endsWith(EXTENSION))
+        try {
+            return Files.list(directory)
+                    .filter(path -> path.toString().endsWith(extension))
                     .map(FileChannelRepository::getChannel)
                     .anyMatch(c -> channelName.equals(c.getName()));
         } catch (IOException e) {
@@ -122,18 +124,18 @@ public class FileChannelRepository implements ChannelRepository {
 
     @Override
     public void deleteAll() {
-        try (Stream<Path> paths = Files.list(DIRECTORY)){
-            paths
-                .filter(path -> path.toString().endsWith(EXTENSION))
-                .forEach(path -> {
-                    try {
-                        Files.delete(path);
-                    } catch (IOException e) {
-                        throw new UncheckedIOException(e);
-                    }
-                });
+        try {
+            Files.list(directory)
+                    .filter(path -> path.toString().endsWith(extension))
+                    .forEach(path -> {
+                        try {
+                            Files.delete(path);
+                        } catch (IOException e) {
+                            throw new UncheckedIOException(e);
+                        }
+                    });
         } catch (IOException e) {
-            throw new RuntimeException("Failed to list directory for deletion: " + DIRECTORY, e);
+            throw new RuntimeException("Failed to list directory for deletion: " + directory, e);
         }
     }
 }
