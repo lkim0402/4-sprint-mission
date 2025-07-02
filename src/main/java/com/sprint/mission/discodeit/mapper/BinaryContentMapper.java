@@ -15,16 +15,20 @@ public class BinaryContentMapper {
 
     // Request
     public BinaryContent toBinaryContent(UUID userId, UUID messageId, MultipartFile file) {
+
+        if (file == null) {
+            return null;
+        }
         try {
             return new BinaryContent(
                     userId,
                     messageId,
-                    file == null ? null : file.getBytes(),
-                    file == null ? null :file.getName(),
-                    file == null ? null :file.getContentType()
+                    file.getBytes(),
+                    file.getOriginalFilename(),
+                    file.getContentType()
             );
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to read bytes from multipart file");
+        } catch (IOException e){
+            throw new RuntimeException("Error reading file bytes");
         }
     }
 

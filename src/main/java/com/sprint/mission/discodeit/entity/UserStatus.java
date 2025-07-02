@@ -26,11 +26,11 @@ public class UserStatus extends BaseEntity {
         super();
         this.userId = userId;
         this.lastActiveTime = Instant.now();
-        this.status = UserState.ACTIVE;
+        this.status = UserState.ONLINE;
     }
 
     public enum UserState {
-        ACTIVE, INACTIVE
+        ONLINE, OFFLINE
     }
 
     public UserState isUserActive() {
@@ -38,8 +38,8 @@ public class UserStatus extends BaseEntity {
         Instant timeDiff = currentTime.minus(5, ChronoUnit.MINUTES);
 
         return lastActiveTime.isBefore(timeDiff)
-                ? UserState.INACTIVE
-                : UserState.ACTIVE;
+                ? UserState.OFFLINE
+                : UserState.ONLINE;
     }
 
     public void updateLastActiveTime() {
