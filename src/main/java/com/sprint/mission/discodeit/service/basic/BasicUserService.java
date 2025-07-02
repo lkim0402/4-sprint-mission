@@ -25,14 +25,14 @@ public class BasicUserService implements UserService {
     @Override
     public UserResponseDto create(UserRequestDto userRequestDto) {
         User user = userMapper.toUser(userRequestDto);
-        if (existsByUsernameOrEmail(user.getUsername(), user.getEmail())) {
+        if (existsByUsernameOrEmail(userRequestDto.username(), userRequestDto.email())) {
             throw new IllegalStateException("User with the same username or email already exists.");
         }
         // Save user
         User savedUser =  userRepository.save(user);
 
         //Save profile in binaryContentRepository
-        BinaryContent profile = binaryContentMapper.toBinaryContent(userRequestDto.profilePicture());
+        BinaryContent profile = binaryContentMapper.toBinaryContent(savedUser.getId(), null, userRequestDto.profilePicture());
         if (profile != null) {
             // setting user's profile id
             savedUser.setProfileId(profile.getId());

@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -29,10 +31,10 @@ public class UserController {
      */
 
     @PostMapping // 등록
-    public ResponseEntity<UserResponseDto> createUser(@RequestBody UserRequestDto userRequestDto
+    public ResponseEntity<UserResponseDto> createUser(@ModelAttribute UserRequestDto userRequestDto
     ) {
         UserResponseDto user = userService.create(userRequestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+        return ResponseEntity.ok().body(user);
     }
 
     @PatchMapping ("/{user-id}")// 수정
@@ -46,7 +48,7 @@ public class UserController {
     @DeleteMapping("/{user-id}") // 유저 삭제
     public ResponseEntity<String> deleteMember(@PathVariable("user-id") UUID userId) {
         userService.delete(userId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().body("Member deleted successfully");
     }
 
     @GetMapping // 모든 사용자 조회
@@ -59,6 +61,6 @@ public class UserController {
     public ResponseEntity<String>  updateUserStatus(@PathVariable("user-id") UUID userId
     ) {
         userStatusService.update(userId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().body("UserStatus updated successfully");
     }
 }

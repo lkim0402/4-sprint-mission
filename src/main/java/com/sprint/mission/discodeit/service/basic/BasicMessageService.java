@@ -12,6 +12,9 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.nio.channels.MulticastChannel;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -42,9 +45,9 @@ public class BasicMessageService implements MessageService {
         Message savedMessage = messageRepository.save(newMessage);
 
         // saving the binary content
-        List<BinaryContentRequestDto> attachments = messageRequestDto.attachments();
-        for (BinaryContentRequestDto attachment : attachments) {
-            BinaryContent binaryContent = binaryContentMapper.toBinaryContent(attachment);
+        List<MultipartFile> attachments = messageRequestDto.attachments();
+        for (MultipartFile attachment : attachments) {
+            BinaryContent binaryContent = binaryContentMapper.toBinaryContent(authorId, savedMessage.getId(), attachment);
             binaryContent.setUserId(authorId);
             binaryContent.setMessageId(savedMessage.getId());
             binaryContentRepository.save(binaryContent);
