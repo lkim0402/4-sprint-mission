@@ -99,86 +99,86 @@ public class DiscodeitApplication {
 	 * [x] file repo 테스트 완료
 	 * [x] jcf repo 테스트 완료
 	 */
-	public static void channelServiceTest(ChannelService channelService) {
-
-		// =================== test users ===================
-		User user1 = new User(
-				"codeit",
-				"codeit@codeit.com",
-				"q1w2e3"
-		);
-
-		User user2 = new User(
-				"woody",
-				"woody@codeit.com",
-				"w2e3r4"
-		);
-
-		// =================== 등록 + 조회 ===================
-		System.out.println("\n[CREATE] Public channels created:");
-		PublicChannelRequestDto publicChannelRequestDto1 = new PublicChannelRequestDto(
-				ChannelType.PUBLIC,
-				"Study-channel"
-				,"This is a study channel"
-		);
-		PublicChannelRequestDto publicChannelRequestDto2 = new PublicChannelRequestDto(
-				ChannelType.PUBLIC,
-				"game-channel"
-				,"This is a game channel"
-		);
-		ChannelResponseDto studyChannel = channelService.createPublic(publicChannelRequestDto1);
-		ChannelResponseDto gameChannel = channelService.createPublic(publicChannelRequestDto2);
-		System.out.println("See all public channels: " + channelService.findAllPublicChannels());
-
-		System.out.println("\n[CREATE] Private channels created (added users 1,2):");
-		PrivateChannelRequestDto privateChannelRequestDto = new PrivateChannelRequestDto(
-				ChannelType.PRIVATE,
-				List.of(user1.getId(), user2.getId())
-		);
-		ChannelResponseDto privateChannel = channelService.createPrivate(privateChannelRequestDto);
-		System.out.println("See all channels for user1 (id " + user1.getId() + ")" +
-				channelService.findAllByUserId(user1.getId()));
-
-
-		// =================== 수정 ===================
-		// 수정된 데이터 조회
-		System.out.println("\n[Update] Update individual channel (study channel):");
-		System.out.println("Read public study channel name: "
-				+ channelService.find(studyChannel.id()));
-		UpdateChannelRequestDto updateChannelRequestDto = new UpdateChannelRequestDto(
-//				studyChannel.id(),
-				ChannelType.PUBLIC,
-				"changed-name!",
-				"This is updated study channel"
-		);
-		System.out.println("Read updated public study channel name: "
-				+ channelService.update(studyChannel.id(),updateChannelRequestDto));
-
-		// =================== 삭제 ===================
-		// 조회를 통해 삭제되었는지 확인
-		System.out.println("\n[Delete] Delete public study channel:");
-		System.out.println("See all public channels: "
-				+ channelService.findAllPublicChannels());
-		channelService.delete(studyChannel.id());
-		System.out.println("See all public channels after deletion: "
-				+ channelService.findAllPublicChannels());
-		System.out.println("\n[Delete] Delete private channel (has user1 and user2):");
-		System.out.println("See all channels of user1: "
-				+ channelService.findAllByUserId(user1.getId()));
-		channelService.delete(privateChannel.id());
-		System.out.println("See all channels of user1 (after deletion):"
-				+ channelService.findAllByUserId(user1.getId()));
-		channelService.deleteAll(); // deleting both public and private
-		System.out.println("\n[Delete] Delete ALL public channels: "
-				+ channelService.findAllPublicChannels());
-
-
-		// 삭제를 한 후 read, update, delete 진행할때 에러 던짐
-//        System.out.println("Read study channel name (deleted): " + channelService.find(studyChannel.id()));
-//        System.out.println("Update study channel name (deleted): " + channelService.update(updateChannelRequestDto));
-//        channelService.delete(studyChannel.id());
-//        System.out.println("Delete channel (deleted): " + channelService.findAllPublicChannels());
-	}
+//	public static void channelServiceTest(ChannelService channelService) {
+//
+//		// =================== test users ===================
+//		User user1 = new User(
+//				"codeit",
+//				"codeit@codeit.com",
+//				"q1w2e3"
+//		);
+//
+//		User user2 = new User(
+//				"woody",
+//				"woody@codeit.com",
+//				"w2e3r4"
+//		);
+//
+//		// =================== 등록 + 조회 ===================
+//		System.out.println("\n[CREATE] Public channels created:");
+//		PublicChannelRequestDto publicChannelRequestDto1 = new PublicChannelRequestDto(
+//				ChannelType.PUBLIC,
+//				"Study-channel"
+//				,"This is a study channel"
+//		);
+//		PublicChannelRequestDto publicChannelRequestDto2 = new PublicChannelRequestDto(
+//				ChannelType.PUBLIC,
+//				"game-channel"
+//				,"This is a game channel"
+//		);
+//		ChannelResponseDto studyChannel = channelService.createPublic(publicChannelRequestDto1);
+//		ChannelResponseDto gameChannel = channelService.createPublic(publicChannelRequestDto2);
+//		System.out.println("See all public channels: " + channelService.findAllPublicChannels());
+//
+//		System.out.println("\n[CREATE] Private channels created (added users 1,2):");
+//		PrivateChannelRequestDto privateChannelRequestDto = new PrivateChannelRequestDto(
+//				ChannelType.PRIVATE,
+//				List.of(user1.getId(), user2.getId())
+//		);
+//		ChannelResponseDto privateChannel = channelService.createPrivate(privateChannelRequestDto);
+//		System.out.println("See all channels for user1 (id " + user1.getId() + ")" +
+//				channelService.findAllByUserId(user1.getId()));
+//
+//
+//		// =================== 수정 ===================
+//		// 수정된 데이터 조회
+//		System.out.println("\n[Update] Update individual channel (study channel):");
+//		System.out.println("Read public study channel name: "
+//				+ channelService.find(studyChannel.id()));
+//		UpdateChannelRequestDto updateChannelRequestDto = new UpdateChannelRequestDto(
+////				studyChannel.id(),
+//				ChannelType.PUBLIC,
+//				"changed-name!",
+//				"This is updated study channel"
+//		);
+//		System.out.println("Read updated public study channel name: "
+//				+ channelService.update(studyChannel.id(),updateChannelRequestDto));
+//
+//		// =================== 삭제 ===================
+//		// 조회를 통해 삭제되었는지 확인
+//		System.out.println("\n[Delete] Delete public study channel:");
+//		System.out.println("See all public channels: "
+//				+ channelService.findAllPublicChannels());
+//		channelService.delete(studyChannel.id());
+//		System.out.println("See all public channels after deletion: "
+//				+ channelService.findAllPublicChannels());
+//		System.out.println("\n[Delete] Delete private channel (has user1 and user2):");
+//		System.out.println("See all channels of user1: "
+//				+ channelService.findAllByUserId(user1.getId()));
+//		channelService.delete(privateChannel.id());
+//		System.out.println("See all channels of user1 (after deletion):"
+//				+ channelService.findAllByUserId(user1.getId()));
+//		channelService.deleteAll(); // deleting both public and private
+//		System.out.println("\n[Delete] Delete ALL public channels: "
+//				+ channelService.findAllPublicChannels());
+//
+//
+//		// 삭제를 한 후 read, update, delete 진행할때 에러 던짐
+////        System.out.println("Read study channel name (deleted): " + channelService.find(studyChannel.id()));
+////        System.out.println("Update study channel name (deleted): " + channelService.update(updateChannelRequestDto));
+////        channelService.delete(studyChannel.id());
+////        System.out.println("Delete channel (deleted): " + channelService.findAllPublicChannels());
+//	}
 
 	/**
 	 * UserService 기능을 테스트하는 메서드입니다.
@@ -186,86 +186,86 @@ public class DiscodeitApplication {
 	 * [x] file repo 테스트 완료
 	 * [x] jcf repo 테스트 완료
 	 */
-	public static void userServiceTest(UserService userService) {
-
-		// =================== 등록 + 조회 ===================
-		System.out.println("\n[CREATE] Users created:");
-		UserRequestDto userRequestDto1 = new UserRequestDto(
-				"codeit",
-				"codeit@gmail.com",
-				"q1w2e3",
-				new BinaryContentRequestDto(
-						null,
-						null,
-						null,
-						null,
-						null
-				)
-		);
-		UserRequestDto userRequestDto2 = new UserRequestDto(
-				"woody",
-				"woody@gmail.com",
-				"w2e3r4",
-				new BinaryContentRequestDto(
-						null,
-						null,
-						null,
-						null,
-						null
-				)
-		);
-		UserResponseDto newUser1 = userService.create(userRequestDto1);
-		UserResponseDto newUser2 = userService.create(userRequestDto2);
-		System.out.println("Find one specific user by Id (userRequestDto1): " + userService.find(newUser1.id()));
-		System.out.println("Find one specific user by Id (userRequestDto2): " + userService.find(newUser2.id()));
-		System.out.println("See all users: " + userService.findAll());
-
-
-		// =================== 수정 ===================
-		// 수정된 데이터 조회
-		System.out.println("\n[Update] Update individual user (userRequestDto1):");
-		System.out.println("Find newUser1: "
-				+ userService.find(newUser1.id()));
-		UpdateUserRequestDto updateUserRequestDto = new UpdateUserRequestDto(
-				newUser1.id(),
-				"codeit-changed-username",
-				"changed-name!",
-				null,
-				UUID.randomUUID()
-		);
-		System.out.println("Read updated newUser2: "
-				+ userService.update(updateUserRequestDto));
-
-		// =================== 삭제 ===================
-		// 조회를 통해 삭제되었는지 확인
-		System.out.println("\n[Delete] Delete individual user (newUser2):");
-		System.out.println("See all users before deletion: "
-				+ userService.findAll());
-		userService.delete(newUser2.id());
-		System.out.println("See all users after deletion (newUser2): "
-				+ userService.findAll());
-		System.out.println("\n[Delete] Delete ALL users (clear):");
-		userService.deleteAll();
-		System.out.println("See all users: "
-				+ userService.findAll());
-
-//		 삭제를 한 후 read, update, delete 진행할때 에러 던짐
-//        System.out.println("Read newUser1 (deleted): "
-//                + userService.find(newUser1.id()));
-//		UpdateUserRequestDto updateUserRequestDtoTest = new UpdateUserRequestDto(
+//	public static void userServiceTest(UserService userService) {
+//
+//		// =================== 등록 + 조회 ===================
+//		System.out.println("\n[CREATE] Users created:");
+//		UserRequestDto userRequestDto1 = new UserRequestDto(
+//				"codeit",
+//				"codeit@gmail.com",
+//				"q1w2e3",
+//				new BinaryContentRequestDto(
+//						null,
+//						null,
+//						null,
+//						null,
+//						null
+//				)
+//		);
+//		UserRequestDto userRequestDto2 = new UserRequestDto(
+//				"woody",
+//				"woody@gmail.com",
+//				"w2e3r4",
+//				new BinaryContentRequestDto(
+//						null,
+//						null,
+//						null,
+//						null,
+//						null
+//				)
+//		);
+//		UserResponseDto newUser1 = userService.create(userRequestDto1);
+//		UserResponseDto newUser2 = userService.create(userRequestDto2);
+//		System.out.println("Find one specific user by Id (userRequestDto1): " + userService.find(newUser1.id()));
+//		System.out.println("Find one specific user by Id (userRequestDto2): " + userService.find(newUser2.id()));
+//		System.out.println("See all users: " + userService.findAll());
+//
+//
+//		// =================== 수정 ===================
+//		// 수정된 데이터 조회
+//		System.out.println("\n[Update] Update individual user (userRequestDto1):");
+//		System.out.println("Find newUser1: "
+//				+ userService.find(newUser1.id()));
+//		UpdateUserRequestDto updateUserRequestDto = new UpdateUserRequestDto(
 //				newUser1.id(),
-//				"codeit-changed-username-after-deletion",
+//				"codeit-changed-username",
 //				"changed-name!",
 //				null,
 //				UUID.randomUUID()
 //		);
-//        System.out.println("Update test1 username (deleted): "
-//                + userService.update(updateUserRequestDtoTest));
-//        userService.delete(newUser1.id());
-//        System.out.println("Delete User (deleted): ");
-//        userService.findAll();
-
-	}
+//		System.out.println("Read updated newUser2: "
+//				+ userService.update(updateUserRequestDto));
+//
+//		// =================== 삭제 ===================
+//		// 조회를 통해 삭제되었는지 확인
+//		System.out.println("\n[Delete] Delete individual user (newUser2):");
+//		System.out.println("See all users before deletion: "
+//				+ userService.findAll());
+//		userService.delete(newUser2.id());
+//		System.out.println("See all users after deletion (newUser2): "
+//				+ userService.findAll());
+//		System.out.println("\n[Delete] Delete ALL users (clear):");
+//		userService.deleteAll();
+//		System.out.println("See all users: "
+//				+ userService.findAll());
+//
+////		 삭제를 한 후 read, update, delete 진행할때 에러 던짐
+////        System.out.println("Read newUser1 (deleted): "
+////                + userService.find(newUser1.id()));
+////		UpdateUserRequestDto updateUserRequestDtoTest = new UpdateUserRequestDto(
+////				newUser1.id(),
+////				"codeit-changed-username-after-deletion",
+////				"changed-name!",
+////				null,
+////				UUID.randomUUID()
+////		);
+////        System.out.println("Update test1 username (deleted): "
+////                + userService.update(updateUserRequestDtoTest));
+////        userService.delete(newUser1.id());
+////        System.out.println("Delete User (deleted): ");
+////        userService.findAll();
+//
+//	}
 
 	/**
 	 * MessageService 기능을 테스트하는 메서드입니다.
@@ -510,109 +510,109 @@ public class DiscodeitApplication {
 	 * [x] file repo 테스트 완료
 	 * [x] jcf repo 테스트 완료
 	 */
-	public static void readStatusServiceTest(ReadStatusService readStatusService, UserService userService, ChannelService channelService) {
-
-		// =================== test users and channels ===================
-		System.out.println("\nTest Users created:");
-		UserRequestDto userRequestDto1 = new UserRequestDto(
-				"codeit",
-				"codeit@gmail.com",
-				"q1w2e3",
-				new BinaryContentRequestDto(
-						null,
-						null,
-						null,
-						null,
-						null
-				)
-		);
-		UserRequestDto userRequestDto2 = new UserRequestDto(
-				"woody",
-				"woody@gmail.com",
-				"w2e3r4",
-				new BinaryContentRequestDto(
-						null,
-						null,
-						null,
-						null,
-						null
-				)
-		);
-		UserResponseDto newUser1 = userService.create(userRequestDto1);
-		UserResponseDto newUser2 = userService.create(userRequestDto2);
-		UUID newUser1Id = newUser1.id();
-		UUID newUser2Id = newUser2.id();
-
-		PublicChannelRequestDto publicChannelRequestDto1 = new PublicChannelRequestDto(
-				ChannelType.PUBLIC,
-				"Study-channel"
-				,"This is a study channel"
-		);
-		PublicChannelRequestDto publicChannelRequestDto2 = new PublicChannelRequestDto(
-				ChannelType.PUBLIC,
-				"game-channel"
-				,"This is a game channel"
-		);
-		ChannelResponseDto studyChannel = channelService.createPublic(publicChannelRequestDto1);
-		ChannelResponseDto gameChannel = channelService.createPublic(publicChannelRequestDto2);
-
-
-		// =================== 등록 + 조회 ===================
-		System.out.println("\n[CREATE] ReadStatuses created:");
-		ReadStatusRequestDto readStatusRequestDto1 = new ReadStatusRequestDto(
-				newUser1Id,
-				studyChannel.id(),
-				Instant.now()
-		);
-		ReadStatusRequestDto readStatusRequestDto2 = new ReadStatusRequestDto(
-				newUser1Id,
-				gameChannel.id(),
-				Instant.now()
-		);
-
-		ReadStatusResponseDto readStatus1 = readStatusService.create(readStatusRequestDto1);
-		ReadStatusResponseDto readStatus2 = readStatusService.create(readStatusRequestDto2);
-		System.out.println("Find readstatus by Id (readStatus1): "
-				+ readStatusService.find(readStatus1.id()));
-		System.out.println("Find readstatus by Id (readStatus2): "
-				+ readStatusService.find(readStatus2.id()));
-		System.out.println("See all ReadStatus of user1: " + readStatusService.findAllByUserId(newUser1Id));
-		System.out.println("See all ReadStatus of user2: " + readStatusService.findAllByUserId(newUser2Id));
-
-
-		// =================== 수정 ===================
-		// 수정된 데이터 조회
-		System.out.println("\n[Update] Update individual readstatus (readStatus1):");
-		System.out.println("Find readStatus1: "
-				+ readStatusService.find(readStatus1.id()));
-//		UpdateReadStatusDto updateReadStatusDto = new UpdateReadStatusDto(
+//	public static void readStatusServiceTest(ReadStatusService readStatusService, UserService userService, ChannelService channelService) {
+//
+//		// =================== test users and channels ===================
+//		System.out.println("\nTest Users created:");
+//		UserRequestDto userRequestDto1 = new UserRequestDto(
+//				"codeit",
+//				"codeit@gmail.com",
+//				"q1w2e3",
+//				new BinaryContentRequestDto(
+//						null,
+//						null,
+//						null,
+//						null,
+//						null
+//				)
+//		);
+//		UserRequestDto userRequestDto2 = new UserRequestDto(
+//				"woody",
+//				"woody@gmail.com",
+//				"w2e3r4",
+//				new BinaryContentRequestDto(
+//						null,
+//						null,
+//						null,
+//						null,
+//						null
+//				)
+//		);
+//		UserResponseDto newUser1 = userService.create(userRequestDto1);
+//		UserResponseDto newUser2 = userService.create(userRequestDto2);
+//		UUID newUser1Id = newUser1.id();
+//		UUID newUser2Id = newUser2.id();
+//
+//		PublicChannelRequestDto publicChannelRequestDto1 = new PublicChannelRequestDto(
+//				ChannelType.PUBLIC,
+//				"Study-channel"
+//				,"This is a study channel"
+//		);
+//		PublicChannelRequestDto publicChannelRequestDto2 = new PublicChannelRequestDto(
+//				ChannelType.PUBLIC,
+//				"game-channel"
+//				,"This is a game channel"
+//		);
+//		ChannelResponseDto studyChannel = channelService.createPublic(publicChannelRequestDto1);
+//		ChannelResponseDto gameChannel = channelService.createPublic(publicChannelRequestDto2);
+//
+//
+//		// =================== 등록 + 조회 ===================
+//		System.out.println("\n[CREATE] ReadStatuses created:");
+//		ReadStatusRequestDto readStatusRequestDto1 = new ReadStatusRequestDto(
+//				newUser1Id,
+//				studyChannel.id(),
 //				Instant.now()
 //		);
-		readStatusService.update(readStatus1.id());
-		readStatus1 = readStatusService.find(readStatus1.id());
-		System.out.println("Read updated readStatus1: "
-				+ readStatus1);
-
-		// =================== 삭제 ===================
-		// 조회를 통해 삭제되었는지 확인
-		System.out.println("\n[Delete] Delete individual readStatus (readStatus1):");
-		System.out.println("See all readStatus of user1 before deletion: "
-				+ readStatusService.findAllByUserId(newUser1Id));
-		readStatusService.delete(readStatus1.id());
-		System.out.println("See all readStatus after deletion (readStatus1): "
-				+ readStatusService.findAllByUserId(newUser1Id));
-		System.out.println("\n[Delete] Delete ALL readStatus (clear):");
-		readStatusService.deleteAll();
-		System.out.println("See all readStatus: "
-				+ readStatusService.findAllByUserId(newUser1Id));
-
-//		 삭제를 한 후 read, update, delete 진행할때 에러 던짐
-//        System.out.println("Read readStatus1 (deleted): "
-//                + readStatusService.find(readStatus1.id()));
+//		ReadStatusRequestDto readStatusRequestDto2 = new ReadStatusRequestDto(
+//				newUser1Id,
+//				gameChannel.id(),
+//				Instant.now()
+//		);
+//
+//		ReadStatusResponseDto readStatus1 = readStatusService.create(readStatusRequestDto1);
+//		ReadStatusResponseDto readStatus2 = readStatusService.create(readStatusRequestDto2);
+//		System.out.println("Find readstatus by Id (readStatus1): "
+//				+ readStatusService.find(readStatus1.id()));
+//		System.out.println("Find readstatus by Id (readStatus2): "
+//				+ readStatusService.find(readStatus2.id()));
+//		System.out.println("See all ReadStatus of user1: " + readStatusService.findAllByUserId(newUser1Id));
+//		System.out.println("See all ReadStatus of user2: " + readStatusService.findAllByUserId(newUser2Id));
+//
+//
+//		// =================== 수정 ===================
+//		// 수정된 데이터 조회
+//		System.out.println("\n[Update] Update individual readstatus (readStatus1):");
+//		System.out.println("Find readStatus1: "
+//				+ readStatusService.find(readStatus1.id()));
+////		UpdateReadStatusDto updateReadStatusDto = new UpdateReadStatusDto(
+////				Instant.now()
+////		);
 //		readStatusService.update(readStatus1.id());
+//		readStatus1 = readStatusService.find(readStatus1.id());
+//		System.out.println("Read updated readStatus1: "
+//				+ readStatus1);
+//
+//		// =================== 삭제 ===================
+//		// 조회를 통해 삭제되었는지 확인
+//		System.out.println("\n[Delete] Delete individual readStatus (readStatus1):");
+//		System.out.println("See all readStatus of user1 before deletion: "
+//				+ readStatusService.findAllByUserId(newUser1Id));
 //		readStatusService.delete(readStatus1.id());
-
-	}
+//		System.out.println("See all readStatus after deletion (readStatus1): "
+//				+ readStatusService.findAllByUserId(newUser1Id));
+//		System.out.println("\n[Delete] Delete ALL readStatus (clear):");
+//		readStatusService.deleteAll();
+//		System.out.println("See all readStatus: "
+//				+ readStatusService.findAllByUserId(newUser1Id));
+//
+////		 삭제를 한 후 read, update, delete 진행할때 에러 던짐
+////        System.out.println("Read readStatus1 (deleted): "
+////                + readStatusService.find(readStatus1.id()));
+////		readStatusService.update(readStatus1.id());
+////		readStatusService.delete(readStatus1.id());
+//
+//	}
 
 	/**
 	 * UserStatusService 기능을 테스트하는 메서드입니다.
@@ -620,82 +620,82 @@ public class DiscodeitApplication {
 	 * [x] file repo 테스트 완료
 	 * [x] jcf repo 테스트 완료
 	 */
-	public static void userStatusServiceTest(UserStatusService userStatusService, UserService userService) {
-		// =================== test users and channels ===================
-		System.out.println("\nTest Users created:");
-		UserRequestDto userRequestDto1 = new UserRequestDto(
-				"codeit",
-				"codeit@gmail.com",
-				"q1w2e3",
-				new BinaryContentRequestDto(
-						null,
-						null,
-						null,
-						null,
-						null
-				)
-		);
-		UserRequestDto userRequestDto2 = new UserRequestDto(
-				"woody",
-				"woody@gmail.com",
-				"w2e3r4",
-				new BinaryContentRequestDto(
-						null,
-						null,
-						null,
-						null,
-						null
-				)
-		);
-		UserResponseDto User1 = userService.create(userRequestDto1);
-		UserResponseDto User2 = userService.create(userRequestDto2);
-		UUID User1Id = User1.id();
-		UUID User2Id = User2.id();
-
-		// =================== 등록 + 조회 ===================
-		System.out.println("\n[CREATE] userStatusServices created:");
-
-		// UserStatus is created during user creation
-		UserStatusResponseDto userStatusResponseDto1 = userStatusService.findByUserId(User1Id);
-		UserStatusResponseDto userStatusResponseDto2 = userStatusService.findByUserId(User2Id);
-		System.out.println("Find userStatus1 by userId: "
-				+ userStatusResponseDto1);
-		System.out.println("Find userStatus2 by userId: "
-				+ userStatusResponseDto2);
-		System.out.println("See all UserStatus: " + userStatusService.findAll());
-
-		// =================== 수정 ===================
-		// 수정된 데이터 조회
-		System.out.println("\n[Update] Update userStatus1 (updating User1's updateLastActiveTime: ");
-		System.out.println("Find userStatus1: "
-				+ userStatusService.find(userStatusResponseDto1.userStatusId()));
-		UpdateUserStatusDto updateUserStatusDto = new UpdateUserStatusDto(
-				userStatusResponseDto1.userStatusId()
-		);
-		userStatusService.update(updateUserStatusDto);
-		UserStatusResponseDto statusAfterUpdate = userStatusService.find(userStatusResponseDto1.userStatusId());
-		System.out.println("Status AFTER update:  " + statusAfterUpdate);
-
-		// =================== 삭제 ===================
-		// 조회를 통해 삭제되었는지 확인
-		System.out.println("\n[Delete] Delete updateUserStatusDto:");
-		System.out.println("See all userStatus before deletion: "
-				+ userStatusService.findAll());
-		userStatusService.delete(userStatusResponseDto1.userStatusId());
-		System.out.println("See all userStatus after deletion (userStatus1): "
-				+ userStatusService.findAll());
-		System.out.println("\n[Delete] Delete ALL userStatus (clear):");
-		userStatusService.deleteAll();
-		System.out.println("See all userStatus: "
-				+ userStatusService.findAll());
-
-//		 삭제를 한 후 read, update, delete 진행할때 에러 던짐
-//        System.out.println("Read userStatus (deleted): "
-//                + userStatusService.find(userStatusResponseDto1.userStatusId()));
+//	public static void userStatusServiceTest(UserStatusService userStatusService, UserService userService) {
+//		// =================== test users and channels ===================
+//		System.out.println("\nTest Users created:");
+//		UserRequestDto userRequestDto1 = new UserRequestDto(
+//				"codeit",
+//				"codeit@gmail.com",
+//				"q1w2e3",
+//				new BinaryContentRequestDto(
+//						null,
+//						null,
+//						null,
+//						null,
+//						null
+//				)
+//		);
+//		UserRequestDto userRequestDto2 = new UserRequestDto(
+//				"woody",
+//				"woody@gmail.com",
+//				"w2e3r4",
+//				new BinaryContentRequestDto(
+//						null,
+//						null,
+//						null,
+//						null,
+//						null
+//				)
+//		);
+//		UserResponseDto User1 = userService.create(userRequestDto1);
+//		UserResponseDto User2 = userService.create(userRequestDto2);
+//		UUID User1Id = User1.id();
+//		UUID User2Id = User2.id();
+//
+//		// =================== 등록 + 조회 ===================
+//		System.out.println("\n[CREATE] userStatusServices created:");
+//
+//		// UserStatus is created during user creation
+//		UserStatusResponseDto userStatusResponseDto1 = userStatusService.findByUserId(User1Id);
+//		UserStatusResponseDto userStatusResponseDto2 = userStatusService.findByUserId(User2Id);
+//		System.out.println("Find userStatus1 by userId: "
+//				+ userStatusResponseDto1);
+//		System.out.println("Find userStatus2 by userId: "
+//				+ userStatusResponseDto2);
+//		System.out.println("See all UserStatus: " + userStatusService.findAll());
+//
+//		// =================== 수정 ===================
+//		// 수정된 데이터 조회
+//		System.out.println("\n[Update] Update userStatus1 (updating User1's updateLastActiveTime: ");
+//		System.out.println("Find userStatus1: "
+//				+ userStatusService.find(userStatusResponseDto1.userStatusId()));
+//		UpdateUserStatusDto updateUserStatusDto = new UpdateUserStatusDto(
+//				userStatusResponseDto1.userStatusId()
+//		);
 //		userStatusService.update(updateUserStatusDto);
-//		userStatusService.delete(userStatusResponseDto1.userid());
-
-	}
+//		UserStatusResponseDto statusAfterUpdate = userStatusService.find(userStatusResponseDto1.userStatusId());
+//		System.out.println("Status AFTER update:  " + statusAfterUpdate);
+//
+//		// =================== 삭제 ===================
+//		// 조회를 통해 삭제되었는지 확인
+//		System.out.println("\n[Delete] Delete updateUserStatusDto:");
+//		System.out.println("See all userStatus before deletion: "
+//				+ userStatusService.findAll());
+//		userStatusService.delete(userStatusResponseDto1.userStatusId());
+//		System.out.println("See all userStatus after deletion (userStatus1): "
+//				+ userStatusService.findAll());
+//		System.out.println("\n[Delete] Delete ALL userStatus (clear):");
+//		userStatusService.deleteAll();
+//		System.out.println("See all userStatus: "
+//				+ userStatusService.findAll());
+//
+////		 삭제를 한 후 read, update, delete 진행할때 에러 던짐
+////        System.out.println("Read userStatus (deleted): "
+////                + userStatusService.find(userStatusResponseDto1.userStatusId()));
+////		userStatusService.update(updateUserStatusDto);
+////		userStatusService.delete(userStatusResponseDto1.userid());
+//
+//	}
 	// ========================= Helper methods =========================
 
 	/**
