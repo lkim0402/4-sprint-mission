@@ -23,7 +23,7 @@ public class MessageController {
      */
 
     @PostMapping // 메세지 보냄
-    public ResponseEntity<MessageResponseDto> sendMessage(@RequestBody MessageRequestDto messageRequestDto
+    public ResponseEntity<MessageResponseDto> sendMessage(@ModelAttribute MessageRequestDto messageRequestDto
     ) {
         MessageResponseDto messageResponseDto = messageService.create(messageRequestDto);
         return ResponseEntity.ok().body(messageResponseDto);

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.channels.MulticastChannel;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -45,11 +46,12 @@ public class BasicMessageService implements MessageService {
         Message savedMessage = messageRepository.save(newMessage);
 
         // saving the binary content
-        List<MultipartFile> attachments = messageRequestDto.attachments();
-        for (MultipartFile attachment : attachments) {
-            BinaryContent binaryContent = binaryContentMapper.toBinaryContent(authorId, savedMessage.getId(), attachment);
-            binaryContent.setUserId(authorId);
-            binaryContent.setMessageId(savedMessage.getId());
+        List<MultipartFile> files = messageRequestDto.files();
+        List<UUID> fileUUIDList = new ArrayList<>();
+        for (MultipartFile file : files) {
+            BinaryContent binaryContent = binaryContentMapper.toBinaryContent(authorId, savedMessage.getId(), file);
+//            binaryContent.setUserId(authorId);
+//            binaryContent.setMessageId(savedMessage.getId());
             binaryContentRepository.save(binaryContent);
         }
         return messageMapper.toMessageResponseDto(savedMessage);
@@ -78,6 +80,7 @@ public class BasicMessageService implements MessageService {
                 .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
 
         message.update(updateMessageRequestDto.content());
+
         return messageMapper.toUpdateMessageResponseDto(messageRepository.save(message));
     }
 

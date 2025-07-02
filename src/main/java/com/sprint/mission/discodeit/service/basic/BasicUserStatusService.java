@@ -3,6 +3,7 @@ import com.sprint.mission.discodeit.dto.UserStatusService.UpdateUserStatusDto;
 import com.sprint.mission.discodeit.dto.UserStatusService.UserStatusRequestDto;
 import com.sprint.mission.discodeit.dto.UserStatusService.UserStatusResponseDto;
 import com.sprint.mission.discodeit.dto.UserStatusService.UserStatusResponseDtos;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -62,13 +63,23 @@ public class BasicUserStatusService implements UserStatusService {
      */
     @Override
     // updating timestamp
-    public void update(UUID userId) {
-        UserStatus userStatus = userStatusRepository.findById(userId)
+    public void update(UUID userStatusId) {
+        UserStatus userStatus = userStatusRepository.findById(userStatusId)
                 .orElseThrow(() -> new NoSuchElementException(
-                        "userStatus with id " + userId + " not found"));
+                        "userStatus with id " + userStatusId + " not found"));
 
         userStatus.updateLastActiveTime();
         userStatusRepository.save(userStatus);
+    }
+
+    @Override
+    public void updateByUserId(UUID userId) {
+        UserStatus userStatus = userStatusRepository.findByUserId(userId)
+                .orElseThrow(() -> new NoSuchElementException(
+                        "User with id " + userId + " not found"));
+        userStatus.updateLastActiveTime();
+        userStatusRepository.save(userStatus);
+
     }
 
     @Override

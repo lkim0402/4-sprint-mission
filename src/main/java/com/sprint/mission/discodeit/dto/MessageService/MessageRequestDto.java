@@ -9,6 +9,5 @@ public record MessageRequestDto(
         String content,
         UUID channelId,
         UUID authorId,
-//        List<BinaryContentRequestDto> attachments
-        List<MultipartFile> attachments
+        List<MultipartFile> files
 ) {}

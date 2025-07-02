@@ -60,7 +60,7 @@ public class UserController {
     @PatchMapping("/{user-id}/status") // 유저 상태 업데이트
     public ResponseEntity<String>  updateUserStatus(@PathVariable("user-id") UUID userId
     ) {
-        userStatusService.update(userId);
+        userStatusService.updateByUserId(userId);
         return ResponseEntity.ok().body("UserStatus updated successfully");
     }
 }

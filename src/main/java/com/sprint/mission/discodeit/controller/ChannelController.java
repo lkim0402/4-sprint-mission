@@ -17,7 +17,6 @@ import java.util.UUID;
 public class ChannelController {
 
     private final ChannelService channelService;
-    private final ChannelMapper channelMapper;
 
     /**
      * [x] 공개 채널을 생성할 수 있다.
