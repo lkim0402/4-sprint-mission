@@ -12,7 +12,7 @@ public interface ChannelService {
     ChannelResponseDto find(UUID channelId);
     ChannelResponseDtos findAllByUserId(UUID userId);
     ChannelResponseDtos findAllPublicChannels();
-    UpdateChannelResponseDto update(UUID channelId, UpdateChannelRequestDto updateChannelRequestDto);
+    UpdateChannelResponseDto update(UpdateChannelRequestDto updateChannelRequestDto);
     void delete(UUID id);
     void deleteAll();
 }

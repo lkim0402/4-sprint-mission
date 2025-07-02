@@ -34,64 +34,58 @@ import java.util.UUID;
 public class DiscodeitApplication {
 
 	public static void main(String[] args) {
+
+		/**
+		 * =============== Repository 테스팅 ===============
+		 * Repository를 테스트 할때 File, Jcf 번갈아가면서 테스팅 하기
+		 *
+		 * 방법1: Repository 클래스 위에 @Primary 어노테이션 추가
+		 * 1차 테스트: File*Repository
+		 * 2차 테스트: JCF*Repository
+		 *
+		 * 방법2 (심화과정): RepositorySettings를 통해 application.yml값 받아오기
+		 *
+		 * =============== Mapper ===============
+		 * 서비스 별로 들어있는 Mapper 클래스는 @Component 어노테이션이 붙혀져 있으므로
+		 * 따로 설정 불필요
+		 */
+
 		ConfigurableApplicationContext context = SpringApplication.run(DiscodeitApplication.class, args);
 
-	}
+		ChannelService channelService = context.getBean(ChannelService.class);
+		UserService userService = context.getBean(UserService.class);
+		MessageService messageService = context.getBean(MessageService.class);
+		AuthService authService = context.getBean(AuthService.class);
+		BinaryContentService binaryContentService = context.getBean(BinaryContentService.class);
+		ReadStatusService readStatusService = context.getBean(ReadStatusService.class);
+		UserStatusService userStatusService = context.getBean(UserStatusService.class);
 
 
-//	public static void main(String[] args) {
-//
-//		/**
-//		 * =============== Repository 테스팅 ===============
-//		 * Repository를 테스트 할때 File, Jcf 번갈아가면서 테스팅 하기
-//		 *
-//		 * 방법1: Repository 클래스 위에 @Primary 어노테이션 추가
-//		 * 1차 테스트: File*Repository
-//		 * 2차 테스트: JCF*Repository
-//		 *
-//		 * 방법2 (심화과정): RepositorySettings를 통해 application.yml값 받아오기
-//		 *
-//		 * =============== Mapper ===============
-//		 * 서비스 별로 들어있는 Mapper 클래스는 @Component 어노테이션이 붙혀져 있으므로
-//		 * 따로 설정 불필요
-//		 */
-//
-//		ConfigurableApplicationContext context = SpringApplication.run(DiscodeitApplication.class, args);
-//
-//		ChannelService channelService = context.getBean(ChannelService.class);
-//		UserService userService = context.getBean(UserService.class);
-//		MessageService messageService = context.getBean(MessageService.class);
-//		AuthService authService = context.getBean(AuthService.class);
-//		BinaryContentService binaryContentService = context.getBean(BinaryContentService.class);
-//		ReadStatusService readStatusService = context.getBean(ReadStatusService.class);
-//		UserStatusService userStatusService = context.getBean(UserStatusService.class);
-//
-//
-//		// =============================== 테스트 전 모든 데이터 초기화 ===============================
-//		clearAllData(channelService, userService, messageService, binaryContentService, readStatusService, userStatusService);
-//
-//
-//		// =============================== 심화 요구사항 테스트 ===============================
-//		RepositorySettings repositorySettings = context.getBean(RepositorySettings.class);
-//		String type = repositorySettings.getTYPE();
-//		System.out.println("Repository used: " + type);
-//
-//
-//		// =============================== 서비스 테스팅 ===============================
-//		/**
-//		 * 아래 각 서비스 테스트는 독립적으로 실행됩니다.
-//		 * 테스트하고 싶은 서비스의 해당 라인 앞 주석(//)을 제거하여 실행하고,
-//		 * 테스트가 끝나면 다시 주석 처리하는 방식으로 하나씩 확인해주세요.
-//		 */
-//
+		// =============================== 테스트 전 모든 데이터 초기화 ===============================
+		clearAllData(channelService, userService, messageService, binaryContentService, readStatusService, userStatusService);
+
+
+		// =============================== 심화 요구사항 테스트 ===============================
+		RepositorySettings repositorySettings = context.getBean(RepositorySettings.class);
+		String type = repositorySettings.getTYPE();
+		System.out.println("Repository used: " + type);
+
+
+		// =============================== 서비스 테스팅 ===============================
+		/**
+		 * 아래 각 서비스 테스트는 독립적으로 실행됩니다.
+		 * 테스트하고 싶은 서비스의 해당 라인 앞 주석(//)을 제거하여 실행하고,
+		 * 테스트가 끝나면 다시 주석 처리하는 방식으로 하나씩 확인해주세요.
+		 */
+
 //		channelServiceTest(channelService);
 //        userServiceTest(userService);
 //        messageServiceTest(messageService, channelService, userService);
 //		authServiceTest(authService, userService);
 //		binaryContentServiceTest(binaryContentService);
 //		readStatusServiceTest(readStatusService, userService, channelService);
-//		userStatusServiceTest(userStatusService, userService);
-//	}
+		userStatusServiceTest(userStatusService, userService);
+	}
 
 	/**
 	 * ChannelService 기능을 테스트하는 메서드입니다.
@@ -146,13 +140,13 @@ public class DiscodeitApplication {
 		System.out.println("Read public study channel name: "
 				+ channelService.find(studyChannel.id()));
 		UpdateChannelRequestDto updateChannelRequestDto = new UpdateChannelRequestDto(
-//				studyChannel.id(),
+				studyChannel.id(),
 				ChannelType.PUBLIC,
 				"changed-name!",
 				"This is updated study channel"
 		);
 		System.out.println("Read updated public study channel name: "
-				+ channelService.update(studyChannel.id(),updateChannelRequestDto));
+				+ channelService.update(updateChannelRequestDto));
 
 		// =================== 삭제 ===================
 		// 조회를 통해 삭제되었는지 확인

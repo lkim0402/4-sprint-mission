@@ -8,7 +8,7 @@ import java.util.UUID;
 
 // only public channels are allowed to edit
 public record UpdateChannelRequestDto(
-//        UUID channelId,
+        UUID channelId,
         ChannelType type,
         String name,
         String description
