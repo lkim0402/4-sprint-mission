@@ -1,11 +1,7 @@
 package com.sprint.mission.discodeit.repository.file;
 import com.sprint.mission.discodeit.config.RepositorySettings;
-import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
-import jakarta.annotation.PostConstruct;
-import lombok.Locked;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import java.io.*;
 import java.nio.file.Files;
@@ -14,24 +10,25 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 @Repository
 public class FileReadStatusRepository implements ReadStatusRepository {
     private final static String PATH = "user.dir";
-    private final Path directory;
-    private final String extension;
+    private final Path DIRECTORY;
+    private final String EXTENSION;
 
     public FileReadStatusRepository(RepositorySettings repositorySettings) {
-        this.extension = repositorySettings.getEXTENSION();
+        this.EXTENSION = repositorySettings.getEXTENSION();
         String fileDirectory = repositorySettings.getFILEDIRECTORY();
-        this.directory = Paths.get(System.getProperty(PATH),
+        this.DIRECTORY = Paths.get(System.getProperty(PATH),
                 fileDirectory,
                 "file-data-map",
                 ReadStatus.class.getSimpleName());
 
         try {
-            if (Files.notExists(directory)) {
-                Files.createDirectories(directory);
+            if (Files.notExists(DIRECTORY)) {
+                Files.createDirectories(DIRECTORY);
             }
         } catch (IOException e) {
             throw new RuntimeException("파일 저장 디렉토리 생성 실패", e);
@@ -40,7 +37,7 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 
 
     private Path resolvePath(UUID id) {
-        return directory.resolve(id + extension);
+        return DIRECTORY.resolve(id + EXTENSION);
     }
 
     @Override
@@ -76,9 +73,9 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 
     @Override
     public List<ReadStatus> findByChannelId(UUID channelId) {
-        try {
-            return Files.list(directory)
-                    .filter(path -> path.toString().endsWith(extension))
+        try (Stream<Path> paths = Files.list(DIRECTORY)){
+            return paths
+                    .filter(path -> path.toString().endsWith(EXTENSION))
                     // convert each object in path
                     .map(FileReadStatusRepository::getReadStatus
                     )
@@ -91,9 +88,9 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 
     @Override
     public List<ReadStatus> findByUserId(UUID userId) {
-        try {
-            return Files.list(directory)
-                    .filter(path -> path.toString().endsWith(extension))
+        try (Stream<Path> paths = Files.list(DIRECTORY)){
+            return paths
+                    .filter(path -> path.toString().endsWith(EXTENSION))
                     // convert each object in path
                     .map(FileReadStatusRepository::getReadStatus)
                     .filter(readStatus -> readStatus.getUserId().equals(userId))
@@ -106,8 +103,8 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 
     @Override
     public Optional<ReadStatus> findByChannelAndUserId(UUID channelId, UUID userId) {
-        try {
-            return Files.list(directory)
+        try (Stream<Path> paths = Files.list(DIRECTORY)){
+            return paths
                     .filter(path -> path.toString().endsWith(".ser"))
                     // convert each object in path
                     .map(FileReadStatusRepository::getReadStatus)
@@ -120,8 +117,8 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 
     @Override
     public List<ReadStatus> findAll() {
-        try {
-            return Files.list(directory)
+        try (Stream<Path> paths = Files.list(DIRECTORY)){
+            return paths
                     .filter(path -> path.toString().endsWith(".ser"))
                     // convert each object in path
                     .map(FileReadStatusRepository::getReadStatus)
@@ -149,9 +146,9 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 
     @Override
     public void deleteAll() {
-        try {
-            Files.list(directory)
-                    .filter(path -> path.toString().endsWith(extension))
+        try (Stream<Path> paths = Files.list(DIRECTORY)){
+            paths
+                    .filter(path -> path.toString().endsWith(EXTENSION))
                     .forEach(path -> {
                         try {
                             Files.delete(path);
@@ -160,7 +157,7 @@ public class FileReadStatusRepository implements ReadStatusRepository {
                         }
                     });
         } catch (IOException e) {
-            throw new RuntimeException("Failed to list directory for deletion: " + directory, e);
+            throw new RuntimeException("Failed to list directory for deletion: " + DIRECTORY, e);
         }
     }
 
