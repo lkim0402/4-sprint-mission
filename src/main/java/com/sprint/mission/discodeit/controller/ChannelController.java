@@ -32,14 +32,14 @@ public class ChannelController {
     public ResponseEntity<ChannelResponseDto> createPublicChannel(@RequestBody PublicChannelRequestDto publicChannelRequestDto
     ) {
         ChannelResponseDto channelResponseDto = channelService.createPublic(publicChannelRequestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(channelResponseDto);
+        return ResponseEntity.ok().body(channelResponseDto);
     }
 
     @PostMapping("/private")// 비공개 채널 생성
     public ResponseEntity<ChannelResponseDto> createPrivateChannel(@RequestBody PrivateChannelRequestDto privateChannelRequestDto
     ) {
         ChannelResponseDto channelResponseDto = channelService.createPrivate(privateChannelRequestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(channelResponseDto);
+        return ResponseEntity.ok().body(channelResponseDto);
     }
 
     @PatchMapping("/{channel-id}") // 수정
@@ -53,7 +53,7 @@ public class ChannelController {
     @DeleteMapping("/{channel-id}") // 채널 삭제
     public ResponseEntity<String> deleteChannel(@PathVariable("channel-id") UUID channelId) {
         channelService.delete(channelId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().body("Channel deleted successfully");
     }
 
     @GetMapping// 사용자의 모든 채널 조회

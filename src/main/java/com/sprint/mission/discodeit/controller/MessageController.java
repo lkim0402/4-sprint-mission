@@ -26,7 +26,7 @@ public class MessageController {
     public ResponseEntity<MessageResponseDto> sendMessage(@RequestBody MessageRequestDto messageRequestDto
     ) {
         MessageResponseDto messageResponseDto = messageService.create(messageRequestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(messageResponseDto);
+        return ResponseEntity.ok().body(messageResponseDto);
     }
 
     @PatchMapping("/{message-id}") // 수정
@@ -41,7 +41,7 @@ public class MessageController {
     public ResponseEntity<String> deleteMessage(@PathVariable("message-id") UUID messageId
     ) {
         messageService.delete(messageId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().body("Message successfully deleted");
     }
 
     @GetMapping // 채널의 모든 메세지 조회
