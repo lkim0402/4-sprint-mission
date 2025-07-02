@@ -63,23 +63,24 @@ public class BasicUserStatusService implements UserStatusService {
      */
     @Override
     // updating timestamp
-    public void update(UUID userStatusId) {
+    public UserStatusResponseDto update(UUID userStatusId) {
         UserStatus userStatus = userStatusRepository.findById(userStatusId)
                 .orElseThrow(() -> new NoSuchElementException(
                         "userStatus with id " + userStatusId + " not found"));
 
         userStatus.updateLastActiveTime();
-        userStatusRepository.save(userStatus);
+        UserStatus savedUserStatus = userStatusRepository.save(userStatus);
+        return userStatusMapper.toUserStatusResponseDto(savedUserStatus);
     }
 
     @Override
-    public void updateByUserId(UUID userId) {
+    public UserStatusResponseDto updateByUserId(UUID userId) {
         UserStatus userStatus = userStatusRepository.findByUserId(userId)
                 .orElseThrow(() -> new NoSuchElementException(
                         "User with id " + userId + " not found"));
         userStatus.updateLastActiveTime();
-        userStatusRepository.save(userStatus);
-
+        UserStatus savedUserStatus = userStatusRepository.save(userStatus);
+        return userStatusMapper.toUserStatusResponseDto(savedUserStatus);
     }
 
     @Override

@@ -41,7 +41,7 @@ public class MessageController {
     public ResponseEntity<String> deleteMessage(@PathVariable("message-id") UUID messageId
     ) {
         messageService.delete(messageId);
-        return ResponseEntity.ok().body("Message successfully deleted");
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping // 채널의 모든 메세지 조회
