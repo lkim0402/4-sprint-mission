@@ -13,7 +13,6 @@ public interface UserStatusService {
     UserStatusResponseDto find(UUID userStatusId);
     UserStatusResponseDto findByUserId(UUID userId);
     UserStatusResponseDtos findAll();
-//    void update(UpdateUserStatusDto updateUserStatusDto);
     void update(UUID id);
     void delete(UUID id);
     void deleteAll();

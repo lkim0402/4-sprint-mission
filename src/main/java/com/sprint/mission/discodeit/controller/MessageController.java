@@ -23,33 +23,29 @@ public class MessageController {
      */
 
     @PostMapping // 메세지 보냄
-    public ResponseEntity<MessageResponseDto> sendMessage(
-            @RequestBody MessageRequestDto messageRequestDto
+    public ResponseEntity<MessageResponseDto> sendMessage(@RequestBody MessageRequestDto messageRequestDto
     ) {
         MessageResponseDto messageResponseDto = messageService.create(messageRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(messageResponseDto);
     }
 
     @PatchMapping("/{message-id}") // 수정
-    public ResponseEntity<UpdateMessageResponseDto> updateMessage(
-            @PathVariable("message-id") UUID messageId,
-            @RequestBody UpdateMessageRequestDto updateMessageRequestDto
+    public ResponseEntity<UpdateMessageResponseDto> updateMessage(@PathVariable("message-id") UUID messageId,
+                                                                  @RequestBody UpdateMessageRequestDto updateMessageRequestDto
     ) {
         UpdateMessageResponseDto updateMessageResponseDto = messageService.update(messageId, updateMessageRequestDto);
         return ResponseEntity.ok(updateMessageResponseDto);
     }
 
     @DeleteMapping("/{message-id}") // 삭제
-    public ResponseEntity<String> deleteMessage(
-            @PathVariable("message-id") UUID messageId
+    public ResponseEntity<String> deleteMessage(@PathVariable("message-id") UUID messageId
     ) {
         messageService.delete(messageId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping // 채널의 모든 메세지 조회
-    public ResponseEntity<MessageResponseDtos> getMessagesByChannel(
-            @RequestParam("channel-id") UUID channelId
+    public ResponseEntity<MessageResponseDtos> getMessagesByChannel(@RequestParam("channel-id") UUID channelId
     ) {
         MessageResponseDtos messageResponseDtos = messageService.findallByChannelId(channelId);
         return ResponseEntity.ok(messageResponseDtos);

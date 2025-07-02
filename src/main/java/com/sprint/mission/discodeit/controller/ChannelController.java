@@ -29,25 +29,22 @@ public class ChannelController {
 
     // ========= 채널을 1개로 통합?
     @PostMapping("/public") // 공개 채널 생성
-    public ResponseEntity<ChannelResponseDto> createPublicChannel(
-            @RequestBody PublicChannelRequestDto publicChannelRequestDto
+    public ResponseEntity<ChannelResponseDto> createPublicChannel(@RequestBody PublicChannelRequestDto publicChannelRequestDto
     ) {
         ChannelResponseDto channelResponseDto = channelService.createPublic(publicChannelRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(channelResponseDto);
     }
 
     @PostMapping("/private")// 비공개 채널 생성
-    public ResponseEntity<ChannelResponseDto> createPrivateChannel(
-            @RequestBody PrivateChannelRequestDto privateChannelRequestDto
+    public ResponseEntity<ChannelResponseDto> createPrivateChannel(@RequestBody PrivateChannelRequestDto privateChannelRequestDto
     ) {
         ChannelResponseDto channelResponseDto = channelService.createPrivate(privateChannelRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(channelResponseDto);
     }
 
     @PatchMapping("/{channel-id}") // 수정
-    public ResponseEntity<UpdateChannelResponseDto> updatePublicChannel(
-            @PathVariable("channel-id") UUID channelId,
-            @RequestBody UpdateChannelRequestDto updateChannelRequestDto
+    public ResponseEntity<UpdateChannelResponseDto> updatePublicChannel(@PathVariable("channel-id") UUID channelId,
+                                                                        @RequestBody UpdateChannelRequestDto updateChannelRequestDto
     ) {
         UpdateChannelResponseDto updateChannelResponseDto = channelService.update(channelId, updateChannelRequestDto);
         return ResponseEntity.ok(updateChannelResponseDto);
@@ -60,8 +57,7 @@ public class ChannelController {
     }
 
     @GetMapping// 사용자의 모든 채널 조회
-    public ResponseEntity<ChannelResponseDtos> getChannelsByUser(
-            @RequestParam("user-id") UUID userId
+    public ResponseEntity<ChannelResponseDtos> getChannelsByUser(@RequestParam("user-id") UUID userId
     ) {
         ChannelResponseDtos channelResponseDtos = channelService.findAllByUserId(userId);
         return ResponseEntity.ok(channelResponseDtos);

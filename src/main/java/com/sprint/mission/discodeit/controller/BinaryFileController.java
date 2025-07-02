@@ -20,16 +20,14 @@ public class BinaryFileController {
      */
 
     @GetMapping("/{binaryfile-id}")
-    public ResponseEntity<BinaryContentResponseDto> getBinaryFile(
-            @PathVariable("binaryfile-id")UUID binaryContentId
+    public ResponseEntity<BinaryContentResponseDto> getBinaryFile(@PathVariable("binaryfile-id")UUID binaryContentId
     ) {
         BinaryContentResponseDto binaryContentResponseDto = binaryContentService.find(binaryContentId);
         return ResponseEntity.ok(binaryContentResponseDto);
     }
 
     @GetMapping
-    public ResponseEntity<BinaryContentResponseDtos> getBinaryFiles(
-            @RequestParam("ids") List<UUID> binaryContentUUIDList
+    public ResponseEntity<BinaryContentResponseDtos> getBinaryFiles(@RequestParam("ids") List<UUID> binaryContentUUIDList
     ) {
         BinaryContentResponseDtos binaryContentResponseDtos = binaryContentService.findAllByIdIn(binaryContentUUIDList);
         return ResponseEntity.ok(binaryContentResponseDtos);
