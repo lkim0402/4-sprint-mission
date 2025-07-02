@@ -26,24 +26,21 @@ public class ReadStatusController {
      */
 
     @PostMapping // 등록
-    public ResponseEntity<ReadStatusResponseDto> createReadStatus(
-            @RequestBody ReadStatusRequestDto readStatusRequestDto
+    public ResponseEntity<ReadStatusResponseDto> createReadStatus(@RequestBody ReadStatusRequestDto readStatusRequestDto
     ) {
         ReadStatusResponseDto readStatusResponseDto = readStatusService.create(readStatusRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(readStatusResponseDto);
     }
 
     @PatchMapping("/{readStatus-id}") // readStatus 업데이트
-    public ResponseEntity<String>  updateUserStatus(
-            @PathVariable("readStatus-id") UUID readStatusId
+    public ResponseEntity<String>  updateUserStatus(@PathVariable("readStatus-id") UUID readStatusId
     ) {
         readStatusService.update(readStatusId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping// 특정 사용자의 메시지 수신 정보 조회
-    public ResponseEntity<ReadStatusResponseDtos> getReadStatusByUserId(
-        @RequestParam("userId") UUID userId
+    public ResponseEntity<ReadStatusResponseDtos> getReadStatusByUserId(@RequestParam("userId") UUID userId
     ) {
         ReadStatusResponseDtos readStatusResponseDtos = readStatusService.findAllByUserId(userId);
         return ResponseEntity.ok(readStatusResponseDtos);

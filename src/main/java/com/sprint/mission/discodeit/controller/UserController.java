@@ -29,17 +29,15 @@ public class UserController {
      */
 
     @PostMapping // 등록
-    public ResponseEntity<UserResponseDto> createUser(
-            @RequestBody UserRequestDto userRequestDto
+    public ResponseEntity<UserResponseDto> createUser(@RequestBody UserRequestDto userRequestDto
     ) {
         UserResponseDto user = userService.create(userRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
     @PatchMapping ("/{user-id}")// 수정
-    public ResponseEntity<UpdateUserResponseDto> updateUser(
-            @PathVariable("user-id") UUID userId,
-            @RequestBody UpdateUserRequestDto updateUserRequestDto
+    public ResponseEntity<UpdateUserResponseDto> updateUser(@PathVariable("user-id") UUID userId,
+                                                            @RequestBody UpdateUserRequestDto updateUserRequestDto
         ) {
         UpdateUserResponseDto updateUserResponseDto = userService.update(userId, updateUserRequestDto);
         return ResponseEntity.ok(updateUserResponseDto);
@@ -58,9 +56,7 @@ public class UserController {
     }
 
     @PatchMapping("/{user-id}/status") // 유저 상태 업데이트
-    public ResponseEntity<String>  updateUserStatus(
-            @PathVariable("user-id") UUID userId
-//            @RequestBody UpdateUserStatusDto updateUserStatusDto
+    public ResponseEntity<String>  updateUserStatus(@PathVariable("user-id") UUID userId
     ) {
         userStatusService.update(userId);
         return ResponseEntity.noContent().build();
