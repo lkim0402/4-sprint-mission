@@ -17,6 +17,7 @@ import java.util.UUID;
 public class ChannelController {
 
     private final ChannelService channelService;
+    private final ChannelMapper channelMapper;
 
     /**
      * [x] 공개 채널을 생성할 수 있다.
@@ -42,11 +43,11 @@ public class ChannelController {
     }
 
     @PatchMapping("/{channel-id}") // 수정
-    public ResponseEntity<UpdateChannelResponseDto> updatePublicChannel(@PathVariable("channel-id") UUID channelId,
+    public ResponseEntity<ChannelResponseDto> updatePublicChannel(@PathVariable("channel-id") UUID channelId,
                                                                         @RequestBody UpdateChannelRequestDto updateChannelRequestDto
     ) {
         UpdateChannelResponseDto updateChannelResponseDto = channelService.update(channelId, updateChannelRequestDto);
-        return ResponseEntity.ok(updateChannelResponseDto);
+        return ResponseEntity.ok(channelMapper.toChannelResponseDto(updateChannelResponseDto));
     }
 
     @DeleteMapping("/{channel-id}") // 채널 삭제
