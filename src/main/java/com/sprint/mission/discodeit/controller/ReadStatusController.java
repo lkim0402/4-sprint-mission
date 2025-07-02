@@ -29,14 +29,14 @@ public class ReadStatusController {
     public ResponseEntity<ReadStatusResponseDto> createReadStatus(@RequestBody ReadStatusRequestDto readStatusRequestDto
     ) {
         ReadStatusResponseDto readStatusResponseDto = readStatusService.create(readStatusRequestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(readStatusResponseDto);
+        return ResponseEntity.ok().body(readStatusResponseDto);
     }
 
     @PatchMapping("/{readStatus-id}") // readStatus 업데이트
     public ResponseEntity<String>  updateUserStatus(@PathVariable("readStatus-id") UUID readStatusId
     ) {
         readStatusService.update(readStatusId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().body("ReadStatus successfully updated");
     }
 
     @GetMapping// 특정 사용자의 메시지 수신 정보 조회

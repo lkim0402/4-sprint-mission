@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.dto.UserService;
 import com.sprint.mission.discodeit.dto.BinaryContentService.BinaryContentRequestDto;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 신규 사용자 생성 요청을 위한 데이터 DTO입니다.
@@ -14,5 +15,5 @@ public record UserRequestDto (
     String username,
     String email,
     String password,
-    BinaryContentRequestDto profilePicture
+    MultipartFile profilePicture
 ) {}
