@@ -23,23 +23,25 @@ public class BasicReadStatusService implements ReadStatusService {
     @Override
     public ReadStatusResponseDto create(ReadStatusRequestDto readStatusRequestDto) {
 
+        UUID userId = readStatusRequestDto.userId();
+        UUID channelId = readStatusRequestDto.channelId();
         // Throw error if channel or user does not exist
-        if (!channelRepository.existsById(readStatusRequestDto.channelId())) {
+        if (!channelRepository.existsById(channelId)) {
             throw new IllegalArgumentException("Channel not found");
         }
-        if (!userRepository.existsById(readStatusRequestDto.userId())) {
+        if (!userRepository.existsById(userId)) {
             throw new IllegalArgumentException("User not found");
         }
 
         // Throw error if readstatus already exists
         Optional<ReadStatus> readStatus = readStatusRepository.findByChannelAndUserId(
-                readStatusRequestDto.channelId(), readStatusRequestDto.userId()
+                channelId, userId
         );
         if (readStatus.isPresent()) {
             throw new IllegalArgumentException("Read status already exists");
         }
 
-        ReadStatus newReadStatus = readStatusMapper.toReadStatus(readStatusRequestDto);
+        ReadStatus newReadStatus = new ReadStatus(userId, channelId);
         return readStatusMapper.toReadStatusResponseDto(readStatusRepository.save(newReadStatus));
     }
 

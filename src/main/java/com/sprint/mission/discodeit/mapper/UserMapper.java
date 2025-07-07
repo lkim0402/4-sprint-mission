@@ -1,8 +1,5 @@
 package com.sprint.mission.discodeit.mapper;
-import com.sprint.mission.discodeit.dto.UserService.UpdateUserResponseDto;
-import com.sprint.mission.discodeit.dto.UserService.UserRequestDto;
-import com.sprint.mission.discodeit.dto.UserService.UserResponseDto;
-import com.sprint.mission.discodeit.dto.UserService.UserResponseDtos;
+import com.sprint.mission.discodeit.dto.UserService.*;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import lombok.AllArgsConstructor;
@@ -19,9 +16,10 @@ public class UserMapper {
     // Request
     public User toUser(UserRequestDto userDTO) {
         return new User(
-                userDTO.username(),
-                userDTO.email(),
-                userDTO.password()
+                userDTO.getUsername(),
+                userDTO.getEmail(),
+                userDTO.getPassword(),
+                null // set later when creating user
         );
     }
 
@@ -33,9 +31,11 @@ public class UserMapper {
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
-                userStatusMapper.toUserStatusResponseDto(userStatus)
+                user.getProfileId(),
+                userStatus == null ? null : userStatusMapper.toUserStatusResponseDto(userStatus)
         );
     }
+
 
     // used in create
     public UserResponseDto toUserResponseDto(User user, UserStatus userStatus) {
@@ -43,6 +43,7 @@ public class UserMapper {
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
+                user.getProfileId(),
                 userStatusMapper.toUserStatusResponseDto(userStatus)
         );
     }
@@ -60,6 +61,32 @@ public class UserMapper {
                 user.getUsername(),
                 user.getEmail(),
                 user.getProfileId()
+        );
+    }
+
+    // ======== 심화 =========
+
+    public UserDto toUserDto(User user, UserStatus userStatus) {
+        Boolean isOnline = userStatus.getStatus() == UserStatus.UserState.ONLINE;
+
+        return new UserDto(
+                user.getId(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getProfileId(),
+                isOnline
+        );
+    }
+
+    public List<UserDto> toUserDtoList(UserDtos userDtos) {
+        return userDtos.userDtoList();
+    }
+
+    public UserDtos toUserDtos(List<UserDto> userDtoList) {
+        return new UserDtos(
+                userDtoList
         );
     }
 }

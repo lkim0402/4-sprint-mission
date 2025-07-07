@@ -1,13 +1,11 @@
 package com.sprint.mission.discodeit.dto.BinaryContentService;
-
+import org.springframework.web.multipart.MultipartFile;
 import java.util.UUID;
 
 public record BinaryContentResponseDto(
     UUID id,
     UUID userId,
-    UUID messageId,
-    String fileName,
-    String fileType
+    UUID messageId
 ) {
     @Override
     public String toString() {
@@ -16,8 +14,6 @@ public record BinaryContentResponseDto(
                 "    id        = " + this.id + ",\n" +
                 "    userId    = " + this.userId + ",\n" +
                 "    messageId = " + this.messageId + ",\n" +
-                "    fileName  = " + this.fileName + ",\n" +
-                "    fileType  = " + this.fileType + "\n" +
                 "  }";
     }
 }

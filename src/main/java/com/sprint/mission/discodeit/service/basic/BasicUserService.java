@@ -25,17 +25,19 @@ public class BasicUserService implements UserService {
     @Override
     public UserResponseDto create(UserRequestDto userRequestDto) {
         User user = userMapper.toUser(userRequestDto);
-        if (existsByUsernameOrEmail(user.getUsername(), user.getEmail())) {
+        if (existsByUsernameOrEmail(userRequestDto.getUsername(), userRequestDto.getEmail())) {
             throw new IllegalStateException("User with the same username or email already exists.");
         }
         // Save user
         User savedUser =  userRepository.save(user);
 
         //Save profile in binaryContentRepository
-        BinaryContent profile = binaryContentMapper.toBinaryContent(userRequestDto.profilePicture());
+        BinaryContent profile = binaryContentMapper.toBinaryContent(savedUser.getId(), null, userRequestDto.getProfilePicture());
         if (profile != null) {
             // setting user's profile id
             savedUser.setProfileId(profile.getId());
+            userRepository.save(savedUser);
+
             // setting profile's user id
             profile.setUserId(savedUser.getId());
             binaryContentRepository.save(profile);
@@ -59,37 +61,63 @@ public class BasicUserService implements UserService {
                 .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
     }
 
+//    @Override
+//    public UserResponseDtos findAll() {
+//        List<User> users = userRepository.findAll();
+//        if (users.isEmpty()) {
+//            return new UserResponseDtos(Collections.emptyList());
+//        }
+//
+//        List<UserResponseDto> userList =  users.stream()
+//                .map(u -> {
+//                    Optional<UserStatus> userStatus = userStatusRepository.findByUserId(u.getId());
+//                    return userMapper.toUserResponseDto(u, userStatus);
+//                })
+//                .toList();
+//
+//        return userMapper.toUserResponseDtos(userList);
+//    }
+
+    // 심화 요구사항에 맞춰서 findAll 변경
     @Override
-    public UserResponseDtos findAll() {
+    public UserDtos findAll() {
         List<User> users = userRepository.findAll();
         if (users.isEmpty()) {
-            return new UserResponseDtos(Collections.emptyList());
+            return new UserDtos(Collections.emptyList());
         }
 
-        List<UserResponseDto> userList =  users.stream()
+        List<UserDto> userList =  users.stream()
                 .map(u -> {
-                    Optional<UserStatus> userStatus = userStatusRepository.findByUserId(u.getId());
-                    return userMapper.toUserResponseDto(u, userStatus);
+                    UserStatus userStatus = userStatusRepository.findByUserId(u.getId())
+                            .orElseThrow(() -> new NoSuchElementException("UserStatus does not exist for user id " + u.getId()));
+                    return userMapper.toUserDto(u, userStatus);
                 })
                 .toList();
 
-        return userMapper.toUserResponseDtos(userList);
+        return userMapper.toUserDtos(userList);
     }
 
     @Override
-    public UpdateUserResponseDto update(UpdateUserRequestDto updateUserRequestDto) {
+    public UpdateUserResponseDto update(UUID userId, UpdateUserRequestDto updateUserRequestDto) {
 
-        User existingUser = userRepository.findById(updateUserRequestDto.userId())
-                .orElseThrow(() -> new NoSuchElementException("User with id " + updateUserRequestDto.userId() + " not found"));
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
 
-        existingUser.update(
-                updateUserRequestDto.username(),
-                updateUserRequestDto.email(),
-                updateUserRequestDto.password(),
-                updateUserRequestDto.profileId()
-        );
+        if (updateUserRequestDto.username() != null) {
+            existingUser.setUsername(updateUserRequestDto.username());
+        }
+        if (updateUserRequestDto.email() != null) {
+            existingUser.setEmail(updateUserRequestDto.email());
+        }
+        if (updateUserRequestDto.password() != null) {
+            existingUser.setPassword(updateUserRequestDto.password());
+        }
+        if (updateUserRequestDto.profileId() != null) {
+            existingUser.setProfileId(updateUserRequestDto.profileId());
+        }
 
-        return userMapper.toUpdateUserResponseDto(userRepository.save(existingUser));
+        User updatedUser = userRepository.save(existingUser);
+        return userMapper.toUpdateUserResponseDto(updatedUser);
     }
 
     @Override

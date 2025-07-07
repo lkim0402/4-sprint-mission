@@ -9,8 +9,9 @@ import java.util.UUID;
 public interface UserService {
     UserResponseDto create(UserRequestDto userRequestDto);
     UserResponseDto find(UUID userId);
-    UserResponseDtos findAll();
-    UpdateUserResponseDto update(UpdateUserRequestDto updateUserRequestDto);
+//    UserResponseDtos findAll();
+    UserDtos findAll(); // 심화 요구사항
+    UpdateUserResponseDto update(UUID userId, UpdateUserRequestDto updateUserRequestDto);
     void delete(UUID id);
     void deleteAll();
 }

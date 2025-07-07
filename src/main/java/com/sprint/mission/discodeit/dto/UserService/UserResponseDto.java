@@ -13,6 +13,7 @@ public record UserResponseDto (
     UUID id,
     String username,
     String email,
+    UUID profileId,
     UserStatusResponseDto userStatusResponseDto
 ) {
     @Override
@@ -22,6 +23,7 @@ public record UserResponseDto (
                 "    id                    = " + this.id + ",\n" +
                 "    username              = " + this.username + ",\n" +
                 "    email                 = " + this.email + ",\n" +
+                "    profileId             = " + this.profileId + ",\n" +
                 "    userStatusResponseDto = " + this.userStatusResponseDto + "\n" +
                 "  }";
     }

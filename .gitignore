@@ -5,6 +5,10 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+### TEST data ###
+/file-data-map
+/file-directory
+
 ### STS ###
 .apt_generated
 .classpath
@@ -25,7 +29,6 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
-
 
 
 ### NetBeans ###

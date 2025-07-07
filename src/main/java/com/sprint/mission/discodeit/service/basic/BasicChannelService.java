@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.*;
 public class BasicChannelService implements ChannelService {
 
     private final ChannelRepository channelRepository;
+    private final UserRepository userRepository;
     private final ReadStatusRepository readStatusRepository;
     private final MessageRepository messageRepository;
     private final ChannelMapper channelMapper;
@@ -40,6 +42,13 @@ public class BasicChannelService implements ChannelService {
     @Override
     public ChannelResponseDto createPrivate(PrivateChannelRequestDto channelRequestDto) {
         List<UUID> userIds = channelRequestDto.userIds();
+
+        for (UUID userId : userIds) {
+            if (!userRepository.existsById(userId)) {
+                throw new NoSuchElementException("User id " + userId + " does not exist");
+            }
+        }
+
         Channel channel = channelMapper.requestDtoToPrivateChannel(channelRequestDto);
 
         for  (UUID uuid : userIds) {
@@ -134,14 +143,14 @@ public class BasicChannelService implements ChannelService {
         );
     }
     @Override
-    public UpdateChannelResponseDto update(UpdateChannelRequestDto updateChannelRequestDto) {
+    public UpdateChannelResponseDto update(UUID channelId, UpdateChannelRequestDto updateChannelRequestDto) {
 
         if (updateChannelRequestDto.type() == ChannelType.PRIVATE) {
             throw new IllegalArgumentException("Private channel cannot be updated");
         }
 
-        Channel channel = channelRepository.findById(updateChannelRequestDto.channelId())
-                .orElseThrow(() -> new NoSuchElementException("Channel with id " + updateChannelRequestDto.channelId() + " not found"));
+        Channel channel = channelRepository.findById(channelId)
+                .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
 
         if (channelRepository.existsByName(updateChannelRequestDto.name())) {
             throw new IllegalArgumentException("Channel with name " + updateChannelRequestDto.name() + " already exists!");

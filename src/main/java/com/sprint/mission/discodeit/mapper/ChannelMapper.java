@@ -29,7 +29,14 @@ public class ChannelMapper {
         );
     }
 
-//    public Channel
+    // used in controller
+    public PublicChannelRequestDto publicChannelRequestDto(ChannelRequestDto channelRequestDto) {
+        return new PublicChannelRequestDto(
+                channelRequestDto.channelType(),
+                channelRequestDto.name(),
+                channelRequestDto.description()
+        );
+    }
 
     // Response
     public ChannelResponseDto toChannelResponseDto(Channel channel, List<UUID> userIds, Instant lastMessageTime) {
@@ -60,15 +67,6 @@ public class ChannelMapper {
         );
     }
 
-    // Request
-    public UpdateChannelRequestDto toUpdateChannelRequestDto(Channel channel) {
-        return new UpdateChannelRequestDto(
-                channel.getId(),
-                channel.getType(),
-                channel.getName(),
-                channel.getDescription()
-        );
-    }
 
     // Response
     public UpdateChannelResponseDto toUpdateChannelResponseDto(Channel channel) {
@@ -77,6 +75,19 @@ public class ChannelMapper {
             channel.getType(),
             channel.getName(),
             channel.getDescription()
+        );
+    }
+
+    // ================== used in controller ==================
+    // update -> channel (for updating channel response)
+    public ChannelResponseDto toChannelResponseDto(UpdateChannelResponseDto updateDto) {
+        return new ChannelResponseDto(
+                updateDto.channelId(),
+                null,  // lastMessageTime is not relevant for an update confirmation
+                updateDto.channelType(),
+                updateDto.name(),
+                updateDto.description(),
+                null  // userIds are not relevant for a public channel update response
         );
     }
 }
