@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.service.basic;
-import com.sprint.mission.discodeit.dto.MessageService.*;
-import com.sprint.mission.discodeit.dto.BinaryContentService.BinaryContentRequestDto;
+
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
@@ -13,8 +12,7 @@ import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.nio.channels.MulticastChannel;
+import com.sprint.mission.discodeit.dto.MessageDto.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -23,89 +21,93 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class BasicMessageService implements MessageService {
-    private final MessageRepository messageRepository;
-    private final ChannelRepository channelRepository;
-    private final UserRepository userRepository;
-    private final BinaryContentRepository binaryContentRepository;
-    private final BinaryContentMapper binaryContentMapper;
-    private final MessageMapper messageMapper;
 
-    @Override
-    public MessageResponseDto create(MessageRequestDto messageRequestDto) {
+  private final MessageRepository messageRepository;
+  private final ChannelRepository channelRepository;
+  private final UserRepository userRepository;
+  private final BinaryContentRepository binaryContentRepository;
+  private final BinaryContentMapper binaryContentMapper;
+  private final MessageMapper messageMapper;
 
-        Message newMessage = messageMapper.toMessage(messageRequestDto);
-        UUID channelId = newMessage.getChannelId();
-        UUID authorId = newMessage.getAuthorId();
-        if (!channelRepository.existsById(newMessage.getChannelId())) {
-            throw new NoSuchElementException("Channel not found with id " + channelId);
-        }
-        if (!userRepository.existsById(newMessage.getAuthorId())) {
-            throw new NoSuchElementException("Author not found with id " + authorId);
-        }
+  @Override
+  public MessageResponseDto create(MessageRequestDto messageRequestDto) {
 
-        Message savedMessage = messageRepository.save(newMessage);
-
-        // saving the binary content
-        List<MultipartFile> files = messageRequestDto.files();
-        List<UUID> fileUUIDList = new ArrayList<>();
-        for (MultipartFile file : files) {
-            BinaryContent binaryContent = binaryContentMapper.toBinaryContent(authorId, savedMessage.getId(), file);
-//            binaryContent.setUserId(authorId);
-//            binaryContent.setMessageId(savedMessage.getId());
-            binaryContentRepository.save(binaryContent);
-        }
-        return messageMapper.toMessageResponseDto(savedMessage);
+    Message newMessage = messageMapper.toMessage(messageRequestDto);
+    UUID channelId = newMessage.getChannelId();
+    UUID authorId = newMessage.getAuthorId();
+    if (!channelRepository.existsById(newMessage.getChannelId())) {
+      throw new NoSuchElementException("Channel not found with id " + channelId);
+    }
+    if (!userRepository.existsById(newMessage.getAuthorId())) {
+      throw new NoSuchElementException("Author not found with id " + authorId);
     }
 
-    @Override
-    public MessageResponseDto find(UUID messageId) {
-        Message msg =  messageRepository.findById(messageId)
-                .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
+    Message savedMessage = messageRepository.save(newMessage);
 
-        return messageMapper.toMessageResponseDto(msg);
+    // saving the binary content
+    List<MultipartFile> files = messageRequestDto.files();
+    for (MultipartFile file : files) {
+      BinaryContent binaryContent = binaryContentMapper.toBinaryContent(authorId,
+          savedMessage.getId(), file);
+      binaryContentRepository.save(binaryContent);
     }
 
-    @Override
-    public MessageResponseDtos findallByChannelId(UUID channelId) {
+    return messageMapper.toMessageResponseDto(savedMessage);
+  }
 
-        List<Message> messageList = messageRepository.findByChannelId(channelId);
-        return messageMapper.toMessageResponseDtos(
-                messageList
-        );
+  @Override
+  public MessageResponseDto find(UUID messageId) {
+    Message msg = messageRepository.findById(messageId)
+        .orElseThrow(
+            () -> new NoSuchElementException("Message with id " + messageId + " not found"));
+
+    return messageMapper.toMessageResponseDto(msg);
+  }
+
+  @Override
+  public MessageResponseDtos findallByChannelId(UUID channelId) {
+
+    List<Message> messageList = messageRepository.findByChannelId(channelId);
+    return messageMapper.toMessageResponseDtos(
+        messageList
+    );
+  }
+
+  @Override
+  public MessageUpdateResponseDto update(UUID messageId,
+      MessageUpdateRequestDto messageUpdateRequestDto) {
+    Message message = messageRepository.findById(messageId)
+        .orElseThrow(
+            () -> new NoSuchElementException("Message with id " + messageId + " not found"));
+
+    message.update(messageUpdateRequestDto.content());
+
+    return messageMapper.toUpdateMessageResponseDto(messageRepository.save(message));
+  }
+
+  @Override
+  public void delete(UUID id) {
+    if (!messageRepository.existsById(id)) {
+      throw new NoSuchElementException("Message with id " + id + " not found");
     }
 
-    @Override
-    public UpdateMessageResponseDto update(UUID messageId, UpdateMessageRequestDto updateMessageRequestDto) {
-        Message message = messageRepository.findById(messageId)
-                .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
+    Message messageToDelete = messageRepository.findById(id)
+        .orElseThrow(() -> new NoSuchElementException("Message with id " + id + " not found"));
 
-        message.update(updateMessageRequestDto.content());
+    // deleting binary contents attached to the message
+    List<BinaryContent> optionalBinaryContents = binaryContentRepository.findByUserId(
+        messageToDelete.getAuthorId());
 
-        return messageMapper.toUpdateMessageResponseDto(messageRepository.save(message));
+    if (!optionalBinaryContents.isEmpty()) {
+      for (BinaryContent binaryContent : optionalBinaryContents) {
+        binaryContentRepository.deleteById(binaryContent.getId());
+      }
     }
+    messageRepository.deleteById(id);
+  }
 
-    @Override
-    public void delete(UUID id) {
-        if (!messageRepository.existsById(id)) {
-            throw new NoSuchElementException("Message with id " + id + " not found");
-        }
-
-        Message messageToDelete = messageRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Message with id " + id + " not found"));
-
-        // deleting binary contents attached to the message
-        List<BinaryContent> optionalBinaryContents = binaryContentRepository.findByUserId(messageToDelete.getAuthorId());
-
-        if (!optionalBinaryContents.isEmpty()) {
-            for (BinaryContent binaryContent : optionalBinaryContents) {
-                binaryContentRepository.deleteById(binaryContent.getId());
-            }
-        }
-        messageRepository.deleteById(id);
-    }
-
-    @Override
-    public void deleteAll() {
-        messageRepository.deleteAll();
-    }
+  @Override
+  public void deleteAll() {
+    messageRepository.deleteAll();
+  }
 }
