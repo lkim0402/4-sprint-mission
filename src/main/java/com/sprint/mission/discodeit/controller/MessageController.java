@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.dto.MessageService.*;
 import com.sprint.mission.discodeit.service.MessageService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,17 +11,11 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/messages")
 @RequiredArgsConstructor
-
+@Tag(name = "Message", description = "Message 관련 API")
 public class MessageController {
 
     private final MessageService messageService;
 
-    /**
-     * [x] 메시지를 보낼 수 있다.
-     * [x] 메시지를 수정할 수 있다.
-     * [x] 메시지를 삭제할 수 있다.
-     * [x] 특정 채널의 메시지 목록을 조회할 수 있다.
-     */
 
     @PostMapping // 메세지 보냄
     public ResponseEntity<MessageResponseDto> sendMessage(@ModelAttribute MessageRequestDto messageRequestDto

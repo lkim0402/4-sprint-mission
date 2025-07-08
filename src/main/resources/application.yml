@@ -11,3 +11,15 @@ discodeit:
     TYPE: file
     file-directory: .discodeit
     extension: .ser
+
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+  default-produces-media-type: application/json
+  info:
+    title: "My API"
+    description: "Swagger 문서 설명"
+    version: "v1"
