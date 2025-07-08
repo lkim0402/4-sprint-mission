@@ -2,6 +2,8 @@ package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.dto.BinaryContentDto.*;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.exception.FileAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,7 +29,9 @@ public class BinaryContentMapper {
           file.getContentType()
       );
     } catch (IOException e) {
-      throw new RuntimeException("Error reading file bytes");
+//      throw new RuntimeException("Error reading file bytes");
+//      throw new IOException("Error reading file bytes");
+      throw new FileAccessException("Error reading file bytes.", HttpStatus.NOT_ACCEPTABLE.value());
     }
   }
 

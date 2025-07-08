@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.dto.BinaryContentDto.*;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.service.BinaryContentService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,16 @@ public class BinaryFileController {
 
   private final BinaryContentService binaryContentService;
 
+
+  @Operation(summary = "Binary Content 조회")
+  @GetMapping("/find")
+  public ResponseEntity<BinaryContent> getBinaryContent(
+      @RequestParam("binaryContentId") UUID binaryContentId) {
+    BinaryContent binaryContent = binaryContentService.find(binaryContentId);
+    return ResponseEntity.ok(binaryContent);
+  }
+
+  @Operation(summary = "모든 Binary Content 조회")
   @GetMapping
   public ResponseEntity<BinaryContentResponseDtos> getBinaryContents(
       @RequestParam("ids") List<UUID> binaryContentUUIDList
@@ -25,12 +36,5 @@ public class BinaryFileController {
     BinaryContentResponseDtos binaryContentResponseDtos = binaryContentService.findAllByIdIn(
         binaryContentUUIDList);
     return ResponseEntity.ok(binaryContentResponseDtos);
-  }
-
-  @GetMapping("/find")
-  public ResponseEntity<BinaryContent> getBinaryContent(
-      @RequestParam("binaryContentId") UUID binaryContentId) {
-    BinaryContent binaryContent = binaryContentService.find(binaryContentId);
-    return ResponseEntity.ok(binaryContent);
   }
 }
