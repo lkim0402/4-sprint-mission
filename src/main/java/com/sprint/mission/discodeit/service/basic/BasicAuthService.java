@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.service.basic;
-import com.sprint.mission.discodeit.dto.AuthService.LoginRequest;
-import com.sprint.mission.discodeit.dto.AuthService.UserLoginResponseDto;
+import com.sprint.mission.discodeit.dto.AuthDto;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.mapper.AuthMapper;
@@ -20,7 +19,7 @@ public class BasicAuthService implements AuthService {
     private final AuthMapper authMapper;
 
     @Override
-    public UserLoginResponseDto login(LoginRequest loginRequest) {
+    public AuthDto.LoginResponse login(AuthDto.LoginRequest loginRequest) {
 
         // checking if username exists
         User user = userRepository.findByUsername(loginRequest.username())
@@ -38,6 +37,6 @@ public class BasicAuthService implements AuthService {
         userStatus.updateLastActiveTime();
         userStatusRepository.save(userStatus);
 
-        return authMapper.toUserLoginResponseDto(user, userStatus);
+        return authMapper.toLoginResponseDto(user, userStatus);
     }
 }
