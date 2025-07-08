@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.dto.ChannelDto.*;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.service.ChannelService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +20,8 @@ public class ChannelController {
   private final ChannelService channelService;
   private final ChannelMapper channelMapper;
 
-  // ========= 채널을 1개로 통합?
-  @PostMapping("/public") // 공개 채널 생성
+  @Operation(summary = "Public Channel 생성")
+  @PostMapping("/public")
   public ResponseEntity<ChannelResponseDto> createPublicChannel(
       @RequestBody PublicChannelRequestDto publicChannelRequestDto
   ) {
@@ -28,7 +29,8 @@ public class ChannelController {
     return ResponseEntity.ok().body(channelResponseDto);
   }
 
-  @PostMapping("/private")// 비공개 채널 생성
+  @Operation(summary = "Private Channel 생성")
+  @PostMapping("/private")
   public ResponseEntity<ChannelResponseDto> createPrivateChannel(
       @RequestBody PrivateChannelRequestDto privateChannelRequestDto
   ) {
@@ -36,6 +38,7 @@ public class ChannelController {
     return ResponseEntity.ok().body(channelResponseDto);
   }
 
+  @Operation(summary = "Channel 수정")
   @PatchMapping("/{channel-id}")
   public ResponseEntity<ChannelResponseDto> updatePublicChannel(
       @PathVariable("channel-id") UUID channelId,
@@ -46,12 +49,14 @@ public class ChannelController {
     return ResponseEntity.ok(channelMapper.toChannelResponseDto(channelUpdateResponseDto));
   }
 
+  @Operation(summary = "Channel 삭제")
   @DeleteMapping("/{channel-id}")
   public ResponseEntity<String> deleteChannel(@PathVariable("channel-id") UUID channelId) {
     channelService.delete(channelId);
     return ResponseEntity.ok().body("Channel deleted successfully");
   }
 
+  @Operation(summary = "특정 User의 Channel 조회")
   @GetMapping
   public ResponseEntity<ChannelResponseDtos> getChannelsByUser(@RequestParam("user-id") UUID userId
   ) {

@@ -80,13 +80,13 @@ public class BasicUserService implements UserService {
 
   // 심화 요구사항에 맞춰서 findAll 변경
   @Override
-  public UserGetDtos findAll() {
+  public List<UserGetDto> findAll() {
     List<User> users = userRepository.findAll();
     if (users.isEmpty()) {
-      return new UserGetDtos(Collections.emptyList());
+      return Collections.emptyList();
     }
 
-    List<UserGetDto> userList = users.stream()
+    return users.stream()
         .map(u -> {
           UserStatus userStatus = userStatusRepository.findByUserId(u.getId())
               .orElseThrow(() -> new NoSuchElementException(
@@ -94,8 +94,6 @@ public class BasicUserService implements UserService {
           return userMapper.toUserDto(u, userStatus);
         })
         .toList();
-
-    return userMapper.toUserDtos(userList);
   }
 
   @Override
