@@ -15,22 +15,6 @@ public class BinaryContentDto {
 
   }
 
-//  public record BinaryContentRequestDtos(
-//      List<UUID> binaryContentUUIDList
-//  ) {
-//
-//    @Override
-//    public String toString() {
-//      if (binaryContentUUIDList == null || binaryContentUUIDList.isEmpty()) {
-//        return "Binary Contents: []";
-//      }
-//
-//      return binaryContentUUIDList.stream()
-//          .map(UUID::toString) //
-//          .collect(Collectors.joining(","));
-//    }
-//  }
-
   public record BinaryContentResponseDto(
       UUID id,
       UUID userId,

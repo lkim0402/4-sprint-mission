@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.dto.UserDto.*;
+import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
@@ -9,8 +10,7 @@ public interface UserService {
 
   UserCreateResponseDto find(UUID userId);
 
-  //    UserResponseDtos findAll();
-  UserGetDtos findAll(); // 심화 요구사항
+  List<UserGetDto> findAll(); // 심화 요구사항
 
   UserUpdateResponseDto update(UUID userId, UserUpdateRequestDto userUpdateRequestDto);
 

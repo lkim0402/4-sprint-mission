@@ -5,7 +5,6 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -50,14 +49,6 @@ public class UserMapper {
     );
   }
 
-  // Response
-  public UserCreateResponseDtos toUserResponseDtos(
-      List<UserCreateResponseDto> userCreateResponseDtos) {
-    return new UserCreateResponseDtos(
-        userCreateResponseDtos
-    );
-  }
-
   public UserUpdateResponseDto toUpdateUserResponseDto(User user) {
     return new UserUpdateResponseDto(
         user.getId(),
@@ -80,16 +71,6 @@ public class UserMapper {
         user.getEmail(),
         user.getProfileId(),
         isOnline
-    );
-  }
-
-  public List<UserGetDto> toUserDtoList(UserGetDtos userGetDtos) {
-    return userGetDtos.userGetDtoList();
-  }
-
-  public UserGetDtos toUserDtos(List<UserGetDto> userGetDtoList) {
-    return new UserGetDtos(
-        userGetDtoList
     );
   }
 }

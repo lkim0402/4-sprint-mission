@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.dto.UserStatusDto.*;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +21,9 @@ public class UserController {
 
   private final UserService userService;
   private final UserStatusService userStatusService;
-  private final UserMapper userMapper;
 
-  @PostMapping // 등록
+  @Operation(summary = "User 생성")
+  @PostMapping
   public ResponseEntity<UserCreateResponseDto> createUser(
       @ModelAttribute UserCreateRequestDto userCreateRequestDto
   ) {
@@ -30,7 +31,8 @@ public class UserController {
     return ResponseEntity.ok().body(user);
   }
 
-  @PatchMapping("/{user-id}")// 수정
+  @Operation(summary = "User 수정")
+  @PatchMapping("/{user-id}")
   public ResponseEntity<UserUpdateResponseDto> updateUser(@PathVariable("user-id") UUID userId,
       @RequestBody UserUpdateRequestDto userUpdateRequestDto
   ) {
@@ -38,23 +40,25 @@ public class UserController {
     return ResponseEntity.ok(userUpdateResponseDto);
   }
 
-  @DeleteMapping("/{user-id}") // 유저 삭제
+  @Operation(summary = "User 삭제")
+  @DeleteMapping("/{user-id}")
   public ResponseEntity<String> deleteMember(@PathVariable("user-id") UUID userId) {
     userService.delete(userId);
     return ResponseEntity.ok().body("Member deleted successfully");
   }
 
-
-  @PatchMapping("/{user-id}/status") // 유저 상태 업데이트
+  @Operation(summary = "UserStatus 업데이트")
+  @PatchMapping("/{user-id}/status")
   public ResponseEntity<UserStatusResponseDto> updateUserStatus(@PathVariable("user-id") UUID userId
   ) {
     UserStatusResponseDto userStatusResponseDto = userStatusService.updateByUserId(userId);
     return ResponseEntity.ok(userStatusResponseDto);
   }
 
-  @GetMapping("/findAll") // 모든 사용자 조회
+  @Operation(summary = "모든 User 조회")
+  @GetMapping("/findAll")
   public ResponseEntity<List<UserGetDto>> getUsers() {
-    UserGetDtos userGetDtos = userService.findAll();
-    return ResponseEntity.ok(userMapper.toUserDtoList(userGetDtos));
+    List<UserGetDto> userGetDtos = userService.findAll();
+    return ResponseEntity.ok(userGetDtos);
   }
 }
