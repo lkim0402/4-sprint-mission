@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.dto;
 
-import com.sprint.mission.discodeit.dto.UserStatusService.UserStatusResponseDto;
+import com.sprint.mission.discodeit.dto.UserStatusDto.*;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -54,8 +54,6 @@ public class UserDto {
         return "Users: []";
       }
 
-      // use a stream to call the toString() on each item in the list
-      // then join them together with a "," and a newline
       return "\n--- List of Users ---" +
           userCreateResponseDtoList.stream()
               .map(UserCreateResponseDto::toString) //
