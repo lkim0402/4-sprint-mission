@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
-import com.sprint.mission.discodeit.dto.BinaryContentService.BinaryContentResponseDto;
-import com.sprint.mission.discodeit.dto.BinaryContentService.BinaryContentResponseDtos;
-import com.sprint.mission.discodeit.dto.BinaryContentService.BinaryContentRequestDto;
+
+import com.sprint.mission.discodeit.dto.BinaryContentDto.*;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -15,21 +14,22 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class BasicBinaryContentService implements BinaryContentService {
-    private final BinaryContentRepository binaryContentRepository;
-    private final BinaryContentMapper binaryContentMapper;
 
-    @Override
-    public BinaryContentResponseDto create(BinaryContentRequestDto binaryContentRequestDto) {
-         BinaryContent newBinaryContent = binaryContentRepository.save(
-                binaryContentMapper.toBinaryContent(
-                        binaryContentRequestDto.userId(),
-                        binaryContentRequestDto.messageId(),
-                        binaryContentRequestDto.file()
-                )
-        );
+  private final BinaryContentRepository binaryContentRepository;
+  private final BinaryContentMapper binaryContentMapper;
 
-        return binaryContentMapper.toBinaryContentResponseDto(newBinaryContent);
-    }
+  @Override
+  public BinaryContentResponseDto create(BinaryContentRequestDto binaryContentRequestDto) {
+    BinaryContent newBinaryContent = binaryContentRepository.save(
+        binaryContentMapper.toBinaryContent(
+            binaryContentRequestDto.userId(),
+            binaryContentRequestDto.messageId(),
+            binaryContentRequestDto.file()
+        )
+    );
+
+    return binaryContentMapper.toBinaryContentResponseDto(newBinaryContent);
+  }
 
 //    @Override
 //    public BinaryContentResponseDto find(UUID binaryContentId) {
@@ -40,30 +40,31 @@ public class BasicBinaryContentService implements BinaryContentService {
 //
 //    }
 
-    // 심화 변경사항
-    @Override
-    public BinaryContent find(UUID binaryContentId) {
-        return binaryContentRepository.findById(binaryContentId)
-                .orElseThrow(() -> new NoSuchElementException("Binary Content with id " + binaryContentId + " not found!"));
-    }
+  // 심화 변경사항
+  @Override
+  public BinaryContent find(UUID binaryContentId) {
+    return binaryContentRepository.findById(binaryContentId)
+        .orElseThrow(() -> new NoSuchElementException(
+            "Binary Content with id " + binaryContentId + " not found!"));
+  }
 
-    @Override
-    public BinaryContentResponseDtos findAllByIdIn(List<UUID> binaryContentIds) {
-        List<BinaryContent> binaryContents = binaryContentRepository.findAllByIdIn(binaryContentIds);
-        return binaryContentMapper.toBinaryContentResponseDtos(binaryContents);
-    }
+  @Override
+  public BinaryContentResponseDtos findAllByIdIn(List<UUID> binaryContentIds) {
+    List<BinaryContent> binaryContents = binaryContentRepository.findAllByIdIn(binaryContentIds);
+    return binaryContentMapper.toBinaryContentResponseDtos(binaryContents);
+  }
 
-    @Override
-    public void delete(UUID binaryContentId) {
-        if (!binaryContentRepository.existsById(binaryContentId)) {
-            throw new NoSuchElementException("BinaryContent with id " + binaryContentId + " not found!");
-        }
-        binaryContentRepository.deleteById(binaryContentId);
+  @Override
+  public void delete(UUID binaryContentId) {
+    if (!binaryContentRepository.existsById(binaryContentId)) {
+      throw new NoSuchElementException("BinaryContent with id " + binaryContentId + " not found!");
     }
+    binaryContentRepository.deleteById(binaryContentId);
+  }
 
-    @Override
-    public void deleteAll() {
-        binaryContentRepository.deleteAll();
-    }
+  @Override
+  public void deleteAll() {
+    binaryContentRepository.deleteAll();
+  }
 
 }

@@ -33,7 +33,6 @@ public class MessageDto {
           "    authorId  = " + this.authorId + ",\n" +
           "  }";
     }
-
   }
 
   public record MessageResponseDtos(
@@ -77,5 +76,4 @@ public class MessageDto {
           "  }";
     }
   }
-
 }
