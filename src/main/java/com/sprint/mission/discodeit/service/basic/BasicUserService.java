@@ -38,13 +38,9 @@ public class BasicUserService implements UserService {
     BinaryContent profile = binaryContentMapper.toBinaryContent(savedUser.getId(), null,
         userCreateRequestDto.getProfilePicture());
     if (profile != null) {
-      // setting user's profile id
-      savedUser.setProfileId(profile.getId());
+      BinaryContent savedProfile = binaryContentRepository.save(profile);
+      savedUser.setProfileId(savedProfile.getId());
       userRepository.save(savedUser);
-
-      // setting profile's user id
-      profile.setUserId(savedUser.getId());
-      binaryContentRepository.save(profile);
     }
 
     // Save userStatus in userStatusRepository

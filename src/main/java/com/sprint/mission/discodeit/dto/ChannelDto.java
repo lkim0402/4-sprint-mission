@@ -70,8 +70,6 @@ public class ChannelDto {
         return "Channels: []";
       }
 
-      // use a stream to call the toString() on each item in the list
-      // then join them together with a "," and a newline
       return "\n--- List of Channels ---" +
           channelResponseDtosList.stream()
               .map(ChannelResponseDto::toString) //
