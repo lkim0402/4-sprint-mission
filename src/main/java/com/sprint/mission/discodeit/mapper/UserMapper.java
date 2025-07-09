@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.mapper;
 import com.sprint.mission.discodeit.dto.UserDto.*;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.entity.UserStatus.UserState;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import java.util.Optional;
@@ -24,11 +25,11 @@ public class UserMapper {
 //  }
 
   // Response
-  public UserCreateResponseDto toUserResponseDto(User user,
+  public UserResponse toUserResponseDto(User user,
       Optional<UserStatus> optionalUserStatus) {
     UserStatus userStatus = optionalUserStatus.orElse(null);
 
-    return new UserCreateResponseDto(
+    return new UserResponse(
         user.getId(),
         user.getUsername(),
         user.getEmail(),
@@ -37,10 +38,21 @@ public class UserMapper {
     );
   }
 
+  public AllUserGetDto toAllUserGetDto(User user, UserStatus userStatus) {
+    return new AllUserGetDto(
+        user.getId(),
+        user.getCreatedAt(),
+        user.getUpdatedAt(),
+        user.getUsername(),
+        user.getEmail(),
+        user.getProfileId(),
+        userStatus.getStatus() == UserState.ONLINE
+    );
+  }
 
   // used in create
-  public UserCreateResponseDto toUserResponseDto(User user, UserStatus userStatus) {
-    return new UserCreateResponseDto(
+  public UserResponse toUserResponseDto(User user, UserStatus userStatus) {
+    return new UserResponse(
         user.getId(),
         user.getUsername(),
         user.getEmail(),
@@ -49,12 +61,15 @@ public class UserMapper {
     );
   }
 
-  public UserUpdateResponseDto toUpdateUserResponseDto(User user) {
-    return new UserUpdateResponseDto(
-        user.getId(),
+  public UserUpdateResponse toUpdateUserResponseDto(User user) {
+    return new UserUpdateResponse(
         user.getUsername(),
         user.getEmail(),
-        user.getProfileId()
+        user.getProfileId(),
+        user.getId(),
+        user.getCreatedAt(),
+        user.getUpdatedAt(),
+        user.getPassword()
     );
   }
 

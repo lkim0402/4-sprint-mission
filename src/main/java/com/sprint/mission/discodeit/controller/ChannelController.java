@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.service.ChannelService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -108,14 +109,14 @@ public class ChannelController {
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Channel 목록 조회 성공",
           content = @Content(mediaType = "*/*",
-              schema = @Schema(implementation = ChannelResponses.class, type = "object"))
+              array = @ArraySchema(schema = @Schema(implementation = UserChannelResponse.class)))
       )
   })
   @GetMapping
-  public ResponseEntity<List<ChannelResponse>> getChannelsByUser(
+  public ResponseEntity<List<UserChannelResponse>> getChannelsByUser(
       @Parameter(description = "조회할 User ID") @RequestParam("userId") UUID userId
   ) {
-    List<ChannelResponse> channelResponses = channelService.findAllByUserId(userId);
+    List<UserChannelResponse> channelResponses = channelService.findAllByUserId(userId);
     return ResponseEntity.ok(channelResponses);
   }
 }

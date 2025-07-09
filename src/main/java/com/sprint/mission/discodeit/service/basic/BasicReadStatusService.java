@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ReadStatusService;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.NoSuchElementException;
@@ -23,10 +24,10 @@ public class BasicReadStatusService implements ReadStatusService {
   private final ReadStatusMapper readStatusMapper;
 
   @Override
-  public ReadStatusResponseDto create(ReadStatusRequestDto readStatusRequestDto) {
+  public ReadStatusResponse create(ReadStatusRequest readStatusRequest) {
 
-    UUID userId = readStatusRequestDto.userId();
-    UUID channelId = readStatusRequestDto.channelId();
+    UUID userId = readStatusRequest.userId();
+    UUID channelId = readStatusRequest.channelId();
     // Throw error if channel or user does not exist
     if (!channelRepository.existsById(channelId)) {
       throw new IllegalArgumentException("Channel not found");
@@ -44,13 +45,13 @@ public class BasicReadStatusService implements ReadStatusService {
     }
 
     ReadStatus newReadStatus = new ReadStatus(userId, channelId);
-    return readStatusMapper.toReadStatusResponseDto(readStatusRepository.save(newReadStatus));
+    return readStatusMapper.toReadStatusResponse(readStatusRepository.save(newReadStatus));
   }
 
   @Override
-  public ReadStatusResponseDto find(UUID id) {
+  public ReadStatusResponse find(UUID id) {
     return readStatusRepository.findById(id)
-        .map(readStatusMapper::toReadStatusResponseDto)
+        .map(readStatusMapper::toReadStatusResponse)
         .orElseThrow(() -> new NoSuchElementException("User with id " + id + " not found"));
   }
 
@@ -59,20 +60,15 @@ public class BasicReadStatusService implements ReadStatusService {
     return readStatusMapper.toReadStatusResponseDtos(readStatusRepository.findByUserId(id));
   }
 
-  /**
-   * 지정된 ID의 ReadStatus를 찾아 마지막 읽은 시간을 현재 시간으로 갱신합니다. 이 메소드는 클라이언트로부터 별도의 데이터를 입력받지 않고, 오직
-   * {@code readStatusId}를 통해 대상 엔티티를 식별하여 서버 시간 기준으로 업데이트를 수행합니다. 따라서 요청 본문(Request Body) 필요 없으므로
-   * 별도의 요청 DTO를 사용하지 않습니다.
-   */
   @Override
-  public void update(UUID readStatusId) {
-
+  public ReadStatusResponse update(UUID readStatusId, ReadStatusUpdateRequest request) {
+    Instant newLastReadAt = request.newLastReadAt();
     ReadStatus readStatus = readStatusRepository.findById(readStatusId)
         .orElseThrow(
             () -> new NoSuchElementException("ReadStatus with id " + readStatusId + " not found"));
 
-    readStatus.updateLastReadAt();
-    readStatusRepository.save(readStatus);
+    readStatus.update(newLastReadAt);
+    return readStatusMapper.toReadStatusResponse(readStatusRepository.save(readStatus));
   }
 
   @Override

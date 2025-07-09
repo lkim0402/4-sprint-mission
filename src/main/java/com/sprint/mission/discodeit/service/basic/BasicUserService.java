@@ -11,7 +11,6 @@ import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.dto.UserDto.*;
 import java.io.IOException;
-import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.*;
@@ -28,16 +27,14 @@ public class BasicUserService implements UserService {
   private final BinaryContentMapper binaryContentMapper;
 
   @Override
-  public UserGetDto create(UserCreateRequestDto userCreateRequestDto) {
-    if (existsByUsernameOrEmail(userCreateRequestDto.username(),
-        userCreateRequestDto.email())) {
+  public UserGetDto create(UserCreateRequest userCreateRequest, MultipartFile profileRequest) {
+    if (existsByUsernameOrEmail(userCreateRequest.username(),
+        userCreateRequest.email())) {
       throw new IllegalStateException("User with the same username or email already exists.");
     }
 
     //Save profile in binaryContentRepository
     UUID nullableProfileId = null;
-    MultipartFile profileRequest = userCreateRequestDto.profilePicture();
-
     if (profileRequest != null && !profileRequest.isEmpty()) {
       try {
         String fileName = profileRequest.getOriginalFilename();
@@ -52,9 +49,9 @@ public class BasicUserService implements UserService {
       }
     }
 
-    String username = userCreateRequestDto.username();
-    String email = userCreateRequestDto.email();
-    String password = userCreateRequestDto.password();
+    String username = userCreateRequest.username();
+    String email = userCreateRequest.email();
+    String password = userCreateRequest.password();
 
     User createdUser = userRepository.save(new User(username, email, password, nullableProfileId));
     UserStatus userStatus = new UserStatus(createdUser.getId());
@@ -64,7 +61,7 @@ public class BasicUserService implements UserService {
   }
 
   @Override
-  public UserCreateResponseDto find(UUID userId) {
+  public UserResponse find(UUID userId) {
 
     // find the userStatus
     Optional<UserStatus> userStatus = userStatusRepository.findByUserId(userId);
@@ -77,7 +74,7 @@ public class BasicUserService implements UserService {
 
   // 심화 요구사항에 맞춰서 findAll 변경
   @Override
-  public List<UserGetDto> findAll() {
+  public List<AllUserGetDto> findAll() {
     List<User> users = userRepository.findAll();
     if (users.isEmpty()) {
       return Collections.emptyList();
@@ -88,31 +85,47 @@ public class BasicUserService implements UserService {
           UserStatus userStatus = userStatusRepository.findByUserId(u.getId())
               .orElseThrow(() -> new NoSuchElementException(
                   "UserStatus does not exist for user id " + u.getId()));
-          return userMapper.toUserGetDto(u, userStatus);
+          return userMapper.toAllUserGetDto(u, userStatus);
         })
         .toList();
   }
 
   @Override
-  public UserUpdateResponseDto update(UUID userId, UserUpdateRequestDto userUpdateRequestDto) {
+  public UserUpdateResponse update(UUID userId, UserUpdateRequest userUpdateRequest,
+      MultipartFile profileRequest) {
 
     User existingUser = userRepository.findById(userId)
         .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
 
-    if (userUpdateRequestDto.username() != null) {
-      existingUser.setUsername(userUpdateRequestDto.username());
+    if (userUpdateRequest.newUsername() != null) {
+      existingUser.setUsername(userUpdateRequest.newUsername());
     }
-    if (userUpdateRequestDto.email() != null) {
-      existingUser.setEmail(userUpdateRequestDto.email());
+    if (userUpdateRequest.newEmail() != null) {
+      existingUser.setEmail(userUpdateRequest.newEmail());
     }
-    if (userUpdateRequestDto.password() != null) {
-      existingUser.setPassword(userUpdateRequestDto.password());
-    }
-    if (userUpdateRequestDto.profileId() != null) {
-      existingUser.setProfileId(userUpdateRequestDto.profileId());
+    if (userUpdateRequest.newPassword() != null) {
+      existingUser.setPassword(userUpdateRequest.newPassword());
     }
 
+    // new profile if any
+    //Save profile in binaryContentRepository
+    UUID nullableProfileId = null;
+    if (profileRequest != null && !profileRequest.isEmpty()) {
+      try {
+        String fileName = profileRequest.getOriginalFilename();
+        String contentType = profileRequest.getContentType();
+        byte[] bytes = profileRequest.getBytes();
+        BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
+            contentType, bytes);
+        nullableProfileId = binaryContentRepository.save(binaryContent).getId();
+      } catch (IOException e) {
+        // Handle file reading exception
+        throw new RuntimeException("Failed to process profile picture", e);
+      }
+      existingUser.setProfileId(nullableProfileId);
+    }
     User updatedUser = userRepository.save(existingUser);
+
     return userMapper.toUpdateUserResponseDto(updatedUser);
   }
 

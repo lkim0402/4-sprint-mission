@@ -1,52 +1,56 @@
 package com.sprint.mission.discodeit.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class ReadStatusDto {
 
-  public record ReadStatusRequestDto(
-      UUID userId,
-      UUID channelId
-  ) {
-
-  }
-
-  public record ReadStatusResponseDto(
-      UUID id,
+  @Schema(description = "Message 읽음 상태 생성 정보")
+  public record ReadStatusRequest(
       UUID userId,
       UUID channelId,
       Instant lastReadAt
   ) {
 
-    @Override
-    public String toString() {
-      return "\n" +
-          "    ReadStatusResponseDto {" + "\n" +
-          "    id         = " + this.id + ",\n" +
-          "    userId     = " + this.userId + ",\n" +
-          "    channelId  = " + this.channelId + ",\n" +
-          "    lastReadAt = " + this.lastReadAt + "\n" +
-          "  }";
-    }
+  }
+
+  public record ReadStatusResponse(
+      UUID id,
+      UUID userId,
+      UUID channelId,
+      Instant lastReadAt,
+      Instant createdAt,
+      Instant updatedAt
+  ) {
+
   }
 
   public record ReadStatusResponseDtos(
-      List<ReadStatusResponseDto> readStatusRequestDtos
+      List<ReadStatusResponse> readStatusRequestDtos
 
   ) {
 
-    @Override
-    public String toString() {
-      if (readStatusRequestDtos == null || readStatusRequestDtos.isEmpty()) {
-        return "ReadStatus list: []";
-      }
-      return "\n--- List of ReadStatus ---" +
-          readStatusRequestDtos.stream()
-              .map(ReadStatusResponseDto::toString) //
-              .collect(Collectors.joining(","));
-    }
   }
+
+  // ============================== PATCH - ReadStatus 수정 ==============================
+  @Schema(description = "수정할 읽음 상태 정보")
+  public record ReadStatusUpdateRequest(
+      Instant newLastReadAt
+  ) {
+
+  }
+
+  public record ReadStatusUpdateResponse(
+      UUID id,
+      Instant lastReadAt,
+      UUID channelId,
+      Instant createdAt,
+      Instant updatedAt,
+      UUID userId
+  ) {
+
+  }
+
 }
