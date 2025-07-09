@@ -1,12 +1,14 @@
 package com.sprint.mission.discodeit.exception;
 
 import com.sprint.mission.discodeit.dto.ErrorResponse;
+import io.swagger.v3.oas.annotations.Hidden;
 import java.util.NoSuchElementException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+@Hidden // swagger과 restcontrolleradvice 같이 사용하고 싶어서 추가
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
