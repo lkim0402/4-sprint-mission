@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
-import javax.print.attribute.standard.Media;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -34,24 +33,24 @@ public class MessageController {
   @ApiResponses(value = {
       @ApiResponse(responseCode = "201", description = "Message가 성공적으로 생성됨"
           , content = @Content(mediaType = "*/*",
-          schema = @Schema(implementation = MessageResponseDto.class))),
+          schema = @Schema(implementation = MessageResponse.class))),
       @ApiResponse(responseCode = "404", description = "Channel 또는 User를 찾을 수 없음",
           content = @Content(mediaType = "*/*",
               examples = @ExampleObject(value = "Channel | Author with id {channelId | authorId} not found"))
       )
   })
   @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-  public ResponseEntity<MessageResponseDto> sendMessage(
+  public ResponseEntity<MessageResponse> sendMessage(
       @Parameter(description = "Message 생성 정보")
       @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
       @Parameter(description = "Message 첨부 파일들")
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
   ) {
-    MessageResponseDto messageResponseDto = messageService.create(messageCreateRequest,
+    MessageResponse messageResponse = messageService.create(messageCreateRequest,
         attachments);
     return ResponseEntity
         .status(HttpStatus.CREATED)
-        .body(messageResponseDto);
+        .body(messageResponse);
   }
 
   // ============================== PATCH - Message 수정 ==============================
@@ -59,7 +58,7 @@ public class MessageController {
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Message가 성공적으로 수정됨",
           content = @Content(mediaType = "*/*",
-              schema = @Schema(implementation = MessageResponseDto.class))
+              schema = @Schema(implementation = MessageResponse.class))
       ),
       @ApiResponse(responseCode = "404", description = "Message를 찾을 수 없음",
           content = @Content(mediaType = "*/*",
@@ -67,12 +66,12 @@ public class MessageController {
       )
   })
   @PatchMapping("/{messageId}") // 수정
-  public ResponseEntity<MessageResponseDto> updateMessage(
+  public ResponseEntity<MessageResponse> updateMessage(
       @Parameter(description = "수정할 Message ID")
       @PathVariable(value = "messageId", required = true) UUID messageId,
       @RequestBody MessageUpdateRequestDto messageUpdateRequestDto
   ) {
-    MessageResponseDto messageUpdateResponseDto = messageService.update(messageId,
+    MessageResponse messageUpdateResponseDto = messageService.update(messageId,
         messageUpdateRequestDto);
     return ResponseEntity.ok(messageUpdateResponseDto);
   }
@@ -100,7 +99,7 @@ public class MessageController {
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Message 목록 조회 성공",
           content = @Content(mediaType = "*/*",
-              array = @ArraySchema(schema = @Schema(implementation = MessageResponseDto.class)))
+              array = @ArraySchema(schema = @Schema(implementation = MessageResponse.class)))
       )
   })
   @GetMapping

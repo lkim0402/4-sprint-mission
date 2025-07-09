@@ -19,11 +19,11 @@ public class BasicBinaryContentService implements BinaryContentService {
   private final BinaryContentMapper binaryContentMapper;
 
   @Override
-  public BinaryContentResponseDto create(BinaryContentRequestDto binaryContentRequestDto) {
+  public BinaryContentResponse create(BinaryContentRequest binaryContentRequest) {
 
-    String fileName = binaryContentRequestDto.fileName();
-    byte[] bytes = binaryContentRequestDto.bytes();
-    String contentType = binaryContentRequestDto.contentType();
+    String fileName = binaryContentRequest.fileName();
+    byte[] bytes = binaryContentRequest.bytes();
+    String contentType = binaryContentRequest.contentType();
     BinaryContent binaryContent = new BinaryContent(
         fileName,
         (long) bytes.length,
@@ -34,7 +34,7 @@ public class BasicBinaryContentService implements BinaryContentService {
   }
 
   @Override
-  public BinaryContentResponseDto find(UUID binaryContentId) {
+  public BinaryContentResponse find(UUID binaryContentId) {
     BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
         .orElseThrow(() -> new NoSuchElementException(
             "Binary Content with id " + binaryContentId + " not found!"));
@@ -43,7 +43,7 @@ public class BasicBinaryContentService implements BinaryContentService {
   }
 
   @Override
-  public List<BinaryContentResponseDto> findAllByIdIn(List<UUID> binaryContentIds) {
+  public List<BinaryContentResponse> findAllByIdIn(List<UUID> binaryContentIds) {
     return binaryContentRepository.findAllByIdIn(binaryContentIds).stream()
         .map(binaryContentMapper::toResponseDto)
         .toList();
