@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public interface UserService {
 
-  UserCreateResponseDto create(UserCreateRequestDto userCreateRequestDto);
+  UserGetDto create(UserCreateRequestDto userCreateRequestDto);
 
   UserCreateResponseDto find(UUID userId);
 
