@@ -12,12 +12,11 @@ import com.sprint.mission.discodeit.service.MessageService;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import com.sprint.mission.discodeit.dto.MessageDto.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -27,14 +26,14 @@ public class BasicMessageService implements MessageService {
   private final ChannelRepository channelRepository;
   private final UserRepository userRepository;
   private final BinaryContentRepository binaryContentRepository;
-  private final BinaryContentMapper binaryContentMapper;
   private final MessageMapper messageMapper;
 
   @Override
-  public MessageResponseDto create(MessageRequestDto messageRequestDto) {
+  public MessageResponseDto create(MessageCreateRequest messageCreateRequest,
+      List<MultipartFile> attachments) {
 
-    UUID channelId = messageRequestDto.channelId();
-    UUID authorId = messageRequestDto.authorId();
+    UUID channelId = messageCreateRequest.channelId();
+    UUID authorId = messageCreateRequest.authorId();
     if (!channelRepository.existsById(channelId)) {
       throw new NoSuchElementException("Channel not found with id " + channelId);
     }
@@ -42,7 +41,7 @@ public class BasicMessageService implements MessageService {
       throw new NoSuchElementException("Author not found with id " + authorId);
     }
 
-    List<UUID> attachmentIds = messageRequestDto.files().stream()
+    List<UUID> attachmentIds = attachments.stream()
         .map(attachmentRequest -> {
           String fileName = attachmentRequest.getOriginalFilename();
           String contentType = attachmentRequest.getContentType();
@@ -60,7 +59,7 @@ public class BasicMessageService implements MessageService {
         })
         .toList();
 
-    String content = messageRequestDto.content();
+    String content = messageCreateRequest.content();
     Message message = new Message(
         content,
         channelId,
@@ -90,14 +89,14 @@ public class BasicMessageService implements MessageService {
   }
 
   @Override
-  public MessageUpdateResponseDto update(UUID messageId,
+  public MessageResponseDto update(UUID messageId,
       MessageUpdateRequestDto messageUpdateRequestDto) {
     Message message = messageRepository.findById(messageId)
         .orElseThrow(
             () -> new NoSuchElementException("Message with id " + messageId + " not found"));
 
-    message.update(messageUpdateRequestDto.content());
-    return messageMapper.toUpdateMessageResponseDto(messageRepository.save(message));
+    message.update(messageUpdateRequestDto.newContent());
+    return messageMapper.toMessageResponseDto(messageRepository.save(message));
   }
 
   @Override

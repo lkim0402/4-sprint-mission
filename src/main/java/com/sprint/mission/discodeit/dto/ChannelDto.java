@@ -29,6 +29,18 @@ public class ChannelDto {
 
   }
 
+  // different schema when requesting all channels from user
+  public record UserChannelResponse(
+      UUID id,
+      String name,
+      String description,
+      ChannelType type,
+      Instant lastMessageAt,
+      List<UUID> participantIds
+  ) {
+
+  }
+
   public record PrivateChannelCreateRequest(
       List<UUID> participantIds
   ) {

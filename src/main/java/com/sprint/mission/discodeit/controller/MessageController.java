@@ -1,20 +1,25 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.AuthDto;
 import com.sprint.mission.discodeit.dto.MessageDto.*;
 import com.sprint.mission.discodeit.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
+import javax.print.attribute.standard.Media;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/messages")
@@ -27,24 +32,34 @@ public class MessageController {
   // ============================== POST - Message 생성 ==============================
   @Operation(summary = "Message 생성", operationId = "create_2")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "201", description = "Message가 성공적으로 생성됨"),
+      @ApiResponse(responseCode = "201", description = "Message가 성공적으로 생성됨"
+          , content = @Content(mediaType = "*/*",
+          schema = @Schema(implementation = MessageResponseDto.class))),
       @ApiResponse(responseCode = "404", description = "Channel 또는 User를 찾을 수 없음",
           content = @Content(mediaType = "*/*",
               examples = @ExampleObject(value = "Channel | Author with id {channelId | authorId} not found"))
       )
   })
-  @PostMapping
+  @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   public ResponseEntity<MessageResponseDto> sendMessage(
-      @ModelAttribute MessageRequestDto messageRequestDto
+      @Parameter(description = "Message 생성 정보")
+      @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
+      @Parameter(description = "Message 첨부 파일들")
+      @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
   ) {
-    MessageResponseDto messageResponseDto = messageService.create(messageRequestDto);
-    return ResponseEntity.ok().body(messageResponseDto);
+    MessageResponseDto messageResponseDto = messageService.create(messageCreateRequest,
+        attachments);
+    return ResponseEntity
+        .status(HttpStatus.CREATED)
+        .body(messageResponseDto);
   }
 
   // ============================== PATCH - Message 수정 ==============================
   @Operation(summary = "Message 내용 수정", operationId = "update_2")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Message가 성공적으로 수정됨"
+      @ApiResponse(responseCode = "200", description = "Message가 성공적으로 수정됨",
+          content = @Content(mediaType = "*/*",
+              schema = @Schema(implementation = MessageResponseDto.class))
       ),
       @ApiResponse(responseCode = "404", description = "Message를 찾을 수 없음",
           content = @Content(mediaType = "*/*",
@@ -52,12 +67,12 @@ public class MessageController {
       )
   })
   @PatchMapping("/{messageId}") // 수정
-  public ResponseEntity<MessageUpdateResponseDto> updateMessage(
+  public ResponseEntity<MessageResponseDto> updateMessage(
       @Parameter(description = "수정할 Message ID")
       @PathVariable(value = "messageId", required = true) UUID messageId,
       @RequestBody MessageUpdateRequestDto messageUpdateRequestDto
   ) {
-    MessageUpdateResponseDto messageUpdateResponseDto = messageService.update(messageId,
+    MessageResponseDto messageUpdateResponseDto = messageService.update(messageId,
         messageUpdateRequestDto);
     return ResponseEntity.ok(messageUpdateResponseDto);
   }
@@ -85,7 +100,7 @@ public class MessageController {
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Message 목록 조회 성공",
           content = @Content(mediaType = "*/*",
-              schema = @Schema(implementation = AuthDto.LoginResponse.class))
+              array = @ArraySchema(schema = @Schema(implementation = MessageResponseDto.class)))
       )
   })
   @GetMapping

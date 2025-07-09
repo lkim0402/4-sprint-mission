@@ -22,7 +22,7 @@ public class AuthDto {
       @Schema(description = "The email of the user", example = "codeit@gmail.com")
       String email,
       @Schema(description = "The UserStatus of the user")
-      UserStatusResponseDto userStatusResponseDto
+      UserStatusResponse userStatusResponse
   ) {
 
     @Override
@@ -32,7 +32,7 @@ public class AuthDto {
           "    userId                = " + this.userId + ",\n" +
           "    username              = " + this.username + ",\n" +
           "    email                 = " + this.email + ",\n" +
-          "    userStatusResponseDto = " + this.userStatusResponseDto + "\n" +
+          "    userStatusResponseDto = " + this.userStatusResponse + "\n" +
           "  }";
     }
   }

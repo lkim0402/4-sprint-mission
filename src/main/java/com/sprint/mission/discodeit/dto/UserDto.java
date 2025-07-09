@@ -3,64 +3,33 @@ package com.sprint.mission.discodeit.dto;
 import com.sprint.mission.discodeit.dto.UserStatusDto.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
 
 public class UserDto {
 
-  public record UserCreateRequestDto(
+  // ============================== POST - 유저 등록 ==============================
+  public record UserCreateRequest(
       String username,
       String email,
-      String password,
-      MultipartFile profilePicture
+      String password
+//      MultipartFile profilePicture
   ) {
 
   }
 
-  public record UserCreateResponseDto(
+  public record UserResponse(
       UUID id,
       String username,
       String email,
       UUID profileId,
-      UserStatusResponseDto userStatusResponseDto
+      UserStatusResponse userStatusResponse
   ) {
 
-    @Override
-    public String toString() {
-      return "\n" +
-          "    UserResponseDto {" + "\n" +
-          "    id                    = " + this.id + ",\n" +
-          "    username              = " + this.username + ",\n" +
-          "    email                 = " + this.email + ",\n" +
-          "    profileId             = " + this.profileId + ",\n" +
-          "    userStatusResponseDto = " + this.userStatusResponseDto + "\n" +
-          "  }";
-    }
   }
 
-  public record UserCreateResponseDtos(
-      List<UserCreateResponseDto> userCreateResponseDtoList
-  ) {
-
-    @Override
-    public String toString() {
-      if (userCreateResponseDtoList == null || userCreateResponseDtoList.isEmpty()) {
-        return "Users: []";
-      }
-
-      return "\n--- List of Users ---" +
-          userCreateResponseDtoList.stream()
-              .map(UserCreateResponseDto::toString) //
-              .collect(Collectors.joining(","));
-    }
-  }
-
-  @Schema(name = "User") // telling Swagger that UserGetDto = User schema
+  // telling Swagger that UserGetDto = User schema
+  // used in POST response (creation)
+  @Schema(name = "User")
   public record UserGetDto(
       UUID id,
       Instant createdAt,
@@ -72,67 +41,43 @@ public class UserDto {
 //      Boolean online // removing for API specifications
   ) {
 
-    @Override
-    public String toString() {
-      return "\n" +
-          "    UserDto    {" + "\n" +
-          "    userId     = " + this.id + ",\n" +
-          "    createdAt  = " + this.createdAt + ",\n" +
-          "    updatedAt  = " + this.updatedAt + ",\n" +
-          "    username   = " + this.username + ",\n" +
-          "    email      = " + this.email + ",\n" +
-          "    password   = " + this.password + ",\n" + // API spec
-          "    profileId  = " + this.profileId + ",\n" +
-//          "    online?    = " + this.profileId + ",\n" + // API spec
-          "  }";
-    }
   }
 
-  public record UserGetDtos(
-      List<UserGetDto> userGetDtoList
+  // ============================== GET - 전체 유저 조회 ==============================
+  public record AllUserGetDto(
+      UUID id,
+      Instant createdAt,
+      Instant updatedAt,
+      String username,
+      String email,
+      UUID profileId,
+      Boolean online
   ) {
 
-    @Override
-    public String toString() {
-      if (userGetDtoList == null || userGetDtoList.isEmpty()) {
-        return "Users: []";
-      }
-
-      return "\n--- List of Users ---" +
-          userGetDtoList.stream()
-              .map(UserGetDto::toString) //
-              .collect(Collectors.joining(","));
-    }
   }
 
-  @Schema(description = "수정할 Channel 정보")
-  public record UserUpdateRequestDto(
+  // ============================== PATCH - 유저 수정 ==============================
+  @Schema(description = "수정할 User 정보")
+  public record UserUpdateRequest(
 //    UUID userId,
-      String username,
-      String password,
-      String email,
-      UUID profileId
+      String newUsername,
+      String newPassword,
+      String newEmail
   ) {
 
   }
 
-  public record UserUpdateResponseDto(
-      UUID userId,
+  public record UserUpdateResponse(
       String username,
       String email,
-      UUID profileId
+      UUID profileId,
+      UUID id,
+      Instant createdAt,
+      Instant updatedAt,
+      String password
   ) {
 
-    @Override
-    public String toString() {
-      return "\n" +
-          "    UpdateUserResponseDto {" + "\n" +
-          "    userId                = " + this.userId + ",\n" +
-          "    username              = " + this.username + ",\n" +
-          "    email                 = " + this.email + ",\n" +
-          "    profileId             = " + this.profileId + ",\n" +
-          "  }";
-    }
   }
+
 
 }

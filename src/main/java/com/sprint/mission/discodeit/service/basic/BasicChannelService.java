@@ -74,22 +74,65 @@ public class BasicChannelService implements ChannelService {
     return channelMapper.toChannelResponse(channel);
   }
 
-  @Override
-  public List<ChannelResponse> findAllByUserId(UUID userId) {
+//  @Override
+//  public List<ChannelResponse> findAllByUserId(UUID userId) {
+//
+//    List<UUID> mySubscribedChannelIds = readStatusRepository.findByUserId(userId).stream()
+//        .map(ReadStatus::getChannelId)
+//        .toList();
+//
+//    return channelRepository.findAll().stream()
+//        .filter(channel ->
+//            channel.getType().equals(ChannelType.PUBLIC)
+//                || mySubscribedChannelIds.contains(channel.getId())
+//        )
+//        .map(channelMapper::toChannelResponse)
+//        .toList();
+//
+//  }
 
-    List<UUID> mySubscribedChannelIds = readStatusRepository.findByUserId(userId).stream()
-        .map(ReadStatus::getChannelId)
-        .toList();
+  public List<UserChannelResponse> findAllByUserId(UUID userId) {
 
-    return channelRepository.findAll().stream()
-        .filter(channel ->
-            channel.getType().equals(ChannelType.PUBLIC)
-                || mySubscribedChannelIds.contains(channel.getId())
+    List<Channel> allChannels = channelRepository.findAll();
+
+    return allChannels
+        .stream()
+        .filter(c -> {
+              // if current channel is private, then get only the private channels that includes userId
+              if (c.getType() == ChannelType.PRIVATE) {
+                Optional<ReadStatus> readStatus = readStatusRepository.findByChannelAndUserId(
+                    c.getId(),
+                    userId);
+                return readStatus.isPresent();
+
+              } else {
+                return c.getType() == ChannelType.PUBLIC;
+              }
+            }
         )
-        .map(channelMapper::toChannelResponse)
-        .toList();
+        .map(c -> {
 
+          // getting users in private channel
+          List<UUID> userIds = null;
+          if (c.getType() == ChannelType.PRIVATE) {
+            userIds = readStatusRepository.findByChannelId(c.getId())
+                .stream()
+                .map(ReadStatus::getUserId)
+                .toList();
+          }
+
+          // getting latest message in channel
+          Instant lastMessage = messageRepository.findByChannelId(c.getId())
+              .stream()
+              .map(BaseEntity::getCreatedAt)
+              .max(Instant::compareTo)
+              .orElse(null);
+
+          return channelMapper.toUserChannelResponse(c, userIds, lastMessage);
+
+        }).toList();
   }
+
 
   @Override
   public ChannelResponse update(UUID channelId,

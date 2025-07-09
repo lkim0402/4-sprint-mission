@@ -5,17 +5,17 @@ import java.util.UUID;
 
 public interface UserStatusService {
 
-  UserStatusResponseDto create(UserStatusRequestDto userStatusRequestDto);
+  UserStatusResponse create(UserStatusRequest userStatusRequest);
 
-  UserStatusResponseDto find(UUID userStatusId);
+  UserStatusResponse find(UUID userStatusId);
 
-  UserStatusResponseDto findByUserId(UUID userId);
+  UserStatusResponse findByUserId(UUID userId);
 
-  UserStatusResponseDtos findAll();
+  UserStatusResponses findAll();
 
-  UserStatusResponseDto update(UUID id);
+  UserStatusUpdateResponse update(UUID userStatusId, UserStatusUpdateRequest request);
 
-  UserStatusResponseDto updateByUserId(UUID userId);
+  UserStatusUpdateResponse updateByUserId(UUID userId, UserStatusUpdateRequest request);
 
   void delete(UUID id);
 
