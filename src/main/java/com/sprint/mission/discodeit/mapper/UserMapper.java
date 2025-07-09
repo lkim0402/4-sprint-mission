@@ -13,15 +13,15 @@ public class UserMapper {
 
   private final UserStatusMapper userStatusMapper;
 
-  // Request
-  public User toUser(UserCreateRequestDto userDTO) {
-    return new User(
-        userDTO.getUsername(),
-        userDTO.getEmail(),
-        userDTO.getPassword(),
-        null // set later when creating user
-    );
-  }
+//  // Request
+//  public User toUser(UserCreateRequestDto userDTO) {
+//    return new User(
+//        userDTO.username(),
+//        userDTO.email(),
+//        userDTO.password(),
+//        null // set later when creating user
+//    );
+//  }
 
   // Response
   public UserCreateResponseDto toUserResponseDto(User user,
@@ -60,7 +60,7 @@ public class UserMapper {
 
   // ======== 심화 =========
 
-  public UserGetDto toUserDto(User user, UserStatus userStatus) {
+  public UserGetDto toUserGetDto(User user, UserStatus userStatus) {
     Boolean isOnline = userStatus.getStatus() == UserStatus.UserState.ONLINE;
 
     return new UserGetDto(
@@ -69,8 +69,9 @@ public class UserMapper {
         user.getUpdatedAt(),
         user.getUsername(),
         user.getEmail(),
-        user.getProfileId(),
-        isOnline
+        user.getPassword(), // API spec
+        user.getProfileId()
+//        isOnline // API spec
     );
   }
 }

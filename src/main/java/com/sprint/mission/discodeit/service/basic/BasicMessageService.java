@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,27 +33,42 @@ public class BasicMessageService implements MessageService {
   @Override
   public MessageResponseDto create(MessageRequestDto messageRequestDto) {
 
-    Message newMessage = messageMapper.toMessage(messageRequestDto);
-    UUID channelId = newMessage.getChannelId();
-    UUID authorId = newMessage.getAuthorId();
-    if (!channelRepository.existsById(newMessage.getChannelId())) {
+    UUID channelId = messageRequestDto.channelId();
+    UUID authorId = messageRequestDto.authorId();
+    if (!channelRepository.existsById(channelId)) {
       throw new NoSuchElementException("Channel not found with id " + channelId);
     }
-    if (!userRepository.existsById(newMessage.getAuthorId())) {
+    if (!userRepository.existsById(authorId)) {
       throw new NoSuchElementException("Author not found with id " + authorId);
     }
 
-    Message savedMessage = messageRepository.save(newMessage);
+    List<UUID> attachmentIds = messageRequestDto.files().stream()
+        .map(attachmentRequest -> {
+          String fileName = attachmentRequest.getOriginalFilename();
+          String contentType = attachmentRequest.getContentType();
+          byte[] bytes = null;
+          try {
+            bytes = attachmentRequest.getBytes();
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
 
-    // saving the binary content
-    List<MultipartFile> files = messageRequestDto.files();
-    for (MultipartFile file : files) {
-      BinaryContent binaryContent = binaryContentMapper.toBinaryContent(authorId,
-          savedMessage.getId(), file);
-      binaryContentRepository.save(binaryContent);
-    }
+          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
+              contentType, bytes);
+          BinaryContent createdBinaryContent = binaryContentRepository.save(binaryContent);
+          return createdBinaryContent.getId();
+        })
+        .toList();
 
-    return messageMapper.toMessageResponseDto(savedMessage);
+    String content = messageRequestDto.content();
+    Message message = new Message(
+        content,
+        channelId,
+        authorId,
+        attachmentIds
+    );
+
+    return messageMapper.toMessageResponseDto(message);
   }
 
   @Override
@@ -81,29 +97,21 @@ public class BasicMessageService implements MessageService {
             () -> new NoSuchElementException("Message with id " + messageId + " not found"));
 
     message.update(messageUpdateRequestDto.content());
-
     return messageMapper.toUpdateMessageResponseDto(messageRepository.save(message));
   }
 
   @Override
-  public void delete(UUID id) {
-    if (!messageRepository.existsById(id)) {
-      throw new NoSuchElementException("Message with id " + id + " not found");
-    }
-
-    Message messageToDelete = messageRepository.findById(id)
-        .orElseThrow(() -> new NoSuchElementException("Message with id " + id + " not found"));
+  public void delete(UUID messageId) {
+    Message message = messageRepository.findById(messageId)
+        .orElseThrow(
+            () -> new NoSuchElementException("Message with id " + messageId + " not found"));
 
     // deleting binary contents attached to the message
-    List<BinaryContent> optionalBinaryContents = binaryContentRepository.findByUserId(
-        messageToDelete.getAuthorId());
+    message.getAttachmentIds()
+        .forEach(binaryContentRepository::deleteById);
 
-    if (!optionalBinaryContents.isEmpty()) {
-      for (BinaryContent binaryContent : optionalBinaryContents) {
-        binaryContentRepository.deleteById(binaryContent.getId());
-      }
-    }
-    messageRepository.deleteById(id);
+    messageRepository.deleteById(messageId);
+
   }
 
   @Override

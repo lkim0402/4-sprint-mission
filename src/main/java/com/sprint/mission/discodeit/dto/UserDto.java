@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.dto;
 
 import com.sprint.mission.discodeit.dto.UserStatusDto.*;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -12,15 +13,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class UserDto {
 
-  @Getter
-  @Setter
-  @AllArgsConstructor
-  public class UserCreateRequestDto {
+  public record UserCreateRequestDto(
+      String username,
+      String email,
+      String password,
+      MultipartFile profilePicture
+  ) {
 
-    private String username;
-    private String email;
-    private String password;
-    private MultipartFile profilePicture;
   }
 
   public record UserCreateResponseDto(
@@ -61,14 +60,16 @@ public class UserDto {
     }
   }
 
+  @Schema(name = "User") // telling Swagger that UserGetDto = User schema
   public record UserGetDto(
       UUID id,
       Instant createdAt,
       Instant updatedAt,
       String username,
       String email,
-      UUID profileId,
-      Boolean online
+      String password, // API specifications
+      UUID profileId
+//      Boolean online // removing for API specifications
   ) {
 
     @Override
@@ -80,8 +81,9 @@ public class UserDto {
           "    updatedAt  = " + this.updatedAt + ",\n" +
           "    username   = " + this.username + ",\n" +
           "    email      = " + this.email + ",\n" +
+          "    password   = " + this.password + ",\n" + // API spec
           "    profileId  = " + this.profileId + ",\n" +
-          "    online?    = " + this.profileId + ",\n" +
+//          "    online?    = " + this.profileId + ",\n" + // API spec
           "  }";
     }
   }
@@ -103,6 +105,7 @@ public class UserDto {
     }
   }
 
+  @Schema(description = "수정할 Channel 정보")
   public record UserUpdateRequestDto(
 //    UUID userId,
       String username,

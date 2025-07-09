@@ -9,13 +9,13 @@ import java.util.List;
 public class MessageMapper {
 
   // Request
-  public Message toMessage(MessageRequestDto messageRequestDto) {
-    return new Message(
-        messageRequestDto.content(),
-        messageRequestDto.channelId(),
-        messageRequestDto.authorId()
-    );
-  }
+//  public Message toMessage(MessageRequestDto messageRequestDto) {
+//    return new Message(
+//        messageRequestDto.content(),
+//        messageRequestDto.channelId(),
+//        messageRequestDto.authorId()
+//    );
+//  }
 
   // Response
   public MessageResponseDto toMessageResponseDto(Message message) {
