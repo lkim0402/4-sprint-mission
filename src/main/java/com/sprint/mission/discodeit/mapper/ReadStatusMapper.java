@@ -9,29 +9,30 @@ import java.util.List;
 public class ReadStatusMapper {
 
   // Request
-  public ReadStatus toReadStatus(ReadStatusRequestDto readStatusRequestDto) {
+  public ReadStatus toReadStatus(ReadStatusRequest readStatusRequest) {
     return new ReadStatus(
-        readStatusRequestDto.userId(),
-        readStatusRequestDto.channelId()
+        readStatusRequest.userId(),
+        readStatusRequest.channelId()
     );
   }
 
   // Response
-  public ReadStatusResponseDto toReadStatusResponseDto(ReadStatus readStatus) {
-    return new ReadStatusResponseDto(
+  public ReadStatusResponse toReadStatusResponse(ReadStatus readStatus) {
+    return new ReadStatusResponse(
         readStatus.getId(),
         readStatus.getUserId(),
         readStatus.getChannelId(),
-        readStatus.getLastReadAt()
+        readStatus.getLastReadAt(),
+        readStatus.getCreatedAt(),
+        readStatus.getUpdatedAt()
     );
   }
 
-  // Response
   public ReadStatusResponseDtos toReadStatusResponseDtos(List<ReadStatus> readStatuses) {
     return new ReadStatusResponseDtos(
         readStatuses
             .stream()
-            .map(this::toReadStatusResponseDto)
+            .map(this::toReadStatusResponse)
             .toList()
     );
   }

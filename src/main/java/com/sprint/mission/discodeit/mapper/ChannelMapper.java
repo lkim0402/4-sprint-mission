@@ -27,6 +27,18 @@ public class ChannelMapper {
     );
   }
 
+  public UserChannelResponse toUserChannelResponse(Channel c, List<UUID> userIds,
+      Instant lastMessage) {
+    return new UserChannelResponse(
+        c.getId(),
+        c.getName(),
+        c.getDescription(),
+        c.getType(),
+        lastMessage,
+        userIds
+    );
+  }
+
   // Request - public channel creation
 //  public Channel requestDtoToPublicChannel(PublicCreateChannelRequestDto channelRequestDto) {
 //    return new Channel(

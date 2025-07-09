@@ -59,7 +59,7 @@ public class BinaryContentDto {
   ) {
 
   }
-  
+
   @Schema(name = "BinaryContent")
   public record BinaryContentResponseDto(
       UUID id,
@@ -72,6 +72,7 @@ public class BinaryContentDto {
   ) {
 
   }
+
 
   public record ResponseDtos(
       List<BinaryContentResponseDto> binaryContentResponseDtos

@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.BinaryContentDto.*;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -49,7 +50,7 @@ public class BinaryFileController {
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "첨부 파일 목록 조회 성공",
           content = @Content(mediaType = "*/*",
-              schema = @Schema(type = "array", implementation = BinaryContentResponseDto.class))
+              array = @ArraySchema(schema = @Schema(implementation = BinaryContentResponseDto.class)))
       )
   })
   @GetMapping

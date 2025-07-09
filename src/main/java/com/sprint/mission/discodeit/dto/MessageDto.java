@@ -1,17 +1,19 @@
 package com.sprint.mission.discodeit.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import org.springframework.web.multipart.MultipartFile;
 
 public class MessageDto {
 
-  public record MessageRequestDto(
+  @Schema(description = "")
+  public record MessageCreateRequest(
       String content,
       UUID channelId,
-      UUID authorId,
-      List<MultipartFile> files
+      UUID authorId
+//      List<MultipartFile> files
   ) {
 
   }
@@ -20,7 +22,10 @@ public class MessageDto {
       UUID id,
       String content,
       UUID channelId,
-      UUID authorId
+      UUID authorId,
+      List<UUID> attachmentIds,
+      Instant createdAt,
+      Instant updatedAt
   ) {
 
     @Override
@@ -52,28 +57,11 @@ public class MessageDto {
     }
   }
 
+  @Schema(description = "수정할 Message 내용")
   public record MessageUpdateRequestDto(
-      String content
+      String newContent
   ) {
 
   }
 
-  public record MessageUpdateResponseDto(
-      String content,
-      UUID channelId,
-      UUID authorId,
-      UUID messageId
-  ) {
-
-    @Override
-    public String toString() {
-      return "\n" +
-          "    MessageUpdateResponseDto {" + "\n" +
-          "    messageId   = " + this.messageId + ",\n" +
-          "    content     = " + this.content + ",\n" +
-          "    channelId   = " + this.channelId + ",\n" +
-          "    authorId    = " + this.authorId + ",\n" +
-          "  }";
-    }
-  }
 }

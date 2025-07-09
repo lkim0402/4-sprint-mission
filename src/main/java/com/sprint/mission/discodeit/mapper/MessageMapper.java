@@ -1,21 +1,16 @@
 package com.sprint.mission.discodeit.mapper;
 
+import com.sprint.mission.discodeit.dto.ChannelDto.UserChannelResponse;
 import com.sprint.mission.discodeit.dto.MessageDto.*;
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
+import java.time.Instant;
+import java.util.UUID;
 import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
 public class MessageMapper {
-
-  // Request
-//  public Message toMessage(MessageRequestDto messageRequestDto) {
-//    return new Message(
-//        messageRequestDto.content(),
-//        messageRequestDto.channelId(),
-//        messageRequestDto.authorId()
-//    );
-//  }
 
   // Response
   public MessageResponseDto toMessageResponseDto(Message message) {
@@ -23,7 +18,10 @@ public class MessageMapper {
         message.getId(),
         message.getContent(),
         message.getChannelId(),
-        message.getAuthorId()
+        message.getAuthorId(),
+        message.getAttachmentIds(),
+        message.getCreatedAt(),
+        message.getUpdatedAt()
     );
   }
 
@@ -37,12 +35,5 @@ public class MessageMapper {
     );
   }
 
-  public MessageUpdateResponseDto toUpdateMessageResponseDto(Message message) {
-    return new MessageUpdateResponseDto(
-        message.getContent(),
-        message.getChannelId(),
-        message.getAuthorId(),
-        message.getId()
-    );
-  }
+
 }
