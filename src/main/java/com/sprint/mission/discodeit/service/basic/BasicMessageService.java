@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -29,7 +28,7 @@ public class BasicMessageService implements MessageService {
   private final MessageMapper messageMapper;
 
   @Override
-  public MessageResponseDto create(MessageCreateRequest messageCreateRequest,
+  public MessageResponse create(MessageCreateRequest messageCreateRequest,
       List<MultipartFile> attachments) {
 
     UUID channelId = messageCreateRequest.channelId();
@@ -71,7 +70,7 @@ public class BasicMessageService implements MessageService {
   }
 
   @Override
-  public MessageResponseDto find(UUID messageId) {
+  public MessageResponse find(UUID messageId) {
     Message msg = messageRepository.findById(messageId)
         .orElseThrow(
             () -> new NoSuchElementException("Message with id " + messageId + " not found"));
@@ -89,7 +88,7 @@ public class BasicMessageService implements MessageService {
   }
 
   @Override
-  public MessageResponseDto update(UUID messageId,
+  public MessageResponse update(UUID messageId,
       MessageUpdateRequestDto messageUpdateRequestDto) {
     Message message = messageRepository.findById(messageId)
         .orElseThrow(

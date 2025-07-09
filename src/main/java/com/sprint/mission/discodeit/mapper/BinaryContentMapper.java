@@ -50,8 +50,8 @@ public class BinaryContentMapper {
 //            .toList()
 //    );
 //  }
-  public BinaryContentResponseDto toResponseDto(BinaryContent binaryContent) {
-    return new BinaryContentResponseDto(
+  public BinaryContentResponse toResponseDto(BinaryContent binaryContent) {
+    return new BinaryContentResponse(
         binaryContent.getId(),
         binaryContent.getCreatedAt(),
         binaryContent.getFileName(),

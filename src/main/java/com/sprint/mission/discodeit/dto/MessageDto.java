@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class MessageDto {
 
@@ -18,7 +17,7 @@ public class MessageDto {
 
   }
 
-  public record MessageResponseDto(
+  public record MessageResponse(
       UUID id,
       String content,
       UUID channelId,
@@ -28,33 +27,12 @@ public class MessageDto {
       Instant updatedAt
   ) {
 
-    @Override
-    public String toString() {
-      return "\n" +
-          "    MessageResponseDto {" + "\n" +
-          "    id        = " + this.id + ",\n" +
-          "    content   = " + this.content + ",\n" +
-          "    channelId = " + this.channelId + ",\n" +
-          "    authorId  = " + this.authorId + ",\n" +
-          "  }";
-    }
   }
 
   public record MessageResponseDtos(
-      List<MessageResponseDto> messageResponseDtos
+      List<MessageResponse> messageResponses
   ) {
 
-    @Override
-    public String toString() {
-      if (messageResponseDtos == null || messageResponseDtos.isEmpty()) {
-        return "Messages: []";
-      }
-
-      return "\n--- List of Messages ---" +
-          messageResponseDtos.stream()
-              .map(MessageResponseDto::toString)
-              .collect(Collectors.joining(","));
-    }
   }
 
   @Schema(description = "수정할 Message 내용")
