@@ -30,7 +30,7 @@ public class BinaryFileController {
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "첨부 파일 조회 성공",
           content = @Content(mediaType = "*/*",
-              schema = @Schema(implementation = BinaryContentResponseDto.class))
+              schema = @Schema(implementation = BinaryContentResponse.class))
       ),
       @ApiResponse(responseCode = "404", description = "첨부 파일을 찾을 수 없음",
           content = @Content(mediaType = "*/*",
@@ -38,10 +38,10 @@ public class BinaryFileController {
       )
   })
   @GetMapping("/{binaryContentId}")
-  public ResponseEntity<BinaryContentResponseDto> getBinaryContent(
+  public ResponseEntity<BinaryContentResponse> getBinaryContent(
       @Parameter(description = "조회할 첨부 파일 ID")
       @PathVariable("binaryContentId") UUID binaryContentId) {
-    BinaryContentResponseDto binaryContent = binaryContentService.find(binaryContentId);
+    BinaryContentResponse binaryContent = binaryContentService.find(binaryContentId);
     return ResponseEntity.ok(binaryContent);
   }
 
@@ -50,16 +50,16 @@ public class BinaryFileController {
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "첨부 파일 목록 조회 성공",
           content = @Content(mediaType = "*/*",
-              array = @ArraySchema(schema = @Schema(implementation = BinaryContentResponseDto.class)))
+              array = @ArraySchema(schema = @Schema(implementation = BinaryContentResponse.class)))
       )
   })
   @GetMapping
-  public ResponseEntity<List<BinaryContentResponseDto>> getBinaryContents(
+  public ResponseEntity<List<BinaryContentResponse>> getBinaryContents(
       @Parameter(description = "조회할 첨부 파일 ID 목록")
       @RequestParam("binaryContentIds") List<UUID> binaryContentUUIDList
   ) {
-    List<BinaryContentResponseDto> binaryContentResponseDtos = binaryContentService.findAllByIdIn(
+    List<BinaryContentResponse> binaryContentResponses = binaryContentService.findAllByIdIn(
         binaryContentUUIDList);
-    return ResponseEntity.ok(binaryContentResponseDtos);
+    return ResponseEntity.ok(binaryContentResponses);
   }
 }

@@ -7,14 +7,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface MessageService {
 
-  MessageResponseDto create(MessageCreateRequest messageCreateRequest,
+  MessageResponse create(MessageCreateRequest messageCreateRequest,
       List<MultipartFile> attachments);
 
-  MessageResponseDto find(UUID messageId);
+  MessageResponse find(UUID messageId);
 
   MessageResponseDtos findallByChannelId(UUID channelId);
 
-  MessageResponseDto update(UUID messageId, MessageUpdateRequestDto messageUpdateRequestDto);
+  MessageResponse update(UUID messageId, MessageUpdateRequestDto messageUpdateRequestDto);
 
   void delete(UUID id);
 

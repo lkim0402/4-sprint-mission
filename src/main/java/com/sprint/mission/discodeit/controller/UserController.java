@@ -45,8 +45,9 @@ public class UserController {
   })
   @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   public ResponseEntity<UserGetDto> createUser(
-      @Parameter(description = "User 생성 정보")
-      @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
+//      @Parameter(description = "User 생성 정보",
+//          content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+      @ModelAttribute UserCreateRequest userCreateRequest,
       @Parameter(description = "User 프로필 이미지")
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
