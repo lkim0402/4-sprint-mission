@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.mapper;
 import com.sprint.mission.discodeit.dto.BinaryContentDto.*;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import java.util.Arrays;
+import java.util.Base64;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public class BinaryContentMapper {
         binaryContent.getFileName(),
         binaryContent.getSize(),
         binaryContent.getContentType(),
-        Arrays.toString(binaryContent.getBytes())
+        Base64.getEncoder().encodeToString(binaryContent.getBytes())
     );
   }
 }
