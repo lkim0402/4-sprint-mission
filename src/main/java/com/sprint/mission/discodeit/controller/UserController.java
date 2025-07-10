@@ -80,7 +80,7 @@ public class UserController {
       @Parameter(description = "수정할 User ID")
       @PathVariable("userId") UUID userId,
 //      @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
-      @Valid @ModelAttribute UserUpdateRequest userUpdateRequest,
+      @ModelAttribute UserUpdateRequest userUpdateRequest,
       @Parameter(description = "수정할 User 프로필 이미지")
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
