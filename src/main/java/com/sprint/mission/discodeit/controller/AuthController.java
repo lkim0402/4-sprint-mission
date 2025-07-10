@@ -32,7 +32,6 @@ public class AuthController {
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "로그인 성공",
           content = @Content(mediaType = "*/*",
-//              schema = @Schema(implementation = AuthDto.LoginResponse.class))
               schema = @Schema(implementation = UserDto.UserGetDto.class))
 
       ),
@@ -49,7 +48,6 @@ public class AuthController {
   public ResponseEntity<UserDto.UserGetDto> loginUser(
       @RequestBody AuthDto.LoginRequest loginRequest
   ) {
-//    AuthDto.LoginResponse loginResponse = authService.login(loginRequest);
     UserDto.UserGetDto loginResponse = authService.login(loginRequest);
     return ResponseEntity.ok(loginResponse);
   }

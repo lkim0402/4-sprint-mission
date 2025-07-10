@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -78,7 +79,8 @@ public class UserController {
   public ResponseEntity<UserUpdateResponse> updateUser(
       @Parameter(description = "수정할 User ID")
       @PathVariable("userId") UUID userId,
-      @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
+//      @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
+      @Valid @ModelAttribute UserUpdateRequest userUpdateRequest,
       @Parameter(description = "수정할 User 프로필 이미지")
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {

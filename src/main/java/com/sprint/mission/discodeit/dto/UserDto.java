@@ -13,15 +13,12 @@ public class UserDto {
   @Schema(description = "사용자 등록 요청")
   public record UserCreateRequest(
       @Schema(description = "사용자 이름", example = "gildong", requiredMode = RequiredMode.REQUIRED)
-      @NotBlank(message = "Username cannot be empty!")
       String username,
 
       @Schema(description = "이메일 주소", example = "hong.gildong@example.com", requiredMode = RequiredMode.REQUIRED)
-      @NotBlank(message = "Email cannot be empty!")
       String email,
 
       @Schema(description = "비밀번호", example = "password123!", requiredMode = RequiredMode.REQUIRED)
-      @NotBlank(message = "Password cannot be empty!")
       String password
   ) {
 

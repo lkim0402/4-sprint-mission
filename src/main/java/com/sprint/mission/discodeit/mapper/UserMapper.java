@@ -40,17 +40,6 @@ public class UserMapper {
     );
   }
 
-//  // used in create
-//  public UserResponse toUserResponseDto(User user, UserStatus userStatus) {
-//    return new UserResponse(
-//        user.getId(),
-//        user.getUsername(),
-//        user.getEmail(),
-//        user.getProfileId(),
-//        userStatusMapper.toUserStatusResponseDto(userStatus)
-//    );
-//  }
-
   public UserUpdateResponse toUpdateUserResponseDto(User user) {
     return new UserUpdateResponse(
         user.getUsername(),

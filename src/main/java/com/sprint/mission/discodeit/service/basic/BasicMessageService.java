@@ -40,23 +40,27 @@ public class BasicMessageService implements MessageService {
       throw new NoSuchElementException("Author not found with id " + authorId);
     }
 
-    List<UUID> attachmentIds = attachments.stream()
-        .map(attachmentRequest -> {
-          String fileName = attachmentRequest.getOriginalFilename();
-          String contentType = attachmentRequest.getContentType();
-          byte[] bytes = null;
-          try {
-            bytes = attachmentRequest.getBytes();
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
+    List<UUID> attachmentIds = null;
+    if (attachments != null) {
 
-          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-              contentType, bytes);
-          BinaryContent createdBinaryContent = binaryContentRepository.save(binaryContent);
-          return createdBinaryContent.getId();
-        })
-        .toList();
+      attachmentIds = attachments.stream()
+          .map(attachmentRequest -> {
+            String fileName = attachmentRequest.getOriginalFilename();
+            String contentType = attachmentRequest.getContentType();
+            byte[] bytes = null;
+            try {
+              bytes = attachmentRequest.getBytes();
+            } catch (IOException e) {
+              throw new RuntimeException(e);
+            }
+
+            BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
+                contentType, bytes);
+            BinaryContent createdBinaryContent = binaryContentRepository.save(binaryContent);
+            return createdBinaryContent.getId();
+          })
+          .toList();
+    }
 
     String content = messageCreateRequest.content();
     Message message = new Message(
@@ -66,7 +70,9 @@ public class BasicMessageService implements MessageService {
         attachmentIds
     );
 
-    return messageMapper.toMessageResponseDto(message);
+    Message savedMessage = messageRepository.save(message);
+
+    return messageMapper.toMessageResponseDto(savedMessage);
   }
 
   @Override
@@ -79,12 +85,12 @@ public class BasicMessageService implements MessageService {
   }
 
   @Override
-  public MessageResponseDtos findallByChannelId(UUID channelId) {
+  public List<MessageResponse> findallByChannelId(UUID channelId) {
 
-    List<Message> messageList = messageRepository.findByChannelId(channelId);
-    return messageMapper.toMessageResponseDtos(
-        messageList
-    );
+    return messageRepository.findByChannelId(channelId)
+        .stream()
+        .map(messageMapper::toMessageResponseDto)
+        .toList();
   }
 
   @Override

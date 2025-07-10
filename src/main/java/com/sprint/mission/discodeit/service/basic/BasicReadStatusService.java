@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import java.time.Instant;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.NoSuchElementException;
@@ -56,8 +57,10 @@ public class BasicReadStatusService implements ReadStatusService {
   }
 
   @Override
-  public ReadStatusResponseDtos findAllByUserId(UUID id) {
-    return readStatusMapper.toReadStatusResponseDtos(readStatusRepository.findByUserId(id));
+  public List<ReadStatusResponse> findAllByUserId(UUID id) {
+    return readStatusRepository.findByUserId(id).stream()
+        .map(readStatusMapper::toReadStatusResponse)
+        .toList();
   }
 
   @Override

@@ -43,15 +43,6 @@ public class ReadStatusDto {
 
   }
 
-  @Schema(description = "읽음 상태 목록 응답")
-  public record ReadStatusResponseDtos(
-      @Schema(description = "읽음 상태 정보 목록")
-      List<ReadStatusResponse> readStatusRequestDtos
-
-  ) {
-
-  }
-
   // ============================== PATCH - ReadStatus 수정 ==============================
   @Schema(description = "읽음 상태 수정 요청")
   public record ReadStatusUpdateRequest(
