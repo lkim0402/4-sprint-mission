@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -42,7 +43,7 @@ public class MessageController {
   @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   public ResponseEntity<MessageResponse> sendMessage(
       @Parameter(description = "Message 생성 정보")
-      @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
+      @ModelAttribute MessageCreateRequest messageCreateRequest,
       @Parameter(description = "Message 첨부 파일들")
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
   ) {
@@ -103,10 +104,10 @@ public class MessageController {
       )
   })
   @GetMapping
-  public ResponseEntity<MessageResponseDtos> getMessagesByChannel(
+  public ResponseEntity<List<MessageResponse>> getMessagesByChannel(
       @Parameter(description = "조회할 Channel ID") @RequestParam("channelId") UUID channelId
   ) {
-    MessageResponseDtos messageResponseDtos = messageService.findallByChannelId(channelId);
+    List<MessageResponse> messageResponseDtos = messageService.findallByChannelId(channelId);
     return ResponseEntity.ok(messageResponseDtos);
   }
 

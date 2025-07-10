@@ -12,7 +12,7 @@ public interface MessageService {
 
   MessageResponse find(UUID messageId);
 
-  MessageResponseDtos findallByChannelId(UUID channelId);
+  List<MessageResponse> findallByChannelId(UUID channelId);
 
   MessageResponse update(UUID messageId, MessageUpdateRequestDto messageUpdateRequestDto);
 

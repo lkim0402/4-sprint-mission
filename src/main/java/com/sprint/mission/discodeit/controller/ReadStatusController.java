@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -79,11 +80,11 @@ public class ReadStatusController {
           array = @ArraySchema(schema = @Schema(implementation = ReadStatusResponse.class)))
   )
   @GetMapping
-  public ResponseEntity<ReadStatusResponseDtos> getReadStatusByUserId(
+  public ResponseEntity<List<ReadStatusResponse>> getReadStatusByUserId(
       @Parameter(description = "조회할 User ID")
       @RequestParam("userId") UUID userId
   ) {
-    ReadStatusResponseDtos readStatusResponseDtos = readStatusService.findAllByUserId(userId);
+    List<ReadStatusResponse> readStatusResponseDtos = readStatusService.findAllByUserId(userId);
     return ResponseEntity.ok(readStatusResponseDtos);
   }
 }
