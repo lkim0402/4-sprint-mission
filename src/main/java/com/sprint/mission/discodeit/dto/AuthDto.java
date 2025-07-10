@@ -8,7 +8,9 @@ public class AuthDto {
 
   @Schema(description = "로그인 정보")
   public record LoginRequest(
+      @Schema(description = "The username of the user", example = "codeit1234", format = "string")
       String username,
+      @Schema(description = "The password of the user", example = "q1w2e3r4", format = "string")
       String password
   ) {
 
