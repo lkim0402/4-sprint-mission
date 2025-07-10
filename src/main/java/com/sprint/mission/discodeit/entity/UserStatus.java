@@ -32,15 +32,6 @@ public class UserStatus extends BaseEntity {
     ONLINE, OFFLINE
   }
 
-  public UserState isUserActive() {
-    Instant currentTime = Instant.now();
-    Instant timeDiff = currentTime.minus(5, ChronoUnit.MINUTES);
-
-    return lastActiveTime.isBefore(timeDiff)
-        ? UserState.OFFLINE
-        : UserState.ONLINE;
-  }
-
   public void updateLastActiveTime() {
     this.lastActiveTime = Instant.now();
     this.updateTimeStamp();

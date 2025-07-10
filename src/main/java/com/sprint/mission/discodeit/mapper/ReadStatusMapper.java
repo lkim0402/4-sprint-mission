@@ -8,13 +8,6 @@ import java.util.List;
 @Component
 public class ReadStatusMapper {
 
-  public ReadStatus toReadStatus(ReadStatusRequest readStatusRequest) {
-    return new ReadStatus(
-        readStatusRequest.userId(),
-        readStatusRequest.channelId()
-    );
-  }
-
   public ReadStatusResponse toReadStatusResponse(ReadStatus readStatus) {
     return new ReadStatusResponse(
         readStatus.getId(),
@@ -26,13 +19,5 @@ public class ReadStatusMapper {
     );
   }
 
-  public ReadStatusResponseDtos toReadStatusResponseDtos(List<ReadStatus> readStatuses) {
-    return new ReadStatusResponseDtos(
-        readStatuses
-            .stream()
-            .map(this::toReadStatusResponse)
-            .toList()
-    );
-  }
 
 }

@@ -20,13 +20,4 @@ public class BinaryContentMapper {
         Arrays.toString(binaryContent.getBytes())
     );
   }
-
-  public ResponseDtos toResponseDtos(List<BinaryContent> binaryContents) {
-    return new ResponseDtos(
-        binaryContents
-            .stream()
-            .map(this::toResponseDto)
-            .toList()
-    );
-  }
 }

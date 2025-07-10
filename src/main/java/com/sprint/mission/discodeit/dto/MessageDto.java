@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import jakarta.validation.constraints.NotBlank;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -12,8 +13,10 @@ public class MessageDto {
   public record MessageCreateRequest(
       @Schema(description = "메시지 내용", example = "안녕하세요!", requiredMode = RequiredMode.REQUIRED)
       String content,
+
       @Schema(description = "메시지를 보낼 채널의 ID", example = "123e4567-e89b-12d3-a456-426614174000", requiredMode = RequiredMode.REQUIRED)
       UUID channelId,
+
       @Schema(description = "메시지 작성자의 ID", example = "a1b2c3d4-e5f6-7890-1234-567890abcdef", requiredMode = RequiredMode.REQUIRED)
       UUID authorId
   ) {

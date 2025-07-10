@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -39,7 +40,7 @@ public class ChannelController {
   @PostMapping("/public")
   public ResponseEntity<ChannelResponse> createPublicChannel(
       @Parameter(description = "Public Channel 생성 정보")
-      @RequestBody PublicChannelCreateRequest publicCreateChannelRequestDto
+      @Valid @RequestBody PublicChannelCreateRequest publicCreateChannelRequestDto
   ) {
     ChannelResponse channelResponse = channelService.createPublic(
         publicCreateChannelRequestDto);
@@ -55,7 +56,7 @@ public class ChannelController {
   @PostMapping("/private")
   public ResponseEntity<ChannelResponse> createPrivateChannel(
       @Parameter(description = "Private Channel 생성 정보")
-      @RequestBody PrivateChannelCreateRequest privateCreateChannelRequestDto
+      @Valid @RequestBody PrivateChannelCreateRequest privateCreateChannelRequestDto
   ) {
     ChannelResponse channelResponse = channelService.createPrivate(
         privateCreateChannelRequestDto);
