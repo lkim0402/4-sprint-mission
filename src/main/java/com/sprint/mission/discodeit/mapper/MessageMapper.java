@@ -8,7 +8,6 @@ import java.util.List;
 @Component
 public class MessageMapper {
 
-  // Response
   public MessageResponse toMessageResponseDto(Message message) {
     return new MessageResponse(
         message.getId(),
@@ -21,7 +20,6 @@ public class MessageMapper {
     );
   }
 
-  // Response
   public MessageResponseDtos toMessageResponseDtos(List<Message> messages) {
     return new MessageResponseDtos(
         messages

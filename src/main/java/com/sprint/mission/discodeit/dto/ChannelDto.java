@@ -29,7 +29,7 @@ public class ChannelDto {
 
   }
 
-  // different schema when requesting all channels from user
+  // schema when requesting all channels from user
   public record UserChannelResponse(
       UUID id,
       String name,

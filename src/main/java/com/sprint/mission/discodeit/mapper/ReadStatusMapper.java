@@ -8,7 +8,6 @@ import java.util.List;
 @Component
 public class ReadStatusMapper {
 
-  // Request
   public ReadStatus toReadStatus(ReadStatusRequest readStatusRequest) {
     return new ReadStatus(
         readStatusRequest.userId(),
@@ -16,7 +15,6 @@ public class ReadStatusMapper {
     );
   }
 
-  // Response
   public ReadStatusResponse toReadStatusResponse(ReadStatus readStatus) {
     return new ReadStatusResponse(
         readStatus.getId(),
