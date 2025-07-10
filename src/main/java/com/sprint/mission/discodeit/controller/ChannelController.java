@@ -40,7 +40,7 @@ public class ChannelController {
   @PostMapping("/public")
   public ResponseEntity<ChannelResponse> createPublicChannel(
       @Parameter(description = "Public Channel 생성 정보")
-      @Valid @RequestBody PublicChannelCreateRequest publicCreateChannelRequestDto
+      @RequestBody PublicChannelCreateRequest publicCreateChannelRequestDto
   ) {
     ChannelResponse channelResponse = channelService.createPublic(
         publicCreateChannelRequestDto);
@@ -56,7 +56,7 @@ public class ChannelController {
   @PostMapping("/private")
   public ResponseEntity<ChannelResponse> createPrivateChannel(
       @Parameter(description = "Private Channel 생성 정보")
-      @Valid @RequestBody PrivateChannelCreateRequest privateCreateChannelRequestDto
+      @RequestBody PrivateChannelCreateRequest privateCreateChannelRequestDto
   ) {
     ChannelResponse channelResponse = channelService.createPrivate(
         privateCreateChannelRequestDto);

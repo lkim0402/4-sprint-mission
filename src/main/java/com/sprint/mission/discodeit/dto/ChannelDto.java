@@ -15,10 +15,8 @@ public class ChannelDto {
   @Schema(description = "공개 채널 생성 요청")
   public record PublicChannelCreateRequest(
       @Schema(description = "채널 이름", example = "게임 채널", requiredMode = RequiredMode.REQUIRED)
-      @NotBlank(message = "Channel name cannot be empty!")
       String name,
       @Schema(description = "채널 설명", example = "자유롭게 대화하는 채널입니다.", requiredMode = RequiredMode.REQUIRED)
-      @NotBlank(message = "Channel description cannot be empty!")
       String description
   ) {
 
@@ -74,7 +72,6 @@ public class ChannelDto {
   @Schema(description = "비공개 채널(DM) 생성 요청")
   public record PrivateChannelCreateRequest(
       @Schema(description = "채널에 초대할 사용자들의 ID 목록", requiredMode = RequiredMode.REQUIRED)
-      @NotBlank(message = "Must include participants!")
       List<UUID> participantIds
   ) {
 
