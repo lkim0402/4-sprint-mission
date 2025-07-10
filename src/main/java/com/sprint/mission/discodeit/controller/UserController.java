@@ -46,10 +46,10 @@ public class UserController {
   })
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<UserGetDto> createUser(
-//      @Parameter(description = "User 생성 정보",
-//          content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
-//      @RequestPart UserCreateRequest userCreateRequest,
-      @ModelAttribute UserCreateRequest userCreateRequest,
+      @Parameter(description = "User 생성 정보",
+          content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+      @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,// 심화
+//      @ModelAttribute UserCreateRequest userCreateRequest,
       @Parameter(description = "User 프로필 이미지")
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
@@ -79,8 +79,8 @@ public class UserController {
   public ResponseEntity<UserUpdateResponse> updateUser(
       @Parameter(description = "수정할 User ID")
       @PathVariable("userId") UUID userId,
-//      @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
-      @ModelAttribute UserUpdateRequest userUpdateRequest,
+      @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest, // 심화
+//      @ModelAttribute UserUpdateRequest userUpdateRequest,
       @Parameter(description = "수정할 User 프로필 이미지")
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
