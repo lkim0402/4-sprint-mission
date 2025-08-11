@@ -25,7 +25,9 @@
   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <file>${LOG_PATH}/${LOG_FILE}</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <!--일자별로 롤링-->
       <fileNamePattern>${LOG_PATH}/discodeit.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <!--30일간 보관-->
       <maxHistory>30</maxHistory>
     </rollingPolicy>
 
