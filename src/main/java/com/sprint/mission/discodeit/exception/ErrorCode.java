@@ -44,7 +44,8 @@ public enum ErrorCode {
       "The requested binary content already exists"),
 
   // etc
-  INTERNAL_SERVER_ERROR(HttpStatus.BAD_GATEWAY, "I001", "Internal server error.");
+  INTERNAL_SERVER_ERROR(HttpStatus.BAD_GATEWAY, "E001", "Internal server error."),
+  BAD_REQUEST(HttpStatus.BAD_REQUEST, "E002", "The provided input is not valid.");
 
   private final HttpStatus status;
   private final String code;

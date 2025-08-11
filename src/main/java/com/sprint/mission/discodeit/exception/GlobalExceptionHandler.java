@@ -1,10 +1,12 @@
 package com.sprint.mission.discodeit.exception;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -48,5 +50,27 @@ public class GlobalExceptionHandler {
     );
 
     return new ResponseEntity<>(errorResponse, errorCode.getStatus());
+  }
+
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ErrorResponse> handleException(MethodArgumentNotValidException e) {
+    log.error("Validation failed: ", e);
+
+    // get the detailed error messages
+    Map<String, Object> details = new HashMap<>();
+    e.getBindingResult().getFieldErrors().forEach(fieldError ->
+        details.put(fieldError.getField(), fieldError.getDefaultMessage()));
+
+    final ErrorCode errorCode = ErrorCode.BAD_REQUEST;
+    final ErrorResponse errorResponse = new ErrorResponse(
+        errorCode.getCode(),
+        errorCode.getMessage(),
+        details,
+        e.getClass().getSimpleName(),
+        errorCode.getStatus().value()
+    );
+
+    return new ResponseEntity<>(errorResponse, errorCode.getStatus());
+
   }
 }
