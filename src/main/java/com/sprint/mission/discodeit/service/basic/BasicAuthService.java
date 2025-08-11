@@ -1,48 +1,37 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.AuthDto;
-import com.sprint.mission.discodeit.dto.UserDto;
+import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.mapper.AuthMapper;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.AuthService;
+import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.util.NoSuchElementException;
+import org.springframework.transaction.annotation.Transactional;
 
-@Service
 @RequiredArgsConstructor
+@Service
 public class BasicAuthService implements AuthService {
 
   private final UserRepository userRepository;
-  private final UserStatusRepository userStatusRepository;
-  private final AuthMapper authMapper;
   private final UserMapper userMapper;
 
+  @Transactional(readOnly = true)
   @Override
-  public UserDto.UserGetDto login(AuthDto.LoginRequest loginRequest) {
+  public UserDto login(LoginRequest loginRequest) {
+    String username = loginRequest.username();
+    String password = loginRequest.password();
 
-    // checking if username exists
-    User user = userRepository.findByUsername(loginRequest.username())
-        .orElseThrow(() -> new NoSuchElementException("Invalid username - username not found!"));
+    User user = userRepository.findByUsername(username)
+        .orElseThrow(
+            () -> new NoSuchElementException("User with username " + username + " not found"));
 
-    // checking if pw equals to the pw in the repo
-    if (!user.getPassword().equals(loginRequest.password())) {
-      throw new IllegalArgumentException("Invalid password!");
+    if (!user.getPassword().equals(password)) {
+      throw new IllegalArgumentException("Wrong password");
     }
 
-    UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
-        .orElseThrow(() -> new NoSuchElementException(
-            "User Status with user id " + user.getId() + " not found!"));
-
-    // update userStatus and save
-    userStatus.updateLastActiveTime();
-    userStatusRepository.save(userStatus);
-
-//        return authMapper.toLoginResponseDto(user, userStatus);
-    return userMapper.toUserGetDto(user, userStatus);
+    return userMapper.toDto(user);
   }
 }

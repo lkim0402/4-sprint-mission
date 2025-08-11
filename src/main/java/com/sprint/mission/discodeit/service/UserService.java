@@ -1,22 +1,24 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.UserDto.*;
+import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-import org.springframework.web.multipart.MultipartFile;
 
 public interface UserService {
 
-  UserGetDto create(UserCreateRequest userCreateRequest, MultipartFile profile);
+  UserDto create(UserCreateRequest userCreateRequest,
+      Optional<BinaryContentCreateRequest> profileCreateRequest);
 
-  UserResponse find(UUID userId);
+  UserDto find(UUID userId);
 
-  List<AllUserGetDto> findAll(); // 심화 요구사항
+  List<UserDto> findAll();
 
-  UserUpdateResponse update(UUID userId, UserUpdateRequest userUpdateRequest,
-      MultipartFile profile);
+  UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
+      Optional<BinaryContentCreateRequest> profileCreateRequest);
 
-  void delete(UUID id);
-
-  void deleteAll();
+  void delete(UUID userId);
 }
