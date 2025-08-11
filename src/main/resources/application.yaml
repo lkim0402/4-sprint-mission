@@ -8,9 +8,48 @@ spring:
   jpa:
     open-in-view: false
 
+discodeit:
+  storage:
+    type: local
+    local:
+      root-path: .discodeit/storage
+
 # common logging settings
 logging:
   level:
     root: INFO
     org.springframework: WARN
     org.hibernate: WARN
+
+# actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,metrics,loggers"
+  endpoint:
+    health:
+      show-details: always
+# actuator info
+# anything you define under the info key is automatically exposed by the /actuator/info endpoint
+info:
+  app:
+    name: "Discodeit"
+    version: "1.7.0"
+    java: "17"
+    spring-boot: "3.4.0"
+    config:
+      datasource:
+        url: "jdbc:postgresql://localhost:5432/discodeit"
+        driver-class-name: "org.postgresql.Driver"
+        jpa:
+          hibernate:
+            ddl-auto: "update"
+        storage:
+          type: "local" # Example value
+          path: "discodeit/storage" # Example value
+        multipart:
+          max-file-size: "10MB"
+          max-request-size: "30MB"
+
+
