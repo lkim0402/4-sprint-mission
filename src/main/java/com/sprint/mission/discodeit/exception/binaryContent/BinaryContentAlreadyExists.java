@@ -6,13 +6,13 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 
-public class BinaryContentNotFound extends BinaryContentException {
+public class BinaryContentAlreadyExists extends BinaryContentException {
 
-  public BinaryContentNotFound(
+  public BinaryContentAlreadyExists(
       UUID binaryContentId) {
     super(
         Instant.now(),
-        ErrorCode.BINARY_CONTENT_ALREADY_EXISTS,
+        ErrorCode.BINARY_CONTENT_NOT_FOUND,
         Map.of(
             "binaryContentId", binaryContentId
         ));

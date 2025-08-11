@@ -1,35 +1,52 @@
 package com.sprint.mission.discodeit.exception;
 
+import java.util.Map;
 import java.util.NoSuchElementException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-  @ExceptionHandler(IllegalArgumentException.class)
-  public ResponseEntity<String> handleException(IllegalArgumentException e) {
-    e.printStackTrace();
-    return ResponseEntity
-        .status(HttpStatus.BAD_REQUEST)
-        .body(e.getMessage());
-  }
+//  @ExceptionHandler(IllegalArgumentException.class)
+//  public ResponseEntity<String> handleException(IllegalArgumentException e) {
+//    e.printStackTrace();
+//    return ResponseEntity
+//        .status(HttpStatus.BAD_REQUEST)
+//        .body(e.getMessage());
+//  }
+//
+//  @ExceptionHandler(NoSuchElementException.class)
+//  public ResponseEntity<String> handleException(NoSuchElementException e) {
+//    e.printStackTrace();
+//    return ResponseEntity
+//        .status(HttpStatus.NOT_FOUND)
+//        .body(e.getMessage());
+//  }
 
-  @ExceptionHandler(NoSuchElementException.class)
-  public ResponseEntity<String> handleException(NoSuchElementException e) {
-    e.printStackTrace();
-    return ResponseEntity
-        .status(HttpStatus.NOT_FOUND)
-        .body(e.getMessage());
+  @ExceptionHandler(DiscodeitException.class)
+  public ResponseEntity<ErrorResponse> handleException(DiscodeitException e) {
+    ErrorResponse errorResponse = new ErrorResponse(e);
+    return new ResponseEntity<>(errorResponse, e.getErrorCode().getStatus());
   }
 
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<String> handleException(Exception e) {
-    e.printStackTrace();
-    return ResponseEntity
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body(e.getMessage());
+  public ResponseEntity<ErrorResponse> handleException(Exception e) {
+    log.error("An unexpected error occurred: ", e);
+
+    final ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
+    final ErrorResponse errorResponse = new ErrorResponse(
+        errorCode.getCode(),
+        errorCode.getMessage(),
+        Map.of(), // Don't expose internal details
+        e.getClass().getSimpleName(),
+        errorCode.getStatus().value()
+    );
+
+    return new ResponseEntity<>(errorResponse, errorCode.getStatus());
   }
 }

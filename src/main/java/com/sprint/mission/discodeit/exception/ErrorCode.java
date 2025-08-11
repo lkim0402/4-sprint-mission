@@ -1,7 +1,9 @@
 package com.sprint.mission.discodeit.exception;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+@Getter
 public enum ErrorCode {
   //Auth
   AUTHENTICATION_FAILED(HttpStatus.CONFLICT, "A001", "Login attempt failed."),
@@ -37,7 +39,12 @@ public enum ErrorCode {
 
   // binaryContent
   BINARY_CONTENT_NOT_FOUND(HttpStatus.NOT_FOUND, "B001",
-      "The request binary content was not found.");
+      "The requested binary content was not found."),
+  BINARY_CONTENT_ALREADY_EXISTS(HttpStatus.CONFLICT, "B002",
+      "The requested binary content already exists"),
+
+  // etc
+  INTERNAL_SERVER_ERROR(HttpStatus.BAD_GATEWAY, "I001", "Internal server error.");
 
   private final HttpStatus status;
   private final String code;
