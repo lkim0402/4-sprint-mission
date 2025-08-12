@@ -67,8 +67,10 @@ public class BasicMessageService implements MessageService {
 
           BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
               contentType);
-          binaryContentRepository.save(binaryContent);
-          binaryContentStorage.put(binaryContent.getId(), bytes);
+
+          // added this
+          BinaryContent savedBinaryContent = binaryContentRepository.save(binaryContent);
+          binaryContentStorage.put(savedBinaryContent.getId(), bytes);
           return binaryContent;
         })
         .toList();
