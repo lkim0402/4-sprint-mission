@@ -19,6 +19,8 @@ public enum ErrorCode {
       "Private channel details cannot be updated."),
   USER_ALREADY_IN_CHANNEL(HttpStatus.CONFLICT, "C003", "User already exists in channel"),
   USER_NOT_IN_CHANNEL(HttpStatus.CONFLICT, "C004", "User does not exist in channel"),
+  CHANNEL_WITH_NAME_ALREADY_EXISTS(HttpStatus.CONFLICT, "C005",
+      "Channel with that name already exists"),
 
   // Message
   MESSAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "M001", "The requested channel was not found."),

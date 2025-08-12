@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.channel.ChannelUpdatePrivateChannelException;
+import com.sprint.mission.discodeit.exception.channel.ChannelWithNameAlreadyExistsException;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -27,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class BasicChannelService implements ChannelService {
 
   private final ChannelRepository channelRepository;
-  //
   private final ReadStatusRepository readStatusRepository;
   private final MessageRepository messageRepository;
   private final UserRepository userRepository;
@@ -37,6 +37,12 @@ public class BasicChannelService implements ChannelService {
   @Override
   public ChannelDto create(PublicChannelCreateRequest request) {
     String name = request.name();
+
+    // cannot make channels with the same name
+    if (channelRepository.existsByName(name)) {
+      throw new ChannelWithNameAlreadyExistsException(name);
+    }
+
     String description = request.description();
     Channel channel = new Channel(ChannelType.PUBLIC, name, description);
 
