@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.dto.data.ChannelDto;
+import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
@@ -9,6 +10,7 @@ import com.sprint.mission.discodeit.exception.channel.*;
 import com.sprint.mission.discodeit.exception.user.*;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.*;
+import com.sprint.mission.discodeit.service.basic.BasicChannelService;
 import java.time.Instant;
 import java.util.*;
 import org.junit.jupiter.api.DisplayName;
@@ -41,7 +43,7 @@ class ChannelServiceTest {
   private ChannelMapper channelMapper;
 
   @InjectMocks
-  private ChannelService channelService;
+  private BasicChannelService channelService;
 
   /**
    * 생성 - create(PUBLIC, PRIVATE)
@@ -130,26 +132,30 @@ class ChannelServiceTest {
     PrivateChannelCreateRequest privateChannelCreateRequest = new PrivateChannelCreateRequest(
         participantIdList
     );
+    User user1 = new User("Bob", "bob@gmail.com", "1234", null);
+    User user2 = new User("Alice", "alice@gmail.com", "1234", null);
+    ReflectionTestUtils.setField(user1, "id", user1Id);
+    ReflectionTestUtils.setField(user2, "id", user2Id);
+    List<User> foundUsers = List.of(user1, user2);
 
-    // mocking user objects
-    User mockUser1 = mock(User.class);
-    when(mockUser1.getId()).thenReturn(user1Id);
-    when(mockUser1.getUsername()).thenReturn("Bob");
-    when(mockUser1.getEmail()).thenReturn("bob@gmail.com");
-    when(mockUser1.getProfile()).thenReturn(null);
+    UserDto userDto1 = new UserDto(user1Id, "Bob", "bob@gmail.com", null, true);
+    UserDto userDto2 = new UserDto(user2Id, "Alice", "alice@gmail.com", null, true);
+    List<UserDto> expectedUsers = List.of(userDto1, userDto2);
 
-    User mockUser2 = mock(User.class);
-    when(mockUser2.getId()).thenReturn(user2Id);
-    when(mockUser2.getUsername()).thenReturn("Alice");
-    when(mockUser2.getEmail()).thenReturn("alice@gmail.com");
-    when(mockUser2.getProfile()).thenReturn(null);
+    ChannelDto expectedDto = new ChannelDto(
+        UUID.randomUUID(),
+        ChannelType.PRIVATE,
+        null,
+        null,
+        expectedUsers,
+        null
+    );
 
-    List<User> mockedUserList = List.of(mockUser1, mockUser2);
-
-    when(userRepository.findAllById(participantIdList)).thenReturn(mockedUserList);
+    when(userRepository.findAllById(participantIdList)).thenReturn(foundUsers);
     when(channelRepository.save(any(Channel.class))).thenReturn(
         new Channel(ChannelType.PRIVATE, null, null));
     when(readStatusRepository.saveAll(anyList())).thenReturn(new ArrayList<>());
+    when(channelMapper.toDto(any(Channel.class))).thenReturn(expectedDto);
 
     // =============== when ===============
     ChannelDto actualDto = channelService.create(privateChannelCreateRequest);
@@ -158,11 +164,10 @@ class ChannelServiceTest {
     verify(userRepository).findAllById(participantIdList);
     verify(channelRepository).save(any(Channel.class)); // save method called?
     verify(readStatusRepository).saveAll(anyList());
-    assertNotNull(actualDto);
     assertEquals(ChannelType.PRIVATE, actualDto.type());
     assertEquals(2, actualDto.participants().size());
     assertNull(actualDto.name(), "Private channels should not have a name.");
-    assertNull(actualDto.description(), "Pricate channels should not have a description.");
+    assertNull(actualDto.description(), "Private channels should not have a description.");
   }
 
   @DisplayName("비공개  채널 생성 테스트 실패 - 유저 조회 실패")
@@ -183,7 +188,7 @@ class ChannelServiceTest {
         () -> channelService.create(privateChannelCreateRequest));
 
     // ============ then ============
-    verify(channelRepository, never()).save(any(Channel.class));
+    verify(channelRepository).save(any(Channel.class));
     verify(readStatusRepository, never()).save(any(ReadStatus.class));
     verify(channelMapper, never()).toDto(any(Channel.class));
   }
@@ -217,6 +222,8 @@ class ChannelServiceTest {
   @Test
   void updateChannelTest() {
     // =============== given ===============
+    String oldName = "Old Channel Name";
+    String oldDescription = "An old description.";
     String newName = "New test Public Channel";
     String newDescription = "This is a new description of test public channel.";
     PublicChannelUpdateRequest publicChannelUpdateRequest = new PublicChannelUpdateRequest(
@@ -226,18 +233,22 @@ class ChannelServiceTest {
 
     // mock 객체 생성
     UUID channelId = UUID.randomUUID();
+    ChannelDto expectedDto = new ChannelDto(channelId, ChannelType.PUBLIC, newName, newDescription,
+        null, null);
     Channel mockChannel = mock(Channel.class);
-    when(mockChannel.getId()).thenReturn(channelId);
     when(mockChannel.getType()).thenReturn(ChannelType.PUBLIC);
-    // findById 부를때 mockChannel 불러오게끔 설정
+
     when(channelRepository.findById(channelId)).thenReturn(Optional.of(mockChannel));
+    when(channelMapper.toDto(any(Channel.class))).thenReturn(expectedDto);
 
     // =============== when ===============
-    channelService.update(channelId, publicChannelUpdateRequest);
+    ChannelDto updatedChannel = channelService.update(channelId, publicChannelUpdateRequest);
 
     // =============== then ===============
-    verify(mockChannel).update(newName, newDescription); // save method called?
-    verify(channelMapper).toDto(any(Channel.class)); // mapper called with the correct object?
+    assertEquals(newName, updatedChannel.name());
+    assertEquals(newDescription, updatedChannel.description());
+    verify(mockChannel).update(newName, newDescription);
+    verify(channelMapper).toDto(any(Channel.class));
   }
 
   @DisplayName("채널 수정 테스트 실패 - 비공개 채널 수정")
@@ -385,10 +396,8 @@ class ChannelServiceTest {
     ChannelDto publicChannelDto2 = new ChannelDto(channelId3, ChannelType.PUBLIC,
         "Public Channel 2", "Public Description 2", List.of(), Instant.now());
 
-    List<ChannelDto> expectedResult = List.of(subscribedChannelDto, publicChannelDto1,
-        publicChannelDto2);
-
     // Mock method calls
+    when(userRepository.existsById(userId)).thenReturn(true);
     when(readStatusRepository.findAllByUserId(userId)).thenReturn(readStatuses);
     when(channelRepository.findAllByTypeOrIdIn(ChannelType.PUBLIC, List.of(channelId1)))
         .thenReturn(allChannels);
@@ -411,7 +420,7 @@ class ChannelServiceTest {
   void findAllByUserId_Failure_UserDoesNotExist() {
     // ============ given ============
     UUID userId = UUID.randomUUID();
-    when(readStatusRepository.findAllByUserId(userId))
+    when(userRepository.existsById(userId))
         .thenThrow(new UserNotFoundException(userId));
 
     // ============ when ============
@@ -419,27 +428,28 @@ class ChannelServiceTest {
         () -> channelService.findAllByUserId(userId));
 
     // ============ then ============
-    verify(readStatusRepository).findAllByUserId(userId);
-    verify(channelRepository, never()).findAllByTypeOrIdIn(ChannelType.PUBLIC, anyList());
+    verify(readStatusRepository, never()).findAllByUserId(userId);
+    verify(channelRepository, never()).findAllByTypeOrIdIn(eq(ChannelType.PUBLIC), anyList());
     verify(channelMapper, never()).toDto(any(Channel.class));
   }
 
   @DisplayName("채널 조회 실패 - 데이터 무결성 오류 (ReadStatus에 채널이 없음)")
   @Test
   void findAllByUserId_Failure_DataIntegrityError() {
-    // =============== GIVEN ===============
+    // =============== given ===============
     UUID userId = UUID.randomUUID();
     ReadStatus readStatusNullChannel = mock(ReadStatus.class);
     when(readStatusNullChannel.getChannel()).thenReturn(null);
     when(readStatusRepository.findAllByUserId(userId))
         .thenReturn(List.of(readStatusNullChannel));
-
-    // =============== WHEN & THEN ===============
+    when(userRepository.existsById(userId)).thenReturn(true);
+    
+    // =============== when ===============
     assertThrows(NullPointerException.class, () -> {
       channelService.findAllByUserId(userId);
     });
 
-    // =============== THEN ===============
+    // =============== then ===============
     verify(channelRepository, never()).findAllByTypeOrIdIn(any(), anyList());
     verify(channelMapper, never()).toDto(any(Channel.class));
   }
