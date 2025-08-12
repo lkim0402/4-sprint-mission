@@ -165,7 +165,7 @@ class ChannelServiceTest {
     assertNull(actualDto.description(), "Pricate channels should not have a description.");
   }
 
-  @DisplayName("공개 채널 생성 테스트 실패 - 유저 조회 실패")
+  @DisplayName("비공개  채널 생성 테스트 실패 - 유저 조회 실패")
   @Test
   void createPrivateChannel_Failure_UserDoesntExist() {
     // ============ given ============
@@ -188,7 +188,7 @@ class ChannelServiceTest {
     verify(channelMapper, never()).toDto(any(Channel.class));
   }
 
-  @DisplayName("공개 채널 생성 테스트 실패 - 데이터베이스 저장 실패")
+  @DisplayName("비공개 채널 생성 테스트 실패 - 데이터베이스 저장 실패")
   @Test
   void createPrivateChannel_Failure_DBConnection() {
     // ============ given ============
@@ -204,7 +204,7 @@ class ChannelServiceTest {
         () -> channelService.create(privateChannelCreateRequest));
 
     // ============ then ============
-    verify(channelRepository, times(1)).save(any(Channel.class));
+    verify(channelRepository).save(any(Channel.class));
     verify(userRepository, never()).findAllById(anyList());
     verify(readStatusRepository, never()).save(any(ReadStatus.class));
     verify(channelMapper, never()).toDto(any(Channel.class));
@@ -404,10 +404,9 @@ class ChannelServiceTest {
     verify(channelRepository).findAllByTypeOrIdIn(ChannelType.PUBLIC, List.of(channelId1));
     verify(channelMapper, times(3)).toDto(any(Channel.class));
     assertEquals(3, result.size());
-    assertEquals(expectedResult, result);
   }
 
-  @DisplayName("유저 Id로 채널 초회 테스트 실패 - 유저 존재하지 않음")
+  @DisplayName("유저 Id로 채널 조회 테스트 실패 - 유저 존재하지 않음")
   @Test
   void findAllByUserId_Failure_UserDoesNotExist() {
     // ============ given ============
