@@ -1,9 +1,12 @@
 package com.sprint.mission.discodeit.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,6 +15,8 @@ import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.entity.*;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -127,6 +132,60 @@ public class MessageServiceTest {
     verify(binaryContentStorage).put(eq(binaryContentId), eq(fileBytes));
     verify(messageRepository).save(any(Message.class));
     verify(messageMapper).toDto(any(Message.class));
+  }
+
+  @DisplayName("메세지 생성 테스트 실패 - 채널 존재하지 않음")
+  @Test
+  void CreateMessage_Failure_Channel_DoesntExist() {
+    // =============== given ===============
+    UUID channelId = UUID.randomUUID();
+    UUID authorId = UUID.randomUUID();
+    MessageCreateRequest messageCreateRequest = new MessageCreateRequest(
+        "Message Content!",
+        channelId,
+        authorId
+    );
+    when(channelRepository.findById(channelId)).thenReturn(Optional.empty());
+
+    // =============== when ===============
+    assertThrows(ChannelNotFoundException.class,
+        () -> messageService.create(messageCreateRequest, List.of()));
+
+    // =============== then ===============
+    verify(channelRepository).findById(channelId);
+    verify(userRepository, never()).findById(authorId);
+    verify(binaryContentRepository, never()).save(any(BinaryContent.class));
+    verify(binaryContentStorage, never()).put(any(UUID.class), any(byte[].class));
+    verify(messageRepository, never()).save(any(Message.class));
+    verify(messageMapper, never()).toDto(any(Message.class));
+  }
+
+  @DisplayName("메세지 생성 테스트 실패 - 유저 존재하지 않음")
+  @Test
+  void CreateMessage_Failure_User_DoesntExist() {
+    // =============== given ===============
+    UUID channelId = UUID.randomUUID();
+    UUID authorId = UUID.randomUUID();
+    MessageCreateRequest messageCreateRequest = new MessageCreateRequest(
+        "Message Content!",
+        channelId,
+        authorId
+    );
+    when(channelRepository.findById(channelId)).thenReturn(
+        Optional.of(new Channel(ChannelType.PUBLIC, "test", "test description")));
+    when(userRepository.findById(authorId)).thenReturn(Optional.empty());
+
+    // =============== when ===============
+    assertThrows(UserNotFoundException.class,
+        () -> messageService.create(messageCreateRequest, List.of()));
+
+    // =============== then ===============
+    verify(channelRepository).findById(channelId);
+    verify(userRepository).findById(authorId);
+    verify(binaryContentRepository, never()).save(any(BinaryContent.class));
+    verify(binaryContentStorage, never()).put(any(UUID.class), any(byte[].class));
+    verify(messageRepository, never()).save(any(Message.class));
+    verify(messageMapper, never()).toDto(any(Message.class));
   }
 
 }
