@@ -222,33 +222,41 @@ class ChannelServiceTest {
   @Test
   void updateChannelTest() {
     // =============== given ===============
-    String oldName = "Old Channel Name";
-    String oldDescription = "An old description.";
+    UUID channelId = UUID.randomUUID();
+
     String newName = "New test Public Channel";
     String newDescription = "This is a new description of test public channel.";
+    Channel channel = spy(new Channel(
+        ChannelType.PUBLIC,
+        "Old name",
+        "Old description"
+    ));
     PublicChannelUpdateRequest publicChannelUpdateRequest = new PublicChannelUpdateRequest(
         newName,
         newDescription
     );
+    ChannelDto expectedUpdatedChannelDto = new ChannelDto(
+        channelId,
+        ChannelType.PUBLIC,
+        newName,
+        newDescription,
+        null,
+        null
+    );
 
-    // mock 객체 생성
-    UUID channelId = UUID.randomUUID();
-    ChannelDto expectedDto = new ChannelDto(channelId, ChannelType.PUBLIC, newName, newDescription,
-        null, null);
-    Channel mockChannel = mock(Channel.class);
-    when(mockChannel.getType()).thenReturn(ChannelType.PUBLIC);
-
-    when(channelRepository.findById(channelId)).thenReturn(Optional.of(mockChannel));
-    when(channelMapper.toDto(any(Channel.class))).thenReturn(expectedDto);
+    when(channelRepository.findById(channelId)).thenReturn(Optional.of(channel));
+    when(channelMapper.toDto(any(Channel.class))).thenReturn(expectedUpdatedChannelDto);
 
     // =============== when ===============
-    ChannelDto updatedChannel = channelService.update(channelId, publicChannelUpdateRequest);
+    ChannelDto updatedChannelDto = channelService.update(channelId, publicChannelUpdateRequest);
 
     // =============== then ===============
-    assertEquals(newName, updatedChannel.name());
-    assertEquals(newDescription, updatedChannel.description());
-    verify(mockChannel).update(newName, newDescription);
-    verify(channelMapper).toDto(any(Channel.class));
+    assertEquals(expectedUpdatedChannelDto, updatedChannelDto);
+    assertEquals(newName, updatedChannelDto.name());
+    assertEquals(newDescription, updatedChannelDto.description());
+    verify(channel).update(newName, newDescription);
+    // can pass channel because object reference after update stays the same
+    verify(channelMapper).toDto(channel);
   }
 
   @DisplayName("채널 수정 테스트 실패 - 비공개 채널 수정")
@@ -421,7 +429,7 @@ class ChannelServiceTest {
     // ============ given ============
     UUID userId = UUID.randomUUID();
     when(userRepository.existsById(userId))
-        .thenThrow(new UserNotFoundException(userId));
+        .thenReturn(false);
 
     // ============ when ============
     assertThrows(UserNotFoundException.class,
@@ -443,7 +451,7 @@ class ChannelServiceTest {
     when(readStatusRepository.findAllByUserId(userId))
         .thenReturn(List.of(readStatusNullChannel));
     when(userRepository.existsById(userId)).thenReturn(true);
-    
+
     // =============== when ===============
     assertThrows(NullPointerException.class, () -> {
       channelService.findAllByUserId(userId);
