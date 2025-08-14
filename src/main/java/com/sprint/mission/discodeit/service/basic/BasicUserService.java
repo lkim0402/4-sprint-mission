@@ -39,6 +39,7 @@ public class BasicUserService implements UserService {
   @Override
   public UserDto create(UserCreateRequest userCreateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
+
     String username = userCreateRequest.username();
     String email = userCreateRequest.email();
 
@@ -51,8 +52,8 @@ public class BasicUserService implements UserService {
           byte[] bytes = profileRequest.bytes();
           BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
               contentType);
-          binaryContentRepository.save(binaryContent);
-          binaryContentStorage.put(binaryContent.getId(), bytes);
+          BinaryContent savedBinaryContent = binaryContentRepository.save(binaryContent);
+          binaryContentStorage.put(savedBinaryContent.getId(), bytes);
           return binaryContent;
         })
         .orElse(null);
@@ -61,6 +62,7 @@ public class BasicUserService implements UserService {
     User user = new User(username, email, password, nullableProfile);
     Instant now = Instant.now();
     UserStatus userStatus = new UserStatus(user, now);
+//    userStatusRepository.save(userStatus);
 
     userRepository.save(user);
     return userMapper.toDto(user);
@@ -103,6 +105,7 @@ public class BasicUserService implements UserService {
               contentType);
           binaryContentRepository.save(binaryContent);
           binaryContentStorage.put(binaryContent.getId(), bytes);
+
           return binaryContent;
         })
         .orElse(null);
@@ -116,7 +119,7 @@ public class BasicUserService implements UserService {
   @Transactional
   @Override
   public void delete(UUID userId) {
-    if (userRepository.existsById(userId)) {
+    if (!userRepository.existsById(userId)) {
       throw new UserNotFoundException(userId);
     }
 
@@ -131,8 +134,8 @@ public class BasicUserService implements UserService {
         throw new DuplicateUsernameException(user.getId());
       });
 
-      userRepository.findByUsername(email).ifPresent(user -> {
-        throw new DuplicateUsernameException(user.getId());
+      userRepository.findByEmail(email).ifPresent(user -> {
+        throw new DuplicateEmailException(user.getId());
       });
     }
   }

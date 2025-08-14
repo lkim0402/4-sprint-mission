@@ -57,25 +57,18 @@ public class MessageServiceTest {
 
   @Mock
   private MessageRepository messageRepository;
-
   @Mock
   private ChannelRepository channelRepository;
-
   @Mock
   private UserRepository userRepository;
-
   @Mock
   private MessageMapper messageMapper;
-
   @Mock
   private BinaryContentStorage binaryContentStorage;
-
   @Mock
   private BinaryContentRepository binaryContentRepository;
-
   @Mock
   private PageResponseMapper pageResponseMapper;
-
   @InjectMocks
   private BasicMessageService messageService;
 
@@ -294,7 +287,7 @@ public class MessageServiceTest {
   }
 
 
-  @DisplayName("메시지 삭제 테스트 실패 - 데이터베이스 저장 실패")
+  @DisplayName("메시지 삭제 테스트 실패 - 데이터베이스 실패")
   @Test
   void deleteMessage_Failure_DBConnection() {
     // ============ given ============
