@@ -19,6 +19,8 @@ spring:
 # logging settings
 logging:
   level:
-    com.example: DEBUG
+    com.sprint: DEBUG
+    org.hibernate.SQL: DEBUG
+
 
 

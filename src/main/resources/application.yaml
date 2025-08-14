@@ -1,6 +1,6 @@
 spring:
-  #  profiles:
-  #    active: dev
+  profiles:
+    active: test
   application:
     name: discodeit
   jpa:
@@ -21,8 +21,6 @@ discodeit:
 logging:
   level:
     root: INFO
-    org.springframework: WARN
-    org.hibernate: WARN
 
 # actuator
 management:
