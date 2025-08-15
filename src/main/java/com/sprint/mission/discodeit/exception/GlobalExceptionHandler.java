@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.exception;
 
+import jakarta.servlet.ServletException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -23,24 +24,21 @@ public class GlobalExceptionHandler {
     return new ResponseEntity<>(errorResponse, e.getErrorCode().getStatus());
   }
 
-  @ExceptionHandler(MissingServletRequestPartException.class)
-  public ResponseEntity<ErrorResponse> handleException(MissingServletRequestPartException e) {
-    log.warn("Required request part is missing: {}", e.getRequestPartName());
-
-    // get the detailed error message
-    String message = "Required part '" + e.getRequestPartName() + "' is not present.";
+  //
+  @ExceptionHandler(ServletException.class)
+  public ResponseEntity<ErrorResponse> handleServletException(ServletException e) {
+    log.warn("Servlet exception occurred: {}", e.getMessage());
 
     ErrorCode errorCode = ErrorCode.BAD_REQUEST;
     final ErrorResponse errorResponse = new ErrorResponse(
         errorCode.getCode(),
-        message, // Use the specific message
-        Map.of("missingPart", e.getRequestPartName()),
+        e.getMessage(),
+        Map.of("exceptionType", e.getClass().getSimpleName()),
         e.getClass().getSimpleName(),
         errorCode.getStatus().value()
     );
     return new ResponseEntity<>(errorResponse, errorCode.getStatus());
   }
-
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ErrorResponse> handleException(MethodArgumentNotValidException e) {

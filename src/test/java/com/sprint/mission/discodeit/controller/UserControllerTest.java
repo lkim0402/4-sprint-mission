@@ -52,7 +52,7 @@ public class UserControllerTest {
 
 
   /**
-   * POST
+   * POST - create
    *
    * @throws Exception
    */
@@ -136,7 +136,7 @@ public class UserControllerTest {
   }
 
   /**
-   * PATCH
+   * PATCH - edit
    *
    * @throws Exception
    */
@@ -260,7 +260,7 @@ public class UserControllerTest {
    */
   @DisplayName("유저 삭제 테스트 실패")
   @Test
-  void deleteUser_returnsUserDto() throws Exception {
+  void deleteUser_returnsVoid() throws Exception {
     // ================== given ==================
     UUID userId = UUID.randomUUID();
     doNothing().when(userService).delete(userId);
@@ -270,7 +270,7 @@ public class UserControllerTest {
         .andExpect(status().isNoContent());
   }
 
-  @DisplayName("유저 삭제 테스트 실패 - 잘못된 요청")
+  @DisplayName("유저 삭제 테스트 실패 - 유저 존재하지 않음")
   @Test
   void deleteUser_userNotFound_Failure() throws Exception {
     // ================== given ==================

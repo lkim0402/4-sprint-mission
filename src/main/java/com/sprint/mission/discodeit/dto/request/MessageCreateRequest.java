@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.dto.request;
 
-import com.sprint.mission.discodeit.validator.ValidUUID;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -12,11 +11,9 @@ public record MessageCreateRequest(
     String content,
 
     @NotNull(message = "채널 ID는 필수입니다.")
-    @ValidUUID
     UUID channelId,
 
     @NotNull(message = "작성자 ID는 필수입니다.")
-    @ValidUUID
     UUID authorId
 ) {
 

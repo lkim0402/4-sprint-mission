@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.dto.request;
 
-import com.sprint.mission.discodeit.validator.ValidUUID;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import java.time.Instant;
@@ -8,7 +7,6 @@ import java.util.UUID;
 
 public record UserStatusCreateRequest(
     @NotNull(message = "User ID는 필수입니다.")
-    @ValidUUID
     UUID userId,
 
     @NotNull(message = "마지막 활동 시간은 필수입니다.")
