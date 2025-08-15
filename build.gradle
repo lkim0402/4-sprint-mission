@@ -46,7 +46,9 @@ dependencies {
 
     // testing
     testRuntimeOnly 'com.h2database:h2'
-//    compile 'com.h2database:h2:1.4.199' // dialect
+
+    // gson for controller testing
+    implementation 'com.google.code.gson:gson'
 }
 
 tasks.named('test') {

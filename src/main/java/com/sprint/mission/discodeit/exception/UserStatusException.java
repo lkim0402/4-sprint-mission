@@ -5,9 +5,8 @@ import java.util.Map;
 
 public class UserStatusException extends DiscodeitException {
 
-  public UserStatusException(Instant timestamp, ErrorCode errorCode,
-      Map<String, Object> details) {
-    super(timestamp, errorCode, details);
+  public UserStatusException(Instant timestamp, ErrorCode errorCode, Map<String, Object> details) {
+    super(errorCode.getMessage(), timestamp, errorCode, details);
   }
 
 }

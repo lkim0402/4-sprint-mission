@@ -2,11 +2,14 @@ package com.sprint.mission.discodeit.exception;
 
 import java.time.Instant;
 import java.util.Map;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
  * The template for your JSON error message to send back to the client
  */
+@Getter
+@AllArgsConstructor // <-- This annotation creates the constructor you need
 public class ErrorResponse {
 
   private final Instant timestamp = Instant.now();
@@ -23,21 +26,6 @@ public class ErrorResponse {
     this.details = e.getDetails();
     this.exceptionType = e.getClass().getSimpleName();
     this.status = e.getErrorCode().getStatus().value();
-  }
-
-  // for non-custom ErrorResponses
-  public ErrorResponse(
-      String code,
-      String message,
-      Map<String, Object> details,
-      String exceptionType,
-      int status
-  ) {
-    this.code = code;
-    this.message = message;
-    this.details = details;
-    this.exceptionType = exceptionType;
-    this.status = status;
   }
 
 }

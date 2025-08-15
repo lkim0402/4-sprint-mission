@@ -5,8 +5,7 @@ import java.util.Map;
 
 public class ChannelException extends DiscodeitException {
 
-  public ChannelException(Instant timestamp, ErrorCode errorCode,
-      Map<String, Object> details) {
-    super(timestamp, errorCode, details);
+  public ChannelException(Instant timestamp, ErrorCode errorCode, Map<String, Object> details) {
+    super(errorCode.getMessage(), timestamp, errorCode, details);
   }
 }
