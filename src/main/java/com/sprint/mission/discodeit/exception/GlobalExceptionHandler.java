@@ -78,21 +78,4 @@ public class GlobalExceptionHandler {
 
     return new ResponseEntity<>(errorResponse, errorCode.getStatus());
   }
-
-//  @ExceptionHandler(IllegalArgumentException.class)
-//  public ResponseEntity<String> handleException(IllegalArgumentException e) {
-//    e.printStackTrace();
-//    return ResponseEntity
-//        .status(HttpStatus.BAD_REQUEST)
-//        .body(e.getMessage());
-//  }
-//
-//  @ExceptionHandler(NoSuchElementException.class)
-//  public ResponseEntity<String> handleException(NoSuchElementException e) {
-//    e.printStackTrace();
-//    return ResponseEntity
-//        .status(HttpStatus.NOT_FOUND)
-//        .body(e.getMessage());
-//  }
-
 }
