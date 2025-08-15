@@ -15,7 +15,6 @@ import com.sprint.mission.discodeit.exception.channel.ChannelUpdatePrivateChanne
 import com.sprint.mission.discodeit.exception.channel.ChannelWithNameAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
-import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.List;
@@ -47,7 +46,6 @@ public class ChannelIntegrationTest {
   @Transactional
   void CreatePublicChannelAndSavesChannel() {
     // ================== given ==================
-
     String name = "new Channel";
     String description = "This is new channel";
     PublicChannelCreateRequest channelCreateRequestDto = new PublicChannelCreateRequest(
@@ -240,12 +238,12 @@ public class ChannelIntegrationTest {
   }
 
   /**
-   * Delete
+   * DELETE
    */
   @DisplayName("채널 삭제 테스트")
   @Test
   @Transactional
-  void deleteChannelChannelDoesNotExist_Failure() {
+  void deleteChannel() {
     // ================== given ==================
     // create & save channel that we will edit
     String name = "new Channel";
@@ -262,14 +260,15 @@ public class ChannelIntegrationTest {
     channelService.delete(channelDto.id());
 
     // ================== then ==================
-    Optional<Channel> updatedChannel = channelRepository.findById(channelDto.id());
-    assertThat(updatedChannel).isEmpty();
+    Optional<Channel> deletedChannel = channelRepository.findById(channelDto.id());
+    assertThat(deletedChannel).isEmpty();
   }
 
   @DisplayName("채널 삭제 실패 - 채널 존재하지 않음")
   @Test
   @Transactional
-  void deleteChannel() {
+  void deleteChannelChannelDoesNotExist_Failure() {
+
     // ================== given ==================
     UUID nonExistentChannelId = UUID.randomUUID();
 
