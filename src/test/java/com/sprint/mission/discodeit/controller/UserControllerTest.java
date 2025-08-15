@@ -111,7 +111,9 @@ public class UserControllerTest {
             .file(profilePart))         // Add the file part
         .andExpect(status().isCreated()) // Check for 201 Created status
         .andExpect(jsonPath("$.username").value("Bob")) // Also check the response body
-        .andExpect(jsonPath("$.email").value("bob@gmail.com"));
+        .andExpect(jsonPath("$.email").value("bob@gmail.com"))
+        .andExpect(jsonPath("$.profile").exists())
+        .andExpect(jsonPath("$.online").value(true));
   }
 
   @DisplayName("유저 생성 테스트 실패 - 잘못된 요청")
@@ -194,7 +196,10 @@ public class UserControllerTest {
             .file(profilePart))         // Add the file part
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.username").value("Bob")) // Also check the response body
-        .andExpect(jsonPath("$.email").value("bob@gmail.com"));
+        .andExpect(jsonPath("$.email").value("bob@gmail.com"))
+        .andExpect(jsonPath("$.profile").exists())
+        .andExpect(jsonPath("$.online").value(true));
+
   }
 
   @DisplayName("유저 수정 테스트 실패 - 잘못된 요청")

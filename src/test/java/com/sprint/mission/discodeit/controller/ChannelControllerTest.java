@@ -90,7 +90,8 @@ public class ChannelControllerTest {
         .andExpect(jsonPath("$.type").value((ChannelType.PUBLIC).toString()))
         .andExpect(jsonPath("$.name").value(name))
         .andExpect(jsonPath("$.description").value(description))
-        .andExpect(jsonPath("$.participants").isEmpty());
+        .andExpect(jsonPath("$.participants").isEmpty())
+        .andExpect(jsonPath("$.lastMessageAt").exists());
   }
 
   @DisplayName("공개 채널 생성 실패 - invalid channel name")
@@ -185,7 +186,10 @@ public class ChannelControllerTest {
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.type").value((ChannelType.PRIVATE).toString()))
         .andExpect(jsonPath("$.name").isEmpty())
-        .andExpect(jsonPath("$.description").isEmpty());
+        .andExpect(jsonPath("$.description").isEmpty())
+        .andExpect(jsonPath("$.participants", hasSize(2)))
+        .andExpect(jsonPath("$.lastMessageAt").exists());
+
   }
 
   @DisplayName("비공개 채널 생성 실패 - invalid number of participants")
@@ -253,7 +257,8 @@ public class ChannelControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.type").value((ChannelType.PUBLIC).toString()))
         .andExpect(jsonPath("$.name").value(newName))
-        .andExpect(jsonPath("$.description").value(newDescription));
+        .andExpect(jsonPath("$.description").value(newDescription))
+        .andExpect(jsonPath("$.participants").isEmpty());
   }
 
   @DisplayName("채널 수정 실패 - 비공개 채널")

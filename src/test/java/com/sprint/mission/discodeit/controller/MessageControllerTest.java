@@ -121,8 +121,13 @@ public class MessageControllerTest {
             .file(image1))
 //        .file(image2) // you can just add more here
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.content").value("Hello!"));
-
+        .andExpect(jsonPath("$.createdAt").exists())
+        .andExpect(jsonPath("$.updatedAt").exists())
+        .andExpect(jsonPath("$.content").value("Hello!"))
+        .andExpect(jsonPath("$.channelId").value(channelId.toString()))
+        .andExpect(jsonPath("$.attachments", hasSize(1)))
+        .andExpect(jsonPath("$.attachments[0].fileName").value("image1"))
+        .andExpect(jsonPath("$.attachments[0].contentType").value(MediaType.IMAGE_PNG_VALUE));
   }
 
   @DisplayName("메세지 생성 실패 - Validation error")
@@ -203,6 +208,7 @@ public class MessageControllerTest {
     // ================== given ==================
 
     UUID messageId = UUID.randomUUID();
+    UUID channelId = UUID.randomUUID();
     // ====== The DTOs we will send
     MessageUpdateRequest messageUpdateRequest = new MessageUpdateRequest(
         "New Content"
@@ -210,11 +216,11 @@ public class MessageControllerTest {
 
     // ====== The DTO that the mocked service will return
     MessageDto mockResponseDto = new MessageDto(
-        UUID.randomUUID(),
+        messageId,
         Instant.now(),
         Instant.now(),
         "New Content",
-        UUID.randomUUID(),
+        channelId,
         mock(UserDto.class),
         null
     );
@@ -228,7 +234,11 @@ public class MessageControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(messageUpdateRequest)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.content").value("New Content"));
+        .andExpect(jsonPath("$.createdAt").exists())
+        .andExpect(jsonPath("$.updatedAt").exists())
+        .andExpect(jsonPath("$.content").value("New Content"))
+        .andExpect(jsonPath("$.channelId").value(channelId.toString()));
+
   }
 
   @DisplayName("메세지 수정 실패 - Validation Error")
