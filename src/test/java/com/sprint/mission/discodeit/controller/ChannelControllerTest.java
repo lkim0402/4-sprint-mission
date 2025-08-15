@@ -120,7 +120,7 @@ public class ChannelControllerTest {
     when(channelService.create(any(PublicChannelCreateRequest.class)))
         .thenReturn(mockResponseDto);
 
-    // ================== when & ==================
+    // ================== when & then ==================
 
     mockMvc.perform(post("/api/channels/public")
             // @RequestBody
@@ -177,7 +177,7 @@ public class ChannelControllerTest {
     when(channelService.create(any(PrivateChannelCreateRequest.class)))
         .thenReturn(mockResponseDto);
 
-    // ================== when & ==================
+    // ================== when & then ==================
 
     mockMvc.perform(post("/api/channels/private")
             // @RequestBody

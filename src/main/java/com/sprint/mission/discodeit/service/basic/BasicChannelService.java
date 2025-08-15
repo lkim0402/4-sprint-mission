@@ -57,6 +57,12 @@ public class BasicChannelService implements ChannelService {
     Channel channel = new Channel(ChannelType.PRIVATE, null, null);
     channelRepository.save(channel);
 
+    for (UUID id : request.participantIds()) {
+      if (!userRepository.existsById(id)) {
+        throw new UserNotFoundException(id);
+      }
+    }
+
     List<ReadStatus> readStatuses = userRepository.findAllById(request.participantIds()).stream()
         .map(user -> new ReadStatus(user, channel, channel.getCreatedAt()))
         .toList();
