@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Transactional
 public class ChannelIntegrationTest {
 
   @Autowired
@@ -43,7 +44,6 @@ public class ChannelIntegrationTest {
    */
   @DisplayName("공개 채널 생성과 저장 테스트")
   @Test
-  @Transactional
   void CreatePublicChannelAndSavesChannel() {
     // ================== given ==================
     String name = "new Channel";
@@ -65,7 +65,6 @@ public class ChannelIntegrationTest {
 
   @DisplayName("채널 생성과 저장 실패 - 채널 이름 중복")
   @Test
-  @Transactional
   void createPublicChannel_withDuplicateName_Failure() {
     // creating & saving channel
     String existingName = "channel name";
@@ -91,7 +90,6 @@ public class ChannelIntegrationTest {
    */
   @DisplayName("비공개 채널 생성과 저장 테스트")
   @Test
-  @Transactional
   void CreatePrivateChannelAndSavesChannel() {
     // ================== given ==================
     User user1 = new User(
@@ -123,7 +121,6 @@ public class ChannelIntegrationTest {
 
   @DisplayName("비공개 채널 생성과 저장 실패 - 유저 존재하지 않음")
   @Test
-  @Transactional
   void createPrivateChannel_withNonExistentUser_Failure() {
     // ================== given ==================
     User validUser = new User(
@@ -149,7 +146,6 @@ public class ChannelIntegrationTest {
    */
   @DisplayName("(공개) 채널 수정과 저장 테스트")
   @Test
-  @Transactional
   void updateChannelAndSavesChannel() {
     // ================== given ==================
     // create & save channel that we will edit
@@ -182,7 +178,6 @@ public class ChannelIntegrationTest {
 
   @DisplayName("(공개) 채널 수정과 저장 실패 - 채널 존재하지 않음")
   @Test
-  @Transactional
   void updateChannelAndSavesChannel_ChannelDoesNotExist_Failure() {
     // ================== given ==================
     String newName = "updated name";
@@ -201,7 +196,6 @@ public class ChannelIntegrationTest {
 
   @DisplayName("(공개) 채널 수정과 저장 실패 - 비공개 채널")
   @Test
-  @Transactional
   void updateChannelAndSavesChannel_ChannelIsPrivate_Failure() {
     // ================== given ==================
     User user1 = new User(
@@ -242,7 +236,6 @@ public class ChannelIntegrationTest {
    */
   @DisplayName("채널 삭제 테스트")
   @Test
-  @Transactional
   void deleteChannel() {
     // ================== given ==================
     // create & save channel that we will edit
@@ -266,7 +259,6 @@ public class ChannelIntegrationTest {
 
   @DisplayName("채널 삭제 실패 - 채널 존재하지 않음")
   @Test
-  @Transactional
   void deleteChannelChannelDoesNotExist_Failure() {
 
     // ================== given ==================

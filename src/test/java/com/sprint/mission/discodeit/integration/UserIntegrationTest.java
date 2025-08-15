@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Transactional
 public class UserIntegrationTest {
 
   @Autowired
@@ -36,7 +37,6 @@ public class UserIntegrationTest {
    */
   @DisplayName("유저 생성과 저장 테스트")
   @Test
-  @Transactional
   void CreateUserAndSavesUser() {
     // ================== given ==================
     String username = "Bob";
@@ -58,7 +58,6 @@ public class UserIntegrationTest {
 
   @DisplayName("유저 생성과 저장 실패 - 유저네임 중복")
   @Test
-  @Transactional
   void CreateUserAndSavesUser_DuplicateUsername_Failure() {
     // ================== given ==================
     String username = "Bob";
@@ -83,7 +82,6 @@ public class UserIntegrationTest {
 
   @DisplayName("유저 생성과 저장 실패 - 이매일 중복")
   @Test
-  @Transactional
   void CreateUserAndSavesUser_DuplicateEmail_Failure() {
     // ================== given ==================
     String username = "Bob";
@@ -111,7 +109,6 @@ public class UserIntegrationTest {
    */
   @DisplayName("유저 수정과 저장 테스트")
   @Test
-  @Transactional
   void updateUserAndSavesUser() {
     // ================== given ==================
     // creating & saving the user we will update
@@ -140,7 +137,6 @@ public class UserIntegrationTest {
 
   @DisplayName("유저 수정과 저장 실패 - 유저 존재하지 않음")
   @Test
-  @Transactional
   void updateUserAndSavesUser_UserDoesNotExist_Failure() {
     // ================== given ==================
     UUID nonExistentUserId = UUID.randomUUID();
@@ -162,7 +158,6 @@ public class UserIntegrationTest {
    */
   @DisplayName("유저 삭제 테스트")
   @Test
-  @Transactional
   void deleteUser() {
     // ================== given ==================
     // create & save channel that we will edit
@@ -183,7 +178,6 @@ public class UserIntegrationTest {
 
   @DisplayName("유저 삭제 실패 - 유저 존재하지 않음")
   @Test
-  @Transactional
   void deleteUser_UserNotFound_Failure() {
     // ================== given ==================
     UUID nonExistentUserId = UUID.randomUUID();
