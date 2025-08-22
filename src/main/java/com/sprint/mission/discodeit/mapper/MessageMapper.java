@@ -10,5 +10,4 @@ public interface MessageMapper {
 
   @Mapping(target = "channelId", source = "channel.id")
   MessageDto toDto(Message message);
-
 }

@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,10 +28,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
-@Slf4j
 @RequestMapping("/api/users")
 public class UserController implements UserApi {
 
@@ -45,19 +45,11 @@ public class UserController implements UserApi {
       @RequestPart("userCreateRequest") @Valid UserCreateRequest userCreateRequest,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
-    log.info("POST /api/users 사용자 생성 요청 시작 - username: {}", userCreateRequest.username());
-
+    log.info("사용자 생성 요청: {}", userCreateRequest);
     Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile)
         .flatMap(this::resolveProfileRequest);
-
-    profileRequest.ifPresent(
-        binaryContentCreateRequest -> log.debug("프로필 사진 첨부 확인 & 처리 완료 - 파일명: {}",
-            binaryContentCreateRequest.fileName()));
-
     UserDto createdUser = userService.create(userCreateRequest, profileRequest);
-    log.info("POST /api/users 사용자 생성 성공 - userId: {}, username: {}", createdUser.id(),
-        createdUser.username());
-
+    log.debug("사용자 생성 응답: {}", createdUser);
     return ResponseEntity
         .status(HttpStatus.CREATED)
         .body(createdUser);
@@ -73,22 +65,11 @@ public class UserController implements UserApi {
       @RequestPart("userUpdateRequest") @Valid UserUpdateRequest userUpdateRequest,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
-
-    log.info("PATCH /api/users/{userId} 사용자 수정 요청 시작 - userId: {}", userId);
-
+    log.info("사용자 수정 요청: id={}, request={}", userId, userUpdateRequest);
     Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile)
         .flatMap(this::resolveProfileRequest);
-
-    profileRequest.ifPresent(
-        binaryContentCreateRequest -> log.debug("프로필 사진 첨부 확인 & 처리 완료 - 파일명: {}",
-            binaryContentCreateRequest.fileName()));
-
     UserDto updatedUser = userService.update(userId, userUpdateRequest, profileRequest);
-
-    log.info("PATCH /api/users/{userId} 사용자 수정 성공 - userId: {}, username: {}",
-        updatedUser.id(),
-        updatedUser.username());
-
+    log.debug("사용자 수정 응답: {}", updatedUser);
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(updatedUser);
@@ -97,14 +78,7 @@ public class UserController implements UserApi {
   @DeleteMapping(path = "{userId}")
   @Override
   public ResponseEntity<Void> delete(@PathVariable("userId") UUID userId) {
-    log.info("DELETE /api/users/{userId} 사용자 삭제 요청 시작 - userId: {}",
-        userId);
-
     userService.delete(userId);
-
-    log.info("DELETE /api/users/{userId} 사용자 삭제 성공 - userId: {}",
-        userId);
-
     return ResponseEntity
         .status(HttpStatus.NO_CONTENT)
         .build();
@@ -121,7 +95,8 @@ public class UserController implements UserApi {
 
   @PatchMapping(path = "{userId}/userStatus")
   @Override
-  public ResponseEntity<UserStatusDto> updateUserStatusByUserId(@PathVariable("userId") UUID userId,
+  public ResponseEntity<UserStatusDto> updateUserStatusByUserId(
+      @PathVariable("userId") UUID userId,
       @RequestBody @Valid UserStatusUpdateRequest request) {
     UserStatusDto updatedUserStatus = userStatusService.updateByUserId(userId, request);
     return ResponseEntity
@@ -141,7 +116,6 @@ public class UserController implements UserApi {
         );
         return Optional.of(binaryContentCreateRequest);
       } catch (IOException e) {
-        log.warn("프로필 이미지 처리 중 I/O 오류 발생. filename: {}", profileFile.getOriginalFilename(), e);
         throw new RuntimeException(e);
       }
     }

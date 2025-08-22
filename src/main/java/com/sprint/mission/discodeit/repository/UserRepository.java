@@ -11,13 +11,12 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
   Optional<User> findByUsername(String username);
 
-  Optional<User> findByEmail(String email);
+  boolean existsByEmail(String email);
 
-  boolean existsByUsernameOrEmail(String username, String email);
+  boolean existsByUsername(String username);
 
   @Query("SELECT u FROM User u "
-      + "LEFT JOIN FETCH u.profile " // may not have
+      + "LEFT JOIN FETCH u.profile "
       + "JOIN FETCH u.status")
-    // must have user status
   List<User> findAllWithProfileAndStatus();
 }

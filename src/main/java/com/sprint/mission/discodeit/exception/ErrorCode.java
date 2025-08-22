@@ -1,61 +1,39 @@
 package com.sprint.mission.discodeit.exception;
 
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ErrorCode {
-  //Auth
-  AUTHENTICATION_FAILED(HttpStatus.CONFLICT, "A001", "Login attempt failed."),
+    // User 관련 에러 코드
+    USER_NOT_FOUND("사용자를 찾을 수 없습니다."),
+    DUPLICATE_USER("이미 존재하는 사용자입니다."),
+    INVALID_USER_CREDENTIALS("잘못된 사용자 인증 정보입니다."),
+    
+    // Channel 관련 에러 코드
+    CHANNEL_NOT_FOUND("채널을 찾을 수 없습니다."),
+    PRIVATE_CHANNEL_UPDATE("비공개 채널은 수정할 수 없습니다."),
+    
+    // Message 관련 에러 코드
+    MESSAGE_NOT_FOUND("메시지를 찾을 수 없습니다."),
+    
+    // BinaryContent 관련 에러 코드
+    BINARY_CONTENT_NOT_FOUND("바이너리 컨텐츠를 찾을 수 없습니다."),
+    
+    // ReadStatus 관련 에러 코드
+    READ_STATUS_NOT_FOUND("읽음 상태를 찾을 수 없습니다."),
+    DUPLICATE_READ_STATUS("이미 존재하는 읽음 상태입니다."),
+    
+    // UserStatus 관련 에러 코드
+    USER_STATUS_NOT_FOUND("사용자 상태를 찾을 수 없습니다."),
+    DUPLICATE_USER_STATUS("이미 존재하는 사용자 상태입니다."),
+    
+    // Server 에러 코드
+    INTERNAL_SERVER_ERROR("서버 내부 오류가 발생했습니다."),
+    INVALID_REQUEST("잘못된 요청입니다.");
 
-  // User
-  USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "The requested user was not found."),
-  DUPLICATE_USERNAME(HttpStatus.CONFLICT, "U003", "This username is already in use."),
-  DUPLICATE_EMAIL(HttpStatus.CONFLICT, "U004", "This email is already in use."),
+    private final String message;
 
-  // Channel
-  CHANNEL_NOT_FOUND(HttpStatus.NOT_FOUND, "C001", "The requested channel was not found."),
-  CANNOT_UPDATE_PRIVATE_CHANNEL(HttpStatus.FORBIDDEN, "C002",
-      "Private channel details cannot be updated."),
-  USER_ALREADY_IN_CHANNEL(HttpStatus.CONFLICT, "C003", "User already exists in channel"),
-  USER_NOT_IN_CHANNEL(HttpStatus.CONFLICT, "C004", "User does not exist in channel"),
-  CHANNEL_WITH_NAME_ALREADY_EXISTS(HttpStatus.CONFLICT, "C005",
-      "Channel with that name already exists"),
-
-  // Message
-  MESSAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "M001", "The requested channel was not found."),
-  MESSAGE_ACTION_NOT_PERMITTED(HttpStatus.FORBIDDEN, "M002",
-      "You can only edit or delete your own messages."),
-
-  // ReadStatus
-  READSTATUS_NOT_FOUND(HttpStatus.NOT_FOUND, "M001", "The requested readStatus was not found."),
-  READSTATUS_WITH_USERID_AND_CHANNELID_EXISTS(HttpStatus.CONFLICT, "M002",
-      "The request readStatus already exists with the requested userId and channelId"),
-
-  // UserStatus
-  USERSTATUS_NOT_FOUND(HttpStatus.NOT_FOUND, "US001", "The requested userStatus was not found."),
-  USERSTATUS_WITH_USERID_NOT_FOUND(HttpStatus.NOT_FOUND, "US002",
-      "The requested userStatus with userId was not found."),
-  USERSTATUS_ALREADY_EXISTS(HttpStatus.CONFLICT, "US003",
-      "The requested userStatus already exists"),
-
-  // binaryContent
-  BINARY_CONTENT_NOT_FOUND(HttpStatus.NOT_FOUND, "B001",
-      "The requested binary content was not found."),
-  BINARY_CONTENT_ALREADY_EXISTS(HttpStatus.CONFLICT, "B002",
-      "The requested binary content already exists"),
-
-  // etc
-  INTERNAL_SERVER_ERROR(HttpStatus.BAD_GATEWAY, "E001", "Internal server error."),
-  BAD_REQUEST(HttpStatus.BAD_REQUEST, "E002", "The provided input is not valid.");
-
-  private final HttpStatus status;
-  private final String code;
-  private final String message;
-
-  ErrorCode(HttpStatus status, String code, String message) {
-    this.status = status;
-    this.code = code;
-    this.message = message;
-  }
-}
+    ErrorCode(String message) {
+        this.message = message;
+    }
+} 
