@@ -1,0 +1,35 @@
+services:
+  # looks for dockerfile to get/build image
+  app:
+    build: .
+    ports:
+      - '8081:80'
+    environment:
+      JAVA_OPTS: -Xms256m -Xmx512m
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+    env_file: [ .env ]
+    depends_on:
+      - db
+    volumes:
+      - app-storage:/app/.discodeit/storage
+
+  db:
+    # don't look for dockerfile, instead pull this image
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file: [ .env ]
+    volumes:
+      # MOUNTS the volume
+      # It connects our 'db-data' volume to the '/var/lib/postgresql/data' folder inside the container.
+      - db-data:/var/lib/postgresql/data
+      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+
+volumes:
+  db-data: { }
+  app-storage: { }

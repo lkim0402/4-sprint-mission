@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
@@ -62,7 +63,10 @@ class UserStatusRepositoryTest {
     // then
     assertThat(foundStatus).isPresent();
     assertThat(foundStatus.get().getUser().getId()).isEqualTo(userId);
-    assertThat(foundStatus.get().getLastActiveAt()).isEqualTo(now);
+
+    Instant expectedTime = now.truncatedTo(ChronoUnit.MICROS);
+    assertThat(foundStatus.get().getLastActiveAt())
+        .isCloseTo(expectedTime, within(1, ChronoUnit.MICROS));
   }
 
   @Test

@@ -1,3 +1,8 @@
+### Generated Files and Build Artifacts ###
+/build
+.gradle
+/out
+
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
