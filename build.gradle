@@ -49,6 +49,9 @@ dependencies {
 
     // gson for controller testing
     implementation 'com.google.code.gson:gson'
+
+    // AWS
+    implementation 'software.amazon.awssdk:s3:2.31.7'
 }
 
 tasks.named('test') {
