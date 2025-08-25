@@ -6,9 +6,8 @@ import java.io.InputStream;
 import java.net.URI;
 import java.time.Duration;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
@@ -22,24 +21,29 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
 @ConditionalOnProperty(
-    prefix = "discodeit.storage",
-    name = "type",
+    prefix = "discodeit.storage.type",
     havingValue = "s3"
 )
-@RequiredArgsConstructor
 public class S3BinaryContentStorage implements BinaryContentStorage {
 
   private final String accessKey;
   private final String secretKey;
   private final String region;
   private final String bucket;
+  private final S3Client s3Client;
+
+  public S3BinaryContentStorage(String accessKey, String secretKey, String region, String bucket) {
+    this.accessKey = accessKey;
+    this.secretKey = secretKey;
+    this.region = region;
+    this.bucket = bucket;
+    this.s3Client = getS3Client();
+  }
 
   @Override
   public UUID put(UUID binaryContentId, byte[] bytes) {
 
     try {
-
-      S3Client s3Client = getS3Client();
       String contentType = "application/octet-stream";
 
       PutObjectRequest putReq = PutObjectRequest.builder()
@@ -60,8 +64,6 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
   @Override
   public InputStream get(UUID binaryContentId) {
-    S3Client s3Client = getS3Client();
-
     String key = binaryContentId.toString();
 
     GetObjectRequest getReq = GetObjectRequest.builder()
@@ -103,7 +105,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
   public String generatePresignedUrl(String key, String contentType) {
     S3Presigner presigner = S3Presigner
         .builder()
-        .s3Client(getS3Client())
+        .s3Client(s3Client)
         .build();
 
     // download -> GET

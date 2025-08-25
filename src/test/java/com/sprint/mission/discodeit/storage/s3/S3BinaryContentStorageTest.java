@@ -14,10 +14,12 @@ import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.http.HttpStatus;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -32,24 +34,29 @@ import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(Lifecycle.PER_CLASS)
-public class AWSS3Test {
+public class S3BinaryContentStorageTest {
 
   private S3Client s3Client;
   private S3Presigner s3Presigner;
-  private String bucket; // bucketName
   private final String testFileKey = UUID.randomUUID().toString();
+
+  // from .env files
+  private String bucket; // bucketName
+  private String region;
+  private String accessKey;
+  private String secretKey;
 
   @BeforeAll
   void setup() throws IOException {
     Properties properties = new Properties();
     properties.load(new FileInputStream(".env"));
     bucket = properties.getProperty("AWS_S3_BUCKET");
-
-    // setting up s3Client
-    String region = properties.getProperty("AWS_S3_REGION");
-    String accessKey = properties.getProperty("AWS_S3_ACCESS_KEY");
-    String secretKey = properties.getProperty("AWS_S3_SECRET_KEY");
+    region = properties.getProperty("AWS_S3_REGION");
+    accessKey = properties.getProperty("AWS_S3_ACCESS_KEY");
+    secretKey = properties.getProperty("AWS_S3_SECRET_KEY");
+    // s3Client setup
     s3Client = S3Client.builder()
         .region(Region.of(region))
         .credentialsProvider(
@@ -61,8 +68,7 @@ public class AWSS3Test {
             )
         )
         .build();
-
-    // setting up s3Presigner
+    // presigner setup
     s3Presigner = S3Presigner
         .builder()
         .s3Client(s3Client)
@@ -72,7 +78,7 @@ public class AWSS3Test {
   @Test
   @Order(1)
   @DisplayName("S3 파일 업로드 테스트")
-  void uploadS3Test() {
+  void putToS3Test() {
     // given
     String content = "Hello!";
 
@@ -92,8 +98,32 @@ public class AWSS3Test {
     assertNotNull(putObjectResponse.eTag());
   }
 
+  void putToS3Test_Failure() {
+
+  }
+
   @Test
   @Order(2)
+  @DisplayName("S3 파일 가져오기 테스트")
+  void getFromS3Test() throws IOException {
+    // given
+    String content = "Hello!";
+    byte[] contentBytes = content.getBytes();
+    GetObjectRequest getReq = GetObjectRequest.builder()
+        .bucket(bucket)
+        .key(testFileKey)
+        .build();
+
+    // when
+    ResponseInputStream<GetObjectResponse> s3Object = s3Client.getObject(getReq);
+
+    // then
+    byte[] bytes = s3Object.readAllBytes();
+    assertArrayEquals(bytes, contentBytes);
+  }
+
+  @Test
+  @Order(3)
   @DisplayName("S3 파일 다운로드 테스트")
   void downloadFromS3Test() throws IOException {
     // given
@@ -114,7 +144,29 @@ public class AWSS3Test {
   }
 
   @Test
-  @Order(3)
+  @Order(4)
+  @DisplayName("S3Client 생성 테스트")
+  void generateS3ClientTest() {
+    // when
+    s3Client = S3Client.builder()
+        .region(Region.of(region))
+        .credentialsProvider(
+            StaticCredentialsProvider.create(
+                AwsBasicCredentials.create(
+                    accessKey,
+                    secretKey
+                )
+            )
+        )
+        .build();
+
+    // then
+    assertNotNull(s3Client);
+    assertEquals(Region.of(region), s3Client.serviceClientConfiguration().region());
+  }
+
+  @Test
+  @Order(5)
   @DisplayName("S3 Presigned URL 생성 테스트")
   void generatePresignedUrl() {
     // given
@@ -150,3 +202,4 @@ public class AWSS3Test {
     }
   }
 }
+
