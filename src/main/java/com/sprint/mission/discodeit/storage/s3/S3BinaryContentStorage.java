@@ -95,7 +95,6 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
     return ResponseEntity.status(HttpStatus.FOUND) // Or HttpStatus.SEE_OTHER (303)
         .location(URI.create(presignedUrl))
         .build();
-//    return ResponseEntity.status(302).location(URI.create(presignedUrl)).build();
   }
 
   public S3Client getS3Client() {
