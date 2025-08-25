@@ -44,12 +44,12 @@ public class AWSS3Test {
   void setup() throws IOException {
     Properties properties = new Properties();
     properties.load(new FileInputStream(".env"));
-    bucket = properties.getProperty("AWS_S3_BUCKET");
+    bucket = properties.getProperty("S3_BUCKET_NAME");
 
     // setting up s3Client
-    String region = properties.getProperty("AWS_S3_REGION");
-    String accessKey = properties.getProperty("AWS_S3_ACCESS_KEY");
-    String secretKey = properties.getProperty("AWS_S3_SECRET_KEY");
+    String region = properties.getProperty("AWS_REGION");
+    String accessKey = properties.getProperty("AWS_ACCESS_KEY_ID");
+    String secretKey = properties.getProperty("AWS_SECRET_ACCESS_KEY");
     s3Client = S3Client.builder()
         .region(Region.of(region))
         .credentialsProvider(

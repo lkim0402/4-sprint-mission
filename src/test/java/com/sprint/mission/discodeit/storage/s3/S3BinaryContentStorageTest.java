@@ -52,10 +52,10 @@ public class S3BinaryContentStorageTest {
   void setup() throws IOException {
     Properties properties = new Properties();
     properties.load(new FileInputStream(".env"));
-    bucket = properties.getProperty("AWS_S3_BUCKET");
-    region = properties.getProperty("AWS_S3_REGION");
-    accessKey = properties.getProperty("AWS_S3_ACCESS_KEY");
-    secretKey = properties.getProperty("AWS_S3_SECRET_KEY");
+    bucket = properties.getProperty("S3_BUCKET_NAME");
+    region = properties.getProperty("AWS_REGION");
+    accessKey = properties.getProperty("AWS_ACCESS_KEY_ID");
+    secretKey = properties.getProperty("AWS_SECRET_ACCESS_KEY");
     // s3Client setup
     s3Client = S3Client.builder()
         .region(Region.of(region))

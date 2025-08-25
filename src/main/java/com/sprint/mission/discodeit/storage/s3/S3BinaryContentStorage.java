@@ -2,12 +2,20 @@ package com.sprint.mission.discodeit.storage.s3;
 
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import jakarta.annotation.PostConstruct;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.time.Duration;
+import java.util.Properties;
 import java.util.UUID;
+import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -22,25 +30,28 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
 @ConditionalOnProperty(
-    prefix = "discodeit.storage.type",
+    prefix = "discodeit.storage",
+    name = "type",
     havingValue = "s3"
 )
 @Component
 public class S3BinaryContentStorage implements BinaryContentStorage {
 
-  private final String accessKey;
-  private final String secretKey;
-  private final String region;
   private final String bucket;
   private final S3Client s3Client;
+  private final Long presignedUrlExpiration;
 
-  public S3BinaryContentStorage(String accessKey, String secretKey, String region, String bucket) {
-    this.accessKey = accessKey;
-    this.secretKey = secretKey;
-    this.region = region;
+  public S3BinaryContentStorage(
+      @Value("${discodeit.storage.s3.bucket}") String bucket,
+      @Value("${discodeit.storage.s3.presigned-url-expiration}") Long presignedUrlExpiration
+  ) {
     this.bucket = bucket;
-    this.s3Client = getS3Client();
+    this.presignedUrlExpiration = presignedUrlExpiration;
+
+    // AWS SDK's builder automatically finds credentials and region from the environment
+    this.s3Client = S3Client.builder().build();
   }
+
 
   @Override
   public UUID put(UUID binaryContentId, byte[] bytes) {
@@ -80,28 +91,15 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
   public ResponseEntity<?> download(BinaryContentDto metaData) {
     String key = metaData.id().toString();
     String presignedUrl = generatePresignedUrl(key, metaData.contentType());
-    return ResponseEntity.status(302).location(URI.create(presignedUrl)).build();
+
+    return ResponseEntity.status(HttpStatus.FOUND) // Or HttpStatus.SEE_OTHER (303)
+        .location(URI.create(presignedUrl))
+        .build();
+//    return ResponseEntity.status(302).location(URI.create(presignedUrl)).build();
   }
 
   public S3Client getS3Client() {
-    if (accessKey != null && !accessKey.isBlank()) {
-      return S3Client.builder()
-          .region(Region.of(region))
-          .credentialsProvider(
-              StaticCredentialsProvider.create(
-                  AwsBasicCredentials.create(
-                      accessKey,
-                      secretKey
-                  )
-              )
-          )
-          .build();
-    }
-    // 그렇지 않으면: 기본 체인(환경변수, 프로파일, IAM Role)을 자동 탐색
-    return S3Client.builder()
-        .region(Region.of(region))
-        .credentialsProvider(DefaultCredentialsProvider.create())
-        .build();
+    return S3Client.builder().build();
   }
 
   public String generatePresignedUrl(String key, String contentType) {
@@ -120,7 +118,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
     GetObjectPresignRequest preReq = GetObjectPresignRequest.builder()
         .getObjectRequest(getReq)
-        .signatureDuration(Duration.ofMinutes(5)) // duration
+        .signatureDuration(Duration.ofMinutes(presignedUrlExpiration)) // duration
         .build();
 
     return presigner.presignGetObject(preReq).url().toString();
