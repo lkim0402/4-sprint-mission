@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -24,6 +25,7 @@ import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignReques
     prefix = "discodeit.storage.type",
     havingValue = "s3"
 )
+@Component
 public class S3BinaryContentStorage implements BinaryContentStorage {
 
   private final String accessKey;
