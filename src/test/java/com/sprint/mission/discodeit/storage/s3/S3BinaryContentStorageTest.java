@@ -57,17 +57,8 @@ public class S3BinaryContentStorageTest {
     accessKey = properties.getProperty("AWS_ACCESS_KEY_ID");
     secretKey = properties.getProperty("AWS_SECRET_ACCESS_KEY");
     // s3Client setup
-    s3Client = S3Client.builder()
-        .region(Region.of(region))
-        .credentialsProvider(
-            StaticCredentialsProvider.create(
-                AwsBasicCredentials.create(
-                    accessKey,
-                    secretKey
-                )
-            )
-        )
-        .build();
+    this.s3Client = S3Client.builder().build();
+
     // presigner setup
     s3Presigner = S3Presigner
         .builder()
@@ -96,10 +87,6 @@ public class S3BinaryContentStorageTest {
     assertNotNull(putObjectResponse);
     assertEquals(HttpStatus.OK.value(), putObjectResponse.sdkHttpResponse().statusCode());
     assertNotNull(putObjectResponse.eTag());
-  }
-
-  void putToS3Test_Failure() {
-
   }
 
   @Test

@@ -47,20 +47,7 @@ public class AWSS3Test {
     bucket = properties.getProperty("S3_BUCKET_NAME");
 
     // setting up s3Client
-    String region = properties.getProperty("AWS_REGION");
-    String accessKey = properties.getProperty("AWS_ACCESS_KEY_ID");
-    String secretKey = properties.getProperty("AWS_SECRET_ACCESS_KEY");
-    s3Client = S3Client.builder()
-        .region(Region.of(region))
-        .credentialsProvider(
-            StaticCredentialsProvider.create(
-                AwsBasicCredentials.create(
-                    accessKey,
-                    secretKey
-                )
-            )
-        )
-        .build();
+    this.s3Client = S3Client.builder().build();
 
     // setting up s3Presigner
     s3Presigner = S3Presigner
