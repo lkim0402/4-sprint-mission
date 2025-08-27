@@ -18,6 +18,9 @@ jobs:
           java-version: 17
           distribution: 'temurin'
 
+      - name: 테스트 권한
+        run: chmod +x ./gradlew
+
       - name: 빌드와 테스트
         run: ./gradlew clean build
 
