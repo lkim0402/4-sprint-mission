@@ -5,6 +5,8 @@
 
 /src/main/generated/
 
+.env
+discodeit.env
 
 .gradle
 build/
