@@ -23,7 +23,6 @@ RUN ./gradlew clean build --no-daemon --no-parallel -x test
 
 RUN ls -l /app/build/libs
 
-
 # ============ (2) Runtime ============
 
 FROM ${RUNTIME_IMAGE}
