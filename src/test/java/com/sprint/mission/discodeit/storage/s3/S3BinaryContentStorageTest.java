@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -50,25 +51,19 @@ public class S3BinaryContentStorageTest {
 
   @BeforeAll
   void setup() throws IOException {
-    Properties properties = new Properties();
-    properties.load(new FileInputStream(".env"));
-    bucket = properties.getProperty("S3_BUCKET_NAME");
-    region = properties.getProperty("AWS_REGION");
-    accessKey = properties.getProperty("AWS_ACCESS_KEY_ID");
-    secretKey = properties.getProperty("AWS_SECRET_ACCESS_KEY");
-    // s3Client setup
-//    s3Client = S3Client.builder()
-//        .region(Region.of(region))
-//        .credentialsProvider(
-//            StaticCredentialsProvider.create(
-//                AwsBasicCredentials.create(
-//                    accessKey,
-//                    secretKey
-//                )
-//            )
-//        )
-//        .build();
+//    Properties properties = new Properties();
+//    properties.load(new FileInputStream(".env"));
+//    bucket = properties.getProperty("S3_BUCKET_NAME");
+//    region = properties.getProperty("AWS_REGION");
+//    accessKey = properties.getProperty("AWS_ACCESS_KEY_ID");
+//    secretKey = properties.getProperty("AWS_SECRET_ACCESS_KEY");
 
+    bucket = getConfigValue("S3_BUCKET_NAME");
+    region = getConfigValue("AWS_REGION");
+    accessKey = getConfigValue("AWS_ACCESS_KEY_ID");
+    secretKey = getConfigValue("AWS_SECRET_ACCESS_KEY");
+
+    // s3Client setup
     this.s3Client = S3Client.builder().build();
 
     // presigner setup
@@ -200,6 +195,24 @@ public class S3BinaryContentStorageTest {
     if (s3Presigner != null) {
       s3Presigner.close();
     }
+  }
+
+  private String getConfigValue(String key) throws IOException {
+    // First try environment variable
+    String value = System.getenv(key);
+    if (value != null && !value.isEmpty()) {
+      return value;
+    }
+
+    // Fall back to .env file if it exists
+    File envFile = new File(".env");
+    if (envFile.exists()) {
+      Properties properties = new Properties();
+      properties.load(new FileInputStream(envFile));
+      return properties.getProperty(key);
+    }
+
+    throw new RuntimeException("Configuration value not found for key: " + key);
   }
 }
 
