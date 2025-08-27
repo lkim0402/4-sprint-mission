@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.0'
     id 'io.spring.dependency-management' version '1.1.6'
+    id 'jacoco'
 }
 
 group = 'com.sprint.mission'
@@ -12,6 +13,11 @@ java {
         languageVersion = JavaLanguageVersion.of(17)
     }
 }
+
+jacoco {
+    toolVersion = "0.8.8" //추가: 버전 명시
+}
+
 
 configurations {
     compileOnly {
@@ -56,4 +62,46 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport //추가: test가 수행될 때마다 jacocoTestReport 작업 수행
+}
+
+task testCoverage(type: Test) {
+    group 'verification'
+    description 'Runs the unit tests with coverage'
+
+    dependsOn(':test',
+            ':jacocoTestReport',
+            ':jacocoTestCoverageVerification')
+
+    tasks['jacocoTestReport'].mustRunAfter(tasks['test'])
+    tasks['jacocoTestCoverageVerification'].mustRunAfter(tasks['jacocoTestReport'])
+}
+
+jacocoTestReport {
+    dependsOn test // test 실행 전에 수행될 task
+    reports { // 어떤 파일을 생성할지/생성하지 않을지
+        xml.required = true
+        html.required = true
+        csv.required = false
+        // 기본 경로 $buildDir/reports/jacoco/test
+
+        // 리포트 타입마다 destination file 옵션으로 경로 변경 가능
+        //  html.destination file("$buildDir/jacocoHtml")
+        //  xml.destination file("$buildDir/jacoco.xml")
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = 'CLASS'
+            enabled = true
+
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.6
+            }
+        }
+    }
 }
