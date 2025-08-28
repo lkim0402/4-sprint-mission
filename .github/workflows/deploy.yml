@@ -2,7 +2,7 @@ name: CD Workflow - Build & Push to ECR
 
 on:
   push:
-    branches: [ "release " ]
+    branches: [ "release" ]
 
 jobs:
   # ----------------------------------------------------------------
@@ -13,6 +13,10 @@ jobs:
 
     permissions:
       contents: read
+
+    outputs:
+      repo_uri: ${{ steps.prep.outputs.repo_uri }}
+      image_tag: ${{ steps.prep.outputs.image_tag }}
 
     steps:
       # 소스 체크아웃
@@ -25,21 +29,28 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: us-east-1
 
       # ECR 로그인 (계정 ID를 Secret에서 참조)
-      - name: ECR Login
-        run: |
-          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} \
-            | docker login --username AWS --password-stdin \
-              ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+      #      - name: ECR Login
+      #        run: |
+      #          aws ecr get-login-password \
+      #            --region us-east-1
+      #          | docker login \
+      #            --username AWS \
+      #            --password-stdin public ecr.aws
+      - name: Login to Amazon ECR Public
+        id: login-ecr-public
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
 
       # (선택) 이미지 태그 구성 - 커밋 해시 7자리 +latest
       - name: Prepare tags
         id: prep
         run: |
-          echo "IMAGE_TAG=${GITHUB_SHA::7}" >> $GITHUB_ENV
-          echo "REPO_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY_URI }}" >> $GITHUB_ENV
+          echo "IMAGE_TAG=${GITHUB_SHA::7}" >> GITHUB_OUTPUT
+          echo "REPO_URI=${{ secrets.ECR_REPOSITORY_URI }}" >> GITHUB_OUTPUT
 
       # Docker 빌드
       - name: Docker build
@@ -60,7 +71,7 @@ jobs:
 
     steps:
       # AWS 자격 증명 설정 (여기서도 필요)
-      - name: Configure AWS Credentials
+      - name: AWS CLI 설정
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -75,7 +86,7 @@ jobs:
 
       # 새 ECR 이미지로 태스크 정의 업데이트
       - name: Fill in new image ID in task definition
-        id: task-def
+        id: render-task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-def.json
@@ -92,9 +103,17 @@ jobs:
 
       # 새 태스크 정의 등록 및 ECS 서비스 업데이트
       - name: Deploy Amazon ECS task definition
-        run: |
-          echo "Registering new task definition..."
-          aws ecs register-task-definition --cli-input-json file://${{ steps.task-def.outputs.task-definition }}
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-task-def.outputs.task-definition }}
+          service: ${{ secrets.ECS_SERVICE_NAME }}
+          cluster: ${{ secrets.ECS_CLUSTER_NAME }}
+          wait-for-service-stability: true
 
-          echo "Updating service with new task definition and desired count 1..."
-          aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} --service ${{ secrets.ECS_SERVICE_NAME }} --task-definition ${{ secrets.ECS_TASK_DEFINITION_FAMILY }} --desired-count 1
+      # 배포 상태 확인
+      - name: ECS 배포 상태 확인
+        run: |
+          aws ecs describe-services \
+            --cluster ${{ secrets.ECS_CLUSTER_NAME }} \
+            --services ${{ secrets.ECS_SERVICE_NAME }} \
+            --query "services[0].deployments"
