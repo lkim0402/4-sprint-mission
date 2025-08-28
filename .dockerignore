@@ -1,0 +1,35 @@
+# Git directory and files
+.git
+.gitignore
+
+# Serialized files
+*.ser
+
+# IDE files
+.idea
+.vscode
+*.iml
+
+# Build artifacts
+target/
+build/
+*.class
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker files
+Dockerfile
+docker-compose.yml
+
+# Documentation
+README.md
+docs/
+
+# GitHub workflows
+.github/
