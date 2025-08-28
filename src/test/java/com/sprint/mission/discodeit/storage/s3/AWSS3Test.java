@@ -43,8 +43,8 @@ public class AWSS3Test {
 
   @BeforeAll
   void setup() throws IOException {
-    Properties properties = new Properties();
-    properties.load(new FileInputStream(".env"));
+//    Properties properties = new Properties();
+//    properties.load(new FileInputStream(".env"));
 //    bucket = properties.getProperty("S3_BUCKET_NAME");
     bucket = getConfigValue("S3_BUCKET_NAME");
 
@@ -147,13 +147,18 @@ public class AWSS3Test {
     }
 
     // Fall back to .env file if it exists
-    File envFile = new File(".env");
-    if (envFile.exists()) {
-      Properties properties = new Properties();
-      properties.load(new FileInputStream(envFile));
-      return properties.getProperty(key);
+    try {
+      File envFile = new File(".env");
+      if (envFile.exists()) {
+        Properties properties = new Properties();
+        properties.load(new FileInputStream(envFile));
+        return properties.getProperty(key);
+      }
+    } catch (IOException e) {
+      // Log warning but don't fail
+      System.out.println("Warning: Could not read .env file: " + e.getMessage());
     }
 
-    throw new RuntimeException("Configuration value not found for key: " + key);
+    return null; // Return null instead of throwing exception
   }
 }
