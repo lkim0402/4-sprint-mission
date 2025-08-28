@@ -29,6 +29,16 @@ jobs:
           S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
         run: ./gradlew clean build
 
+      - name: Show test results on failure
+        if: failure()
+        run: |
+          echo "=== Looking for failed tests ==="
+          # Show only failed test results
+          find . -name "*.xml" -path "*/test-results/*" -exec grep -l 'failures="[^0]"\|errors="[^0]"' {} \; -exec echo "=== Failed in: {} ===" \; -exec cat {} \;
+
+          echo "=== Summary of all tests ==="
+          find . -name "*.xml" -path "*/test-results/*" -exec echo "File: {}" \; -exec grep -o 'name="[^"]*" tests="[^"]*" skipped="[^"]*" failures="[^"]*" errors="[^"]*"' {} \;
+
       - name: Upload test reports
         uses: actions/upload-artifact@v4
         if: always() # Upload even if tests fail
