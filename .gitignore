@@ -59,3 +59,4 @@ bin/
 .*
 !.gitignore
 !/.github
+!.dockerignore
