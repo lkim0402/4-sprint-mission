@@ -5,6 +5,9 @@ on:
     branches: [ "release " ]
 
 jobs:
+  # ----------------------------------------------------------------
+  # JOB 1: Docker 이미지를 빌드하고 ECR에 푸시
+  # ----------------------------------------------------------------
   build-and-push:
     runs-on: ubuntu-latest
 
@@ -48,4 +51,50 @@ jobs:
         run: |
           docker push "$REPO_URI:$IMAGE_TAG"
           docker push "$REPO_URI:latest"
+  # ----------------------------------------------------------------
+  # JOB 2: 새 이미지를 ECS 서비스에 배포
+  # ----------------------------------------------------------------
+  deploy-to-ecs:
+    runs-on: ubuntu-latest
+    needs: build-and-push # 이 작업이 성공해야한 실행됨
 
+    steps:
+      # AWS 자격 증명 설정 (여기서도 필요)
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # 기존 ECS 태스크 정의 다운로드
+      - name: Download current task definition
+        run: |
+          aws ecs describe-task-definition --task-definition ${{ secrets.ECS_TASK_DEFINITION }} \
+            --query taskDefinition > task-def.json
+
+      # 새 ECR 이미지로 태스크 정의 업데이트
+      - name: Fill in new image ID in task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-def.json
+          container-name: ${{ secrets.ECS_CONTAINER_NAME }}
+          image: ${{ needs.build-and-push.outputs.repo_uri }}:${{ needs.build-and-push.outputs.image_tag }}
+
+      # (프리티어 고려) 기존 서비스 중단
+      - name: Stop existing service to prepare for update
+        run: |
+          echo "Stopping service to avoid conflicts and save resources..."
+          aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} --service ${{ secrets.ECS_SERVICE_NAME }} --desired-count 0
+          echo "Waiting 30 seconds for the service to scale down..."
+          sleep 30
+
+      # 새 태스크 정의 등록 및 ECS 서비스 업데이트
+      - name: Deploy Amazon ECS task definition
+        run: |
+          echo "Registering new task definition..."
+          aws ecs register-task-definition --cli-input-json file://${{ steps.task-def.outputs.task-definition }}
+
+          echo "Updating service with new task definition and desired count 1..."
+          aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} --service ${{ secrets.ECS_SERVICE_NAME }} --task-definition ${{ secrets.ECS_TASK_DEFINITION_FAMILY }} --desired-count 1
