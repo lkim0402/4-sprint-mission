@@ -51,6 +51,7 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     // testing
+    testImplementation 'com.h2database:h2'
     testRuntimeOnly 'com.h2database:h2'
 
     // gson for controller testing
