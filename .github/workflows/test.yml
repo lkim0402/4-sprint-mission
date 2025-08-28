@@ -29,6 +29,16 @@ jobs:
           S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
         run: ./gradlew clean build
 
+      - name: Upload test reports
+        uses: actions/upload-artifact@v3
+        if: always() # Upload even if tests fail
+        with:
+          name: test-reports
+          path: |
+            build/reports/tests/test/
+            build/test-results/test/
+          retention-days: 30
+
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
         with:
