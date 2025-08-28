@@ -1,22 +1,23 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.4.6'
-    id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.springframework.boot' version '3.4.0'
+    id 'io.spring.dependency-management' version '1.1.6'
+    id 'jacoco'
 }
 
 group = 'com.sprint.mission'
-version = '0.0.1-SNAPSHOT'
+version = '1.2-M8'
 
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
 }
-// =================================
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
+
+jacoco {
+    toolVersion = "0.8.8" //추가: 버전 명시
 }
-// =================================
+
 
 configurations {
     compileOnly {
@@ -29,14 +30,80 @@ repositories {
 }
 
 dependencies {
+    // core spring boot dependencies
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4'
+
+    // db driver
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // annotation processors and utilities
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    implementation 'org.mapstruct:mapstruct:1.6.3'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+
+    // testing dependencies
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.springframework:spring-test'
+
+    // testing
+    testImplementation 'com.h2database:h2'
+    testRuntimeOnly 'com.h2database:h2'
+
+    // gson for controller testing
+    implementation 'com.google.code.gson:gson'
+
+    // AWS
+    implementation 'software.amazon.awssdk:s3:2.31.7'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport //추가: test가 수행될 때마다 jacocoTestReport 작업 수행
+}
+
+task testCoverage(type: Test) {
+    group 'verification'
+    description 'Runs the unit tests with coverage'
+
+    dependsOn(':test',
+            ':jacocoTestReport',
+            ':jacocoTestCoverageVerification')
+
+    tasks['jacocoTestReport'].mustRunAfter(tasks['test'])
+    tasks['jacocoTestCoverageVerification'].mustRunAfter(tasks['jacocoTestReport'])
+}
+
+jacocoTestReport {
+    dependsOn test // test 실행 전에 수행될 task
+    reports { // 어떤 파일을 생성할지/생성하지 않을지
+        xml.required = true
+        html.required = true
+        csv.required = false
+        // 기본 경로 $buildDir/reports/jacoco/test
+
+        // 리포트 타입마다 destination file 옵션으로 경로 변경 가능
+        //  html.destination file("$buildDir/jacocoHtml")
+        //  xml.destination file("$buildDir/jacoco.xml")
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = 'CLASS'
+            enabled = true
+
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.6
+            }
+        }
+    }
 }
