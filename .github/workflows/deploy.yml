@@ -80,6 +80,11 @@ jobs:
           aws ecs describe-task-definition --task-definition ${{ secrets.ECS_TASK_DEFINITION }} \
             --query taskDefinition > task-def.json
 
+      # 디버깅용
+      - name: Verify Image URI
+        run: |
+          echo "Final Image string being used is: ${{ needs.build-and-push.outputs.repo_uri }}:${{ needs.build-and-push.outputs.image_tag }}"
+
       # 새 ECR 이미지로 태스크 정의 업데이트
       - name: Fill in new image ID in task definition
         id: render-task-def
