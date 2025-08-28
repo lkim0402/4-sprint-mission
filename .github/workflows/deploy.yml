@@ -49,6 +49,9 @@ jobs:
       - name: Prepare tags
         id: prep
         run: |
+          echo "IMAGE_TAG=${GITHUB_SHA::7}" >> $GITHUB_ENV
+          echo "REPO_URI=${{ secrets.ECR_REPOSITORY_URI }}" >> $GITHUB_ENV
+
           echo "IMAGE_TAG=${GITHUB_SHA::7}" >> GITHUB_OUTPUT
           echo "REPO_URI=${{ secrets.ECR_REPOSITORY_URI }}" >> GITHUB_OUTPUT
 
