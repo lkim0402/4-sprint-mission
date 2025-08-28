@@ -1,35 +1,29 @@
-# Git directory and files
+# Git folder and history
 .git
 .gitignore
 
-# Serialized files
-*.ser
-
 # IDE files
-.idea
-.vscode
+.idea/
+.vscode/
 *.iml
 
-# Build artifacts
+# Build artifacts (if not needed)
 target/
 build/
-*.class
-
-# Logs
 *.log
-logs/
 
 # OS files
 .DS_Store
 Thumbs.db
 
-# Docker files
-Dockerfile
-docker-compose.yml
-
 # Documentation
 README.md
-docs/
+*.md
 
-# GitHub workflows
+# CI/CD files
 .github/
+
+# Large/unnecessary files
+*.ser
+*.dump
+*.log
