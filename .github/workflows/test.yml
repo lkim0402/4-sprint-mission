@@ -1,7 +1,6 @@
 name: CI Workflow
 
 on:
-  on:
   push:
     branches: [ "main", "leejun/sprint8" ]
   pull_request:
