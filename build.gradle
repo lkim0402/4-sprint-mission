@@ -15,7 +15,7 @@ java {
 }
 
 jacoco {
-    toolVersion = "0.8.8" //추가: 버전 명시
+    toolVersion = "0.8.8"
 }
 
 
@@ -85,11 +85,6 @@ jacocoTestReport {
         xml.required = true
         html.required = true
         csv.required = false
-        // 기본 경로 $buildDir/reports/jacoco/test
-
-        // 리포트 타입마다 destination file 옵션으로 경로 변경 가능
-        //  html.destination file("$buildDir/jacocoHtml")
-        //  xml.destination file("$buildDir/jacoco.xml")
     }
 }
 
