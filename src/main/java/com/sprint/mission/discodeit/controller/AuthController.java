@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.auth.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.controller.api.AuthApi;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.LoginRequest;
@@ -8,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,7 +27,7 @@ public class AuthController implements AuthApi {
   private final AuthService authService;
 
   // where client first calls to get the initial CSRF token
-  @GetMapping("csrf-token")
+  @GetMapping("/csrf-token")
   public ResponseEntity<Void> getCsrToken(CsrfToken csrfToken) {
     // this method creates token in CookieCsrfTokenRepository
     // when the response is sent back, the HTTP response header includes Set-Cookie + created token
@@ -41,4 +43,14 @@ public class AuthController implements AuthApi {
   // - Header (Manual): Frontend JS code reads the value from the XSRF-TOKEN cookie and *manually* adds it to a request header named X-XSRF-TOKEN
   //   - possible coz cookie was set with HttpOnly=false
   // The server simply checks if the token in cookie matches the token in the header
+
+
+  // @AuthenticationPrincipal goes to SecurityContextHolder, gets the user's Authentication object
+  //   & extracts the "Principal" from it, the DiscodeitUserDetails instance created during login
+  @GetMapping("/me")
+  public ResponseEntity<UserDto> getUserInfo(
+      @AuthenticationPrincipal DiscodeitUserDetails discodeitUserDetails) {
+    return ResponseEntity.ok(discodeitUserDetails.getUserDto());
+
+  }
 }
