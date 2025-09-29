@@ -1,5 +1,8 @@
 package com.sprint.mission.discodeit.config;
 
+import com.sprint.mission.discodeit.auth.LoginFailureHandler;
+import com.sprint.mission.discodeit.auth.LoginSuccessHandler;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -16,11 +19,14 @@ import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+  private final LoginSuccessHandler loginSuccessHandler;
+  private final LoginFailureHandler loginFailureHandler;
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
     http
         .csrf(csrf -> csrf
             // decides *where* to save the CSRF token
@@ -35,10 +41,9 @@ public class SecurityConfig {
         .formLogin(Customizer.withDefaults())
         .formLogin(login -> login
             .loginProcessingUrl("/api/auth/login")
-            .successHandler(loginSuccessHandler())    // 로그인 성공 후 핸들러
-            .failureHandler(loginFailureHandler())      // 로그인 실패 후 핸들러
+            .successHandler(loginSuccessHandler)    // 로그인 성공 후 핸들러
+            .failureHandler(loginFailureHandler)      // 로그인 실패 후 핸들러
         )
-
     ;
 
     return http.build();
@@ -47,8 +52,8 @@ public class SecurityConfig {
   // encrypts
   @Bean
   public PasswordEncoder passwordEncoder() {
-//    return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     return new BCryptPasswordEncoder();
   }
+
 
 }
