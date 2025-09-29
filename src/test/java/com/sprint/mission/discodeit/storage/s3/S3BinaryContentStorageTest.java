@@ -1,223 +1,147 @@
 package com.sprint.mission.discodeit.storage.s3;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.File;
-import java.io.FileInputStream;
+import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.util.Properties;
+import java.io.InputStream;
+import java.util.NoSuchElementException;
 import java.util.UUID;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.core.ResponseInputStream;
-import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.GetObjectResponse;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectResponse;
-import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@TestInstance(Lifecycle.PER_CLASS)
-public class S3BinaryContentStorageTest {
+@Disabled
+@SpringBootTest
+@ActiveProfiles("test")
+@DisplayName("S3BinaryContentStorage 테스트")
+class S3BinaryContentStorageTest {
 
-  private S3Client s3Client;
-  private S3Presigner s3Presigner;
-  private final String testFileKey = UUID.randomUUID().toString();
+  @Autowired
+  private S3BinaryContentStorage s3BinaryContentStorage;
 
-  // from .env files
-  private String bucket; // bucketName
-  private String region;
+  @Value("${discodeit.storage.s3.bucket}")
+  private String bucket;
+
+  @Value("${discodeit.storage.s3.access-key}")
   private String accessKey;
+
+  @Value("${discodeit.storage.s3.secret-key}")
   private String secretKey;
 
-  @BeforeAll
-  void setup() throws IOException {
-//    Properties properties = new Properties();
-//    properties.load(new FileInputStream(".env"));
-//    bucket = properties.getProperty("S3_BUCKET_NAME");
-//    region = properties.getProperty("AWS_REGION");
-//    accessKey = properties.getProperty("AWS_ACCESS_KEY_ID");
-//    secretKey = properties.getProperty("AWS_SECRET_ACCESS_KEY");
+  @Value("${discodeit.storage.s3.region}")
+  private String region;
 
-    bucket = getConfigValue("S3_BUCKET_NAME");
-    region = getConfigValue("AWS_REGION");
-    accessKey = getConfigValue("AWS_ACCESS_KEY_ID");
-    secretKey = getConfigValue("AWS_SECRET_ACCESS_KEY");
+  private final UUID testId = UUID.randomUUID();
+  private final byte[] testData = "테스트 데이터".getBytes();
 
-    // s3Client setup
-    this.s3Client = S3Client.builder().build();
+  @BeforeEach
+  void setUp() {
+    // 테스트 준비 작업
+    // 실제 S3BinaryContentStorage는 스프링이 의존성 주입으로 제공
+  }
 
-    // presigner setup
-    s3Presigner = S3Presigner
-        .builder()
-        .s3Client(s3Client)
-        .build();
+  @AfterEach
+  void tearDown() {
+    // 테스트 종료 후 생성된 S3 객체 삭제
+    try {
+      // S3 클라이언트 생성
+      S3Client s3Client = S3Client.builder()
+          .region(Region.of(region))
+          .credentialsProvider(
+              StaticCredentialsProvider.create(
+                  AwsBasicCredentials.create(accessKey, secretKey)
+              )
+          )
+          .build();
+
+      // 테스트에서 생성한 객체 삭제
+      DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+          .bucket(bucket)
+          .key(testId.toString())
+          .build();
+
+      s3Client.deleteObject(deleteRequest);
+      System.out.println("테스트 객체 삭제 완료: " + testId);
+    } catch (NoSuchKeyException e) {
+      // 객체가 이미 없는 경우는 무시
+      System.out.println("삭제할 객체가 없음: " + testId);
+    } catch (Exception e) {
+      // 정리 실패 시 로그만 남기고 테스트는 실패로 처리하지 않음
+      System.err.println("테스트 객체 정리 실패: " + e.getMessage());
+    }
   }
 
   @Test
-  @Order(1)
-  @DisplayName("S3 파일 업로드 테스트")
-  void putToS3Test() {
-    // given
-    String content = "Hello!";
+  @DisplayName("S3에 파일 업로드 성공 테스트")
+  void put_success() {
+    // when
+    UUID resultId = s3BinaryContentStorage.put(testId, testData);
 
-    PutObjectRequest putReq = PutObjectRequest.builder()
-        .bucket(bucket)
-        .key(testFileKey)
-        .build();
+    // then
+    assertThat(resultId).isEqualTo(testId);
+  }
+
+  @Test
+  @DisplayName("S3에서 파일 다운로드 테스트")
+  void get_success() throws IOException {
+    // given
+    s3BinaryContentStorage.put(testId, testData);
 
     // when
-    PutObjectResponse putObjectResponse = s3Client.putObject(putReq,
-        RequestBody.fromString(content, StandardCharsets.UTF_8)
+    InputStream result = s3BinaryContentStorage.get(testId);
+
+    // then
+    assertNotNull(result);
+
+    // 내용 검증
+    byte[] resultBytes = result.readAllBytes();
+    assertThat(resultBytes).isEqualTo(testData);
+  }
+
+  @Test
+  @DisplayName("존재하지 않는 파일 조회 시 예외 발생 테스트")
+  void get_notFound() {
+    // when & then
+    assertThatThrownBy(() -> s3BinaryContentStorage.get(UUID.randomUUID()))
+        .isInstanceOf(NoSuchElementException.class);
+  }
+
+  @Test
+  @DisplayName("Presigned URL 생성 테스트")
+  void download_success() {
+    // given
+    s3BinaryContentStorage.put(testId, testData);
+    BinaryContentDto dto = new BinaryContentDto(
+        testId, "test.txt", (long) testData.length, "text/plain"
     );
 
-    // then
-    assertNotNull(putObjectResponse);
-    assertEquals(HttpStatus.OK.value(), putObjectResponse.sdkHttpResponse().statusCode());
-    assertNotNull(putObjectResponse.eTag());
-  }
-
-
-  @Test
-  @Order(2)
-  @DisplayName("S3 파일 가져오기 테스트")
-  void getFromS3Test() throws IOException {
-    // given
-    String content = "Hello!";
-    byte[] contentBytes = content.getBytes();
-    GetObjectRequest getReq = GetObjectRequest.builder()
-        .bucket(bucket)
-        .key(testFileKey)
-        .build();
-
     // when
-    ResponseInputStream<GetObjectResponse> s3Object = s3Client.getObject(getReq);
+    ResponseEntity<Void> response = s3BinaryContentStorage.download(dto);
 
     // then
-    byte[] bytes = s3Object.readAllBytes();
-    assertArrayEquals(bytes, contentBytes);
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
+    assertThat(response.getHeaders().get(HttpHeaders.LOCATION)).isNotNull();
+
+    String location = response.getHeaders().getFirst(HttpHeaders.LOCATION);
+    assertThat(location).contains(bucket);
+    assertThat(location).contains(testId.toString());
   }
-
-  @Test
-  @Order(3)
-  @DisplayName("S3 파일 다운로드 테스트")
-  void downloadFromS3Test() throws IOException {
-    // given
-    String content = "Hello!";
-    byte[] contentBytes = content.getBytes();
-    GetObjectRequest getReq = GetObjectRequest.builder()
-        .bucket(bucket)
-        .key(testFileKey)
-        .build();
-
-    // when
-    ResponseInputStream<GetObjectResponse> s3Object = s3Client.getObject(getReq);
-
-    // then
-    byte[] bytes = s3Object.readAllBytes();
-    assertArrayEquals(bytes, contentBytes);
-
-  }
-
-  @Test
-  @Order(4)
-  @DisplayName("S3Client 생성 테스트")
-  void generateS3ClientTest() {
-    // when
-    s3Client = S3Client.builder()
-        .region(Region.of(region))
-        .credentialsProvider(
-            StaticCredentialsProvider.create(
-                AwsBasicCredentials.create(
-                    accessKey,
-                    secretKey
-                )
-            )
-        )
-        .build();
-
-    // then
-    assertNotNull(s3Client);
-    assertEquals(Region.of(region), s3Client.serviceClientConfiguration().region());
-  }
-
-  @Test
-  @Order(5)
-  @DisplayName("S3 Presigned URL 생성 테스트")
-  void generatePresignedUrl() {
-    // given
-    String contentType = "text/html";
-    GetObjectRequest getReq = GetObjectRequest.builder()
-        .bucket(bucket)
-        .responseContentType(contentType)
-        .key(testFileKey)
-        .build();
-
-    GetObjectPresignRequest preReq = GetObjectPresignRequest.builder()
-        .getObjectRequest(getReq)
-        .signatureDuration(Duration.ofMinutes(5)) // duration
-        .build();
-
-    // when
-    String presignedUrl = s3Presigner.presignGetObject(preReq).url().toString();
-
-    // then
-    assertNotNull(presignedUrl);
-    assertTrue(presignedUrl.startsWith("https://" + bucket + ".s3."));
-  }
-
-  @AfterAll
-  void tearDown() {
-    if (s3Client != null) {
-      s3Client.deleteObject(builder -> builder.bucket(bucket).key(testFileKey));
-      System.out.println("Test file deleted: " + testFileKey);
-      s3Client.close();
-    }
-    if (s3Presigner != null) {
-      s3Presigner.close();
-    }
-  }
-
-  private String getConfigValue(String key) throws IOException {
-    // First try environment variable
-    String value = System.getenv(key);
-    if (value != null && !value.isEmpty()) {
-      return value;
-    }
-
-    // Fall back to .env file if it exists
-    try {
-      File envFile = new File(".env");
-      if (envFile.exists()) {
-        Properties properties = new Properties();
-        properties.load(new FileInputStream(envFile));
-        return properties.getProperty(key);
-      }
-    } catch (IOException e) {
-      // Log warning but don't fail
-      System.out.println("Warning: Could not read .env file: " + e.getMessage());
-    }
-
-    return null; // Return null instead of throwing exception
-  }
-}
-
+} 

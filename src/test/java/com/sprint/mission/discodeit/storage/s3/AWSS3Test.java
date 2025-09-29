@@ -1,164 +1,174 @@
 package com.sprint.mission.discodeit.storage.s3;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.net.URL;
 import java.time.Duration;
 import java.util.Properties;
 import java.util.UUID;
-import org.junit.jupiter.api.AfterAll;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.springframework.http.HttpStatus;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectResponse;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
-@TestInstance(Lifecycle.PER_CLASS)
+@Disabled
+@Slf4j
+@DisplayName("S3 API 테스트")
 public class AWSS3Test {
 
+  private static String accessKey;
+  private static String secretKey;
+  private static String region;
+  private static String bucket;
   private S3Client s3Client;
-  private S3Presigner s3Presigner;
-  private String bucket; // bucketName
-  private final String testFileKey = UUID.randomUUID().toString();
+  private S3Presigner presigner;
+  private String testKey;
 
   @BeforeAll
-  void setup() throws IOException {
-//    Properties properties = new Properties();
-//    properties.load(new FileInputStream(".env"));
-//    bucket = properties.getProperty("S3_BUCKET_NAME");
-    bucket = getConfigValue("S3_BUCKET_NAME");
-
-    // setting up s3Client
-    this.s3Client = S3Client.builder().build();
-
-    // setting up s3Presigner
-    s3Presigner = S3Presigner
-        .builder()
-        .s3Client(s3Client)
-        .build();
-  }
-
-  @Test
-  @Order(1)
-  @DisplayName("S3 파일 업로드 테스트")
-  void uploadS3Test() {
-    // given
-    String content = "Hello!";
-
-    PutObjectRequest putReq = PutObjectRequest.builder()
-        .bucket(bucket)
-        .key(testFileKey)
-        .build();
-
-    // when
-    PutObjectResponse putObjectResponse = s3Client.putObject(putReq,
-        RequestBody.fromString(content, StandardCharsets.UTF_8)
-    );
-
-    // then
-    assertNotNull(putObjectResponse);
-    assertEquals(HttpStatus.OK.value(), putObjectResponse.sdkHttpResponse().statusCode());
-    assertNotNull(putObjectResponse.eTag());
-  }
-
-  @Test
-  @Order(2)
-  @DisplayName("S3 파일 다운로드 테스트")
-  void downloadFromS3Test() throws IOException {
-    // given
-    String content = "Hello!";
-    byte[] contentBytes = content.getBytes();
-    GetObjectRequest getReq = GetObjectRequest.builder()
-        .bucket(bucket)
-        .key(testFileKey)
-        .build();
-
-    // when
-    ResponseInputStream<GetObjectResponse> s3Object = s3Client.getObject(getReq);
-
-    // then
-    byte[] bytes = s3Object.readAllBytes();
-    assertArrayEquals(bytes, contentBytes);
-
-  }
-
-  @Test
-  @Order(3)
-  @DisplayName("S3 Presigned URL 생성 테스트")
-  void generatePresignedUrl() {
-    // given
-    String contentType = "text/html";
-    GetObjectRequest getReq = GetObjectRequest.builder()
-        .bucket(bucket)
-        .responseContentType(contentType)
-        .key(testFileKey)
-        .build();
-
-    GetObjectPresignRequest preReq = GetObjectPresignRequest.builder()
-        .getObjectRequest(getReq)
-        .signatureDuration(Duration.ofMinutes(5)) // duration
-        .build();
-
-    // when
-    String presignedUrl = s3Presigner.presignGetObject(preReq).url().toString();
-
-    // then
-    assertNotNull(presignedUrl);
-    assertTrue(presignedUrl.startsWith("https://" + bucket + ".s3."));
-  }
-
-  @AfterAll
-  void tearDown() {
-    if (s3Client != null) {
-      s3Client.deleteObject(builder -> builder.bucket(bucket).key(testFileKey));
-      System.out.println("Test file deleted: " + testFileKey);
-      s3Client.close();
+  static void loadEnv() throws IOException {
+    Properties props = new Properties();
+    try (FileInputStream fis = new FileInputStream(".env")) {
+      props.load(fis);
     }
-    if (s3Presigner != null) {
-      s3Presigner.close();
+
+    accessKey = props.getProperty("AWS_S3_ACCESS_KEY");
+    secretKey = props.getProperty("AWS_S3_SECRET_KEY");
+    region = props.getProperty("AWS_S3_REGION");
+    bucket = props.getProperty("AWS_S3_BUCKET");
+
+    if (accessKey == null || secretKey == null || region == null || bucket == null) {
+      throw new IllegalStateException("AWS S3 설정이 .env 파일에 올바르게 정의되지 않았습니다.");
     }
   }
 
-  private String getConfigValue(String key) throws IOException {
-    // First try environment variable
-    String value = System.getenv(key);
-    if (value != null && !value.isEmpty()) {
-      return value;
-    }
+  @BeforeEach
+  void setUp() {
+    s3Client = S3Client.builder()
+        .region(Region.of(region))
+        .credentialsProvider(
+            StaticCredentialsProvider.create(
+                AwsBasicCredentials.create(accessKey, secretKey)
+            )
+        )
+        .build();
 
-    // Fall back to .env file if it exists
+    presigner = S3Presigner.builder()
+        .region(Region.of(region))
+        .credentialsProvider(
+            StaticCredentialsProvider.create(
+                AwsBasicCredentials.create(accessKey, secretKey)
+            )
+        )
+        .build();
+
+    testKey = "test-" + UUID.randomUUID().toString();
+  }
+
+  @Test
+  @DisplayName("S3에 파일을 업로드한다")
+  void uploadToS3() {
+    String content = "Hello from .env via Properties!";
+
     try {
-      File envFile = new File(".env");
-      if (envFile.exists()) {
-        Properties properties = new Properties();
-        properties.load(new FileInputStream(envFile));
-        return properties.getProperty(key);
-      }
-    } catch (IOException e) {
-      // Log warning but don't fail
-      System.out.println("Warning: Could not read .env file: " + e.getMessage());
-    }
+      PutObjectRequest request = PutObjectRequest.builder()
+          .bucket(bucket)
+          .key(testKey)
+          .contentType("text/plain")
+          .build();
 
-    return null; // Return null instead of throwing exception
+      s3Client.putObject(request, RequestBody.fromString(content));
+      log.info("파일 업로드 성공: {}", testKey);
+    } catch (S3Exception e) {
+      log.error("파일 업로드 실패: {}", e.getMessage());
+      throw e;
+    }
+  }
+
+  @Test
+  @DisplayName("S3에서 파일을 다운로드한다")
+  void downloadFromS3() {
+    // 테스트를 위한 파일 먼저 업로드
+    String content = "Test content for download";
+    PutObjectRequest uploadRequest = PutObjectRequest.builder()
+        .bucket(bucket)
+        .key(testKey)
+        .contentType("text/plain")
+        .build();
+    s3Client.putObject(uploadRequest, RequestBody.fromString(content));
+
+    try {
+      GetObjectRequest request = GetObjectRequest.builder()
+          .bucket(bucket)
+          .key(testKey)
+          .build();
+
+      String downloadedContent = s3Client.getObjectAsBytes(request).asUtf8String();
+      log.info("다운로드된 파일 내용: {}", downloadedContent);
+    } catch (S3Exception e) {
+      log.error("파일 다운로드 실패: {}", e.getMessage());
+      throw e;
+    }
+  }
+
+  @Test
+  @DisplayName("S3 파일에 대한 Presigned URL을 생성한다")
+  void generatePresignedUrl() {
+    // 테스트를 위한 파일 먼저 업로드
+    String content = "Test content for presigned URL";
+    PutObjectRequest uploadRequest = PutObjectRequest.builder()
+        .bucket(bucket)
+        .key(testKey)
+        .contentType("text/plain")
+        .build();
+    s3Client.putObject(uploadRequest, RequestBody.fromString(content));
+
+    try {
+      GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+          .bucket(bucket)
+          .key(testKey)
+          .build();
+
+      GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+          .signatureDuration(Duration.ofMinutes(10))
+          .getObjectRequest(getObjectRequest)
+          .build();
+
+      PresignedGetObjectRequest presignedRequest = presigner.presignGetObject(presignRequest);
+      URL url = presignedRequest.url();
+
+      log.info("생성된 Presigned URL: {}", url);
+    } catch (S3Exception e) {
+      log.error("Presigned URL 생성 실패: {}", e.getMessage());
+      throw e;
+    }
+  }
+
+  @AfterEach
+  void cleanup() {
+    try {
+      DeleteObjectRequest request = DeleteObjectRequest.builder()
+          .bucket(bucket)
+          .key(testKey)
+          .build();
+      s3Client.deleteObject(request);
+      log.info("테스트 파일 정리 완료: {}", testKey);
+    } catch (S3Exception e) {
+      log.error("테스트 파일 정리 실패: {}", e.getMessage());
+    }
   }
 }

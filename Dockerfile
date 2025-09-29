@@ -1,40 +1,40 @@
-# ====== build args는 반드시 FROM보다 위에 선언 ======
-ARG BUILDER_IMAGE=gradle:7.6.0-jdk17
-ARG RUNTIME_IMAGE=amazoncorretto:17.0.7-alpine
+# 빌드 스테이지
+FROM amazoncorretto:17 AS builder
 
-# ============ (1) Builder ============
-FROM ${BUILDER_IMAGE} AS builder
-ENV GRADLE_USER_HOME=/home/gradle/.gradle
-
-USER root
-WORKDIR /app
-RUN mkdir -p $GRADLE_USER_HOME && chown -R gradle:gradle /home/gradle /app
-USER gradle
-
-# enabling the gradle wrapper
-COPY --chown=gradle:gradle gradlew ./
-COPY --chown=gradle:gradle gradle ./gradle
-COPY --chown=gradle:gradle build.gradle settings.gradle ./
-RUN chmod +x ./gradlew
-RUN ./gradlew --no-daemon --refresh-dependencies dependencies || true
-
-COPY --chown=gradle:gradle src ./src
-RUN ./gradlew clean build --no-daemon --no-parallel -x test
-
-RUN ls -l /app/build/libs
-
-# ============ (2) Runtime ============
-
-FROM ${RUNTIME_IMAGE}
-
-# ENV should come after FROM
-ENV PROJECT_NAME=discodeit
-ENV PROJECT_VERSION=1.2-M8
-ENV SPRING_PROFILES_ACTIVE=prod
-ENV JVM_OPS=''
-
+# 작업 디렉토리 설정
 WORKDIR /app
 
-COPY --from=builder /app/build/libs/${PROJECT_NAME}-${PROJECT_VERSION}.jar app.jar
+# Gradle Wrapper 파일 먼저 복사
+COPY gradle ./gradle
+COPY gradlew ./gradlew
+
+# Gradle 캐시를 위한 의존성 파일 복사
+COPY build.gradle settings.gradle ./
+
+# 의존성 다운로드
+RUN ./gradlew dependencies
+
+# 소스 코드 복사 및 빌드
+COPY src ./src
+RUN ./gradlew build -x test
+
+
+# 런타임 스테이지
+FROM amazoncorretto:17-alpine3.21
+
+# 작업 디렉토리 설정
+WORKDIR /app
+
+# 프로젝트 정보를 ENV로 설정
+ENV PROJECT_NAME=discodeit \
+    PROJECT_VERSION=1.2-M8 \
+    JVM_OPTS=""
+
+# 빌드 스테이지에서 jar 파일만 복사
+COPY --from=builder /app/build/libs/${PROJECT_NAME}-${PROJECT_VERSION}.jar ./
+
+# 80 포트 노출
 EXPOSE 80
-ENTRYPOINT ["sh", "-c", "java $JVM_OPTS -jar app.jar"]
+
+# jar 파일 실행
+ENTRYPOINT ["sh", "-c", "java ${JVM_OPTS} -jar ${PROJECT_NAME}-${PROJECT_VERSION}.jar"]

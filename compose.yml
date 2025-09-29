@@ -25,8 +25,8 @@ services:
       # mounts the volume
       - app-storage:/app/.discodeit/storage
 
-  db:
     # since we don't have a build command, it pulls this image instead of looking for dockerfile
+  db:
     image: postgres:16
     environment:
       POSTGRES_DB: ${POSTGRES_DB}

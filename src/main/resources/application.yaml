@@ -14,16 +14,8 @@ spring:
   profiles:
     active:
       - dev
-
-# aws
-#aws:
-#  credentials:
-#    accessKey: ${AWS_ACCESS_KEY_ID}
-#    secretKey: ${AWS_SECRET_ACCESS_KEY}
-#  region: ${AWS_REGION}
-#  s3:
-#    bucket: ${S3_BUCKET_NAME}
-
+  config:
+    import: optional:file:.env[.properties]
 
 management:
   endpoints:
@@ -56,18 +48,14 @@ info:
 
 discodeit:
   storage:
-    #    type: local
     type: ${STORAGE_TYPE:local}  # local | s3 (기본값: local)
     local:
-      #      root-path: .discodeit/storage
       root-path: ${STORAGE_LOCAL_ROOT_PATH:.discodeit/storage}
     s3:
-      # AWS SDK alr knows (automatic mapping)
-      access-key: ${AWS_ACCESS_KEY_ID}
-      secret-key: ${AWS_SECRET_ACCESS_KEY}
-      # Needed for mapping
-      region: ${AWS_REGION}
-      bucket: ${S3_BUCKET_NAME}
+      access-key: ${AWS_S3_ACCESS_KEY}
+      secret-key: ${AWS_S3_SECRET_KEY}
+      region: ${AWS_S3_REGION}
+      bucket: ${AWS_S3_BUCKET}
       presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600} # (기본값: 10분)
 
 logging:

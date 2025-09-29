@@ -1,22 +1,8 @@
-### Generated Files and Build Artifacts ###
-/build
-.gradle
-/out
-
-/src/main/generated/
-
-.env
-discodeit.env
-
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-
-/.logs
-*gz
-*.log
 
 ### IntelliJ IDEA ###
 .idea
@@ -58,5 +44,7 @@ bin/
 ### 숨김 파일 ###
 .*
 !.gitignore
-!/.github
-!.dockerignore
+
+
+### Github Actions ###
+!.github/
