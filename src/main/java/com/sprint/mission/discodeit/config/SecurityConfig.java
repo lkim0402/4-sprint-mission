@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -30,7 +31,15 @@ public class SecurityConfig {
             .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
             // decides *how* to read/handle CSRF tokens -> SpaCsrfTokenRequestHandler
             .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
-        );
+        )
+        .formLogin(Customizer.withDefaults())
+        .formLogin(login -> login
+            .loginProcessingUrl("/api/auth/login")
+            .successHandler(loginSuccessHandler())    // 로그인 성공 후 핸들러
+            .failureHandler(loginFailureHandler())      // 로그인 실패 후 핸들러
+        )
+
+    ;
 
     return http.build();
   }
