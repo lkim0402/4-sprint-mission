@@ -40,6 +40,8 @@ public class SecurityConfig {
         )
         .formLogin(Customizer.withDefaults())
         .formLogin(login -> login
+            // tells Spring Security to listen for POST requests to "/api/auth/login"
+            // caught by UsernamePasswordAuthenticationFilter
             .loginProcessingUrl("/api/auth/login")
             .successHandler(loginSuccessHandler)    // 로그인 성공 후 핸들러
             .failureHandler(loginFailureHandler)      // 로그인 실패 후 핸들러
