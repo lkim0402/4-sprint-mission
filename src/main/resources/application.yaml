@@ -12,8 +12,7 @@ spring:
       ddl-auto: validate
     open-in-view: false
   profiles:
-    active:
-      - dev
+    active: test
   config:
     import: optional:file:.env[.properties]
 

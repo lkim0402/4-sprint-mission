@@ -24,7 +24,8 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
   @Override
   public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
       Authentication authentication) throws IOException {
-    DiscodeitUserDetails userDetails = (DiscodeitUserDetails) authentication;
+    // extract the principal from the authentication object
+    DiscodeitUserDetails userDetails = (DiscodeitUserDetails) authentication.getPrincipal();
     UserDto userDto = userDetails.getUserDto();
 
     response.setStatus(HttpStatus.OK.value());
@@ -32,6 +33,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     String json = objectMapper.writeValueAsString(userDto);
     response.getWriter().write(json);
+    response.sendRedirect("/");
   }
 
 

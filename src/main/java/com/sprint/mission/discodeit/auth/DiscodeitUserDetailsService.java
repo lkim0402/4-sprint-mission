@@ -26,9 +26,9 @@ public class DiscodeitUserDetailsService implements UserDetailsService {
   private final UserMapper userMapper;
 
   @Override
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+  public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
     Optional<com.sprint.mission.discodeit.entity.User> optionalUser = userRepository.findByUsername(
-        username);
+        name);
     com.sprint.mission.discodeit.entity.User user = optionalUser.orElseThrow(
         UserNotFoundException::new);
 
