@@ -1,7 +1,12 @@
 package com.sprint.mission.discodeit.config;
 
+import com.sprint.mission.discodeit.auth.DiscodeitUserDetailsService;
 import com.sprint.mission.discodeit.auth.LoginFailureHandler;
 import com.sprint.mission.discodeit.auth.LoginSuccessHandler;
+import com.sprint.mission.discodeit.entity.Role;
+import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.mapper.UserMapper;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +15,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -62,6 +68,26 @@ public class SecurityConfig {
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
+  }
+
+  @Bean
+  // we manually initialize DiscodeitUserDetailsService
+  // we do this because we have custom logic (initializing admin) before returning USerDetails
+  public UserDetailsService userDetailsService(UserRepository userRepository,
+      UserMapper userMapper,
+      PasswordEncoder passwordEncoder) {
+
+    if (!userRepository.existsByRole(Role.ADMIN)) {
+      User admin = new User(
+          "admin",
+          "admin@discodeit.com",
+          passwordEncoder.encode("1234"),
+          null,
+          Role.ADMIN
+      );
+      userRepository.save(admin);
+    }
+    return new DiscodeitUserDetailsService(userRepository, userMapper);
   }
 
 

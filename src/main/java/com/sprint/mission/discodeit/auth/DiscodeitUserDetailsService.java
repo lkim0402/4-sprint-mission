@@ -17,7 +17,8 @@ import org.springframework.stereotype.Service;
 // - Telling Spring Security how to find and verify users from MY database (custom UserDetailsService)
 //     instead of its temporary one (in memory)
 // - If it's a bean it automatically replaces
-@Service
+
+//@Service
 @RequiredArgsConstructor
 public class DiscodeitUserDetailsService implements UserDetailsService {
 
@@ -33,7 +34,7 @@ public class DiscodeitUserDetailsService implements UserDetailsService {
 
     // converting the user's roles from the database to the format Spring Security needs
     Collection<? extends GrantedAuthority> authorities = List.of(
-        new SimpleGrantedAuthority(user.getRole()));
+        new SimpleGrantedAuthority(user.getRole().toString()));
     return new DiscodeitUserDetails(userMapper.toDto(user), user.getPassword(), authorities);
   }
 }
