@@ -82,37 +82,34 @@ public class SecurityConfig {
             .frameOptions(FrameOptionsConfig::disable)
         )
         .authorizeHttpRequests(auth -> auth
-
-                // Root and HTML files
-                .requestMatchers("/").permitAll()
-                .requestMatchers("/index.html").permitAll()  // ADD THIS!
-
-                // Static resources
-                .requestMatchers("/favicon.ico").permitAll()
-                .requestMatchers("/static/**").permitAll()
-                .requestMatchers("/assets/**").permitAll()
-                .requestMatchers("/*.js").permitAll()
-                .requestMatchers("/*.css").permitAll()
-                .requestMatchers("/*.png").permitAll()
-                .requestMatchers("/*.svg").permitAll()
-                .requestMatchers("/*.jpg").permitAll()
-
-                // these don't need authentication
-                .requestMatchers("/api/users").permitAll() // 회원가입
-//            .requestMatchers("/api/auth/csrf-token").permitAll() // Csrf Token 발급
-//            .requestMatchers("/api/auth/login").permitAll() // 로그인
-//            .requestMatchers("/api/auth/logout").permitAll() // 로그아웃
-
-                .requestMatchers("/.well-known/**").permitAll()
-
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/h2-console/**").permitAll() // H2 콘솔
-                .requestMatchers("/swagger-ui/**").permitAll() // Swagger UI
-                .requestMatchers("/v3/api-docs/**").permitAll()  // Swagger API docs
-                .requestMatchers("/actuator/**").permitAll()  // Spring Actuator
-                // all other should be authenticated
-
-                .anyRequest().authenticated()
+            // these don't need authentication
+            .requestMatchers(
+                // Root, HTML/static files
+                "/",
+                "/index.html",
+                "/favicon.ico",
+                "/static/**",
+                "/assets/**",
+                "/*.js",
+                "/*.css",
+                "/*.png",
+                "/*.svg",
+                "/*.jpg",
+                "/.well-known/**",
+                // apis
+                "/api/users",
+                "/api/auth/csrf-token",
+                "/api/auth/login",
+                "/api/auth/logout",
+                "/api/auth/**",
+                // other stuff
+                "/h2-console/**",
+                "/swagger-ui/**",
+                "/v3/api-docs/**",
+                "/actuator/**"
+            ).permitAll()
+            // all other should be authenticated
+            .anyRequest().authenticated()
         )
         .exceptionHandling(ex -> ex
             // authentication failure

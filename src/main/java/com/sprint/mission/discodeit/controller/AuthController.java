@@ -49,6 +49,12 @@ public class AuthController implements AuthApi {
   @GetMapping("/me")
   public ResponseEntity<UserDto> getUserInfo(
       @AuthenticationPrincipal DiscodeitUserDetails discodeitUserDetails) {
+
+    if (discodeitUserDetails == null) {
+      // return 401 Unauthorized instead of crashing with a 500 error
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
     return ResponseEntity.ok(discodeitUserDetails.getUserDto());
   }
 
