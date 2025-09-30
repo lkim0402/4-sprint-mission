@@ -72,8 +72,7 @@ public class SecurityConfig {
             .frameOptions(FrameOptionsConfig::disable)
         )
         .authorizeHttpRequests(auth -> auth
-            // all requests should be authenticated
-            .anyRequest().authenticated()
+            // these don't need authentication
             .requestMatchers("/api/csrf-token").permitAll() // Csrf Token 발급
             .requestMatchers("/api/auth/signup").permitAll() // 회원가입
             .requestMatchers("/api/auth/login").permitAll() // 로그인
@@ -82,6 +81,8 @@ public class SecurityConfig {
             .requestMatchers("/swagger-ui/**").permitAll() // Swagger UI
             .requestMatchers("/v3/api-docs/**").permitAll()  // Swagger API docs
             .requestMatchers("/actuator/**").permitAll()  // Spring Actuator
+            // all other should be authenticated
+            .anyRequest().authenticated()
         );
     return http.build();
   }
