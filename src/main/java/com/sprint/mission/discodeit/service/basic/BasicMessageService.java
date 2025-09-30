@@ -47,15 +47,14 @@ public class BasicMessageService implements MessageService {
   @Transactional
   @Override
   public MessageDto create(MessageCreateRequest messageCreateRequest,
-      List<BinaryContentCreateRequest> binaryContentCreateRequests) {
+      List<BinaryContentCreateRequest> binaryContentCreateRequests, UUID userId) {
     log.debug("메시지 생성 시작: request={}", messageCreateRequest);
     UUID channelId = messageCreateRequest.channelId();
-    UUID authorId = messageCreateRequest.authorId();
 
     Channel channel = channelRepository.findById(channelId)
         .orElseThrow(() -> ChannelNotFoundException.withId(channelId));
-    User author = userRepository.findById(authorId)
-        .orElseThrow(() -> UserNotFoundException.withId(authorId));
+    User author = userRepository.findById(userId)
+        .orElseThrow(() -> UserNotFoundException.withId(userId));
 
     List<BinaryContent> attachments = binaryContentCreateRequests.stream()
         .map(attachmentRequest -> {

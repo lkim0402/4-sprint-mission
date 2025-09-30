@@ -33,9 +33,13 @@ public class ReadStatusController implements ReadStatusApi {
   private final ReadStatusService readStatusService;
 
   @PostMapping
-  public ResponseEntity<ReadStatusDto> create(@RequestBody @Valid ReadStatusCreateRequest request) {
+  public ResponseEntity<ReadStatusDto> create(
+      @AuthenticationPrincipal DiscodeitUserDetails discodeitUserDetails,
+      @RequestBody @Valid ReadStatusCreateRequest request
+  ) {
     log.info("읽음 상태 생성 요청: {}", request);
-    ReadStatusDto createdReadStatus = readStatusService.create(request);
+    ReadStatusDto createdReadStatus = readStatusService.create(request,
+        discodeitUserDetails.getUserDto().userId());
     log.debug("읽음 상태 생성 응답: {}", createdReadStatus);
     return ResponseEntity
         .status(HttpStatus.CREATED)

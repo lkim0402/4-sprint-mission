@@ -35,10 +35,9 @@ public class BasicReadStatusService implements ReadStatusService {
 
   @Transactional
   @Override
-  public ReadStatusDto create(ReadStatusCreateRequest request) {
-    log.debug("읽음 상태 생성 시작: userId={}, channelId={}", request.userId(), request.channelId());
+  public ReadStatusDto create(ReadStatusCreateRequest request, UUID userId) {
+    log.debug("읽음 상태 생성 시작: userId={}, channelId={}", userId, request.channelId());
 
-    UUID userId = request.userId();
     UUID channelId = request.channelId();
 
     User user = userRepository.findById(userId)

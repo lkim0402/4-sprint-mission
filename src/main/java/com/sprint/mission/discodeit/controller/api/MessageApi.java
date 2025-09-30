@@ -23,27 +23,27 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(name = "Message", description = "Message API")
 public interface MessageApi {
 
-  @Operation(summary = "Message 생성")
-  @ApiResponses(value = {
-      @ApiResponse(
-          responseCode = "201", description = "Message가 성공적으로 생성됨",
-          content = @Content(schema = @Schema(implementation = MessageDto.class))
-      ),
-      @ApiResponse(
-          responseCode = "404", description = "Channel 또는 User를 찾을 수 없음",
-          content = @Content(examples = @ExampleObject(value = "Channel | Author with id {channelId | authorId} not found"))
-      ),
-  })
-  ResponseEntity<MessageDto> create(
-      @Parameter(
-          description = "Message 생성 정보",
-          content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
-      ) MessageCreateRequest messageCreateRequest,
-      @Parameter(
-          description = "Message 첨부 파일들",
-          content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)
-      ) List<MultipartFile> attachments
-  );
+//  @Operation(summary = "Message 생성")
+//  @ApiResponses(value = {
+//      @ApiResponse(
+//          responseCode = "201", description = "Message가 성공적으로 생성됨",
+//          content = @Content(schema = @Schema(implementation = MessageDto.class))
+//      ),
+//      @ApiResponse(
+//          responseCode = "404", description = "Channel 또는 User를 찾을 수 없음",
+//          content = @Content(examples = @ExampleObject(value = "Channel | Author with id {channelId | authorId} not found"))
+//      ),
+//  })
+//  ResponseEntity<MessageDto> create(
+//      @Parameter(
+//          description = "Message 생성 정보",
+//          content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
+//      ) MessageCreateRequest messageCreateRequest,
+//      @Parameter(
+//          description = "Message 첨부 파일들",
+//          content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)
+//      ) List<MultipartFile> attachments
+//  );
 
   @Operation(summary = "Message 내용 수정")
   @ApiResponses(value = {
