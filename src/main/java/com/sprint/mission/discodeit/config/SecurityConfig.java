@@ -46,6 +46,7 @@ public class SecurityConfig {
   private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
   private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
+
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
@@ -116,6 +117,13 @@ public class SecurityConfig {
             .authenticationEntryPoint(customAuthenticationEntryPoint)
             // authentication succeeded but cannot access resource (forbidden 403)
             .accessDeniedHandler(customAccessDeniedHandler)
+        )
+        // persistent cookie -> gives new JSESSIONID if missing
+        .rememberMe(remember -> remember
+            .key("my-remember-key")
+            .rememberMeCookieName("discodeit-cookie")
+            .tokenValiditySeconds(7 * 24 * 60 * 60) // cookie expiration date (7 days)
+            .rememberMeParameter("remember-me")
         )
 
     ;
