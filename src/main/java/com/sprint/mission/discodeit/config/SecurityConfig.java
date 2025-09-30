@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.config;
 
+import com.sprint.mission.discodeit.auth.CustomAccessDeniedHandler;
+import com.sprint.mission.discodeit.auth.CustomAuthenticationEntryPoint;
 import com.sprint.mission.discodeit.auth.DiscodeitUserDetailsService;
 import com.sprint.mission.discodeit.auth.LoginFailureHandler;
 import com.sprint.mission.discodeit.auth.LoginSuccessHandler;
@@ -13,6 +15,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,7 +27,9 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -35,6 +43,8 @@ public class SecurityConfig {
 
   private final LoginSuccessHandler loginSuccessHandler;
   private final LoginFailureHandler loginFailureHandler;
+  private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+  private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -72,18 +82,46 @@ public class SecurityConfig {
             .frameOptions(FrameOptionsConfig::disable)
         )
         .authorizeHttpRequests(auth -> auth
-            // these don't need authentication
-            .requestMatchers("/api/csrf-token").permitAll() // Csrf Token 발급
-            .requestMatchers("/api/auth/signup").permitAll() // 회원가입
-            .requestMatchers("/api/auth/login").permitAll() // 로그인
-            .requestMatchers("/api/auth/logout").permitAll() // 로그아웃
-            .requestMatchers("/h2-console/**").permitAll() // H2 콘솔
-            .requestMatchers("/swagger-ui/**").permitAll() // Swagger UI
-            .requestMatchers("/v3/api-docs/**").permitAll()  // Swagger API docs
-            .requestMatchers("/actuator/**").permitAll()  // Spring Actuator
-            // all other should be authenticated
-            .anyRequest().authenticated()
-        );
+
+                // Root and HTML files
+                .requestMatchers("/").permitAll()
+                .requestMatchers("/index.html").permitAll()  // ADD THIS!
+
+                // Static resources
+                .requestMatchers("/favicon.ico").permitAll()
+                .requestMatchers("/static/**").permitAll()
+                .requestMatchers("/assets/**").permitAll()
+                .requestMatchers("/*.js").permitAll()
+                .requestMatchers("/*.css").permitAll()
+                .requestMatchers("/*.png").permitAll()
+                .requestMatchers("/*.svg").permitAll()
+                .requestMatchers("/*.jpg").permitAll()
+
+                // these don't need authentication
+                .requestMatchers("/api/users").permitAll() // 회원가입
+//            .requestMatchers("/api/auth/csrf-token").permitAll() // Csrf Token 발급
+//            .requestMatchers("/api/auth/login").permitAll() // 로그인
+//            .requestMatchers("/api/auth/logout").permitAll() // 로그아웃
+
+                .requestMatchers("/.well-known/**").permitAll()
+
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/h2-console/**").permitAll() // H2 콘솔
+                .requestMatchers("/swagger-ui/**").permitAll() // Swagger UI
+                .requestMatchers("/v3/api-docs/**").permitAll()  // Swagger API docs
+                .requestMatchers("/actuator/**").permitAll()  // Spring Actuator
+                // all other should be authenticated
+
+                .anyRequest().authenticated()
+        )
+        .exceptionHandling(ex -> ex
+            // authentication failure
+            .authenticationEntryPoint(customAuthenticationEntryPoint)
+            // authentication succeeded but cannot access resource (forbidden 403)
+            .accessDeniedHandler(customAccessDeniedHandler)
+        )
+
+    ;
     return http.build();
   }
 
@@ -114,6 +152,25 @@ public class SecurityConfig {
       admin.setStatus(userStatus);
     }
     return new DiscodeitUserDetailsService(userRepository, userMapper);
+  }
+
+  @Bean
+  public RoleHierarchy roleHierarchy() {
+    RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
+    // Admin > Channel Manager > User
+    roleHierarchy.setHierarchy(
+        "ROLE_ADMIN > ROLE_CHANNEL_MANAGER\n" +
+            "ROLE_CHANNEL_MANAGER > ROLE_USER"
+    );
+    return roleHierarchy;
+  }
+
+  @Bean
+  public static MethodSecurityExpressionHandler methodSecurityExpressionHandler(
+      RoleHierarchy roleHierarchy) {
+    DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
+    handler.setRoleHierarchy(roleHierarchy);
+    return handler;
   }
 
 

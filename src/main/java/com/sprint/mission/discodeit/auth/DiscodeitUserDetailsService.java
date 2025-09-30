@@ -34,7 +34,7 @@ public class DiscodeitUserDetailsService implements UserDetailsService {
 
     // converting the user's roles from the database to the format Spring Security needs
     Collection<? extends GrantedAuthority> authorities = List.of(
-        new SimpleGrantedAuthority(user.getRole().toString()));
+        new SimpleGrantedAuthority("ROLE_" + user.getRole().toString()));
     return new DiscodeitUserDetails(userMapper.toDto(user), user.getPassword(), authorities);
   }
 }

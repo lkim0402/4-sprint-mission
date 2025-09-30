@@ -18,6 +18,10 @@ import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +38,7 @@ public class BasicChannelService implements ChannelService {
   private final UserRepository userRepository;
   private final ChannelMapper channelMapper;
 
+  @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   @Transactional
   @Override
   public ChannelDto create(PublicChannelCreateRequest request) {
@@ -85,6 +90,7 @@ public class BasicChannelService implements ChannelService {
         .toList();
   }
 
+  @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   @Transactional
   @Override
   public ChannelDto update(UUID channelId, PublicChannelUpdateRequest request) {
@@ -105,8 +111,21 @@ public class BasicChannelService implements ChannelService {
   @Override
   public void delete(UUID channelId) {
     log.debug("채널 삭제 시작: id={}", channelId);
-    if (!channelRepository.existsById(channelId)) {
-      throw ChannelNotFoundException.withId(channelId);
+//    if (!channelRepository.existsById(channelId)) {
+//      throw ChannelNotFoundException.withId(channelId);
+//    }
+    Channel channel = channelRepository.findById(channelId)
+        .orElseThrow(() -> ChannelNotFoundException.withId(channelId));
+
+    if (channel.getType() == ChannelType.PUBLIC) {
+      // getting current user's authorities
+      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+      boolean hasChannelManagerRole = authentication.getAuthorities().stream()
+          .anyMatch(auth -> auth.getAuthority().equals("CHANNEL_MANAGER"));
+
+      if (!hasChannelManagerRole) {
+        throw new AccessDeniedException("퍼블릭 채널 삭제는 CHANNEL_MANAGER 권한이 필요합니다.");
+      }
     }
 
     messageRepository.deleteAllByChannelId(channelId);

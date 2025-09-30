@@ -25,7 +25,7 @@ public class BasicAuthService implements AuthService {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
 
-  @PreAuthorize("hasRole('ADMIN')") // only admin can call this method
+  @PreAuthorize("hasRole('ADMIN')")
   @Transactional
   public UserDto updateRole(RoleUpdateRequest roleUpdateRequest) {
     UUID userId = roleUpdateRequest.userId();

@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -62,6 +64,45 @@ public class GlobalExceptionHandler {
         .status(HttpStatus.BAD_REQUEST)
         .body(response);
   }
+
+  // 권한이 없는 경우
+  @ExceptionHandler(AccessDeniedException.class)
+  public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
+    log.error("권한 거부: {}", ex.getMessage());
+
+    ErrorResponse response = new ErrorResponse(
+        Instant.now(),
+        "ACCESS_DENIED",
+        "이 작업을 수행할 권한이 없습니다.",
+        null,
+        ex.getClass().getSimpleName(),
+        HttpStatus.FORBIDDEN.value()
+    );
+
+    return ResponseEntity
+        .status(HttpStatus.FORBIDDEN)
+        .body(response);
+  }
+
+  // 인증 실패할 경우
+  @ExceptionHandler(AuthenticationException.class)
+  public ResponseEntity<ErrorResponse> handleAuthentication(AuthenticationException ex) {
+    log.error("인증 실패: {}", ex.getMessage());
+
+    ErrorResponse response = new ErrorResponse(
+        Instant.now(),
+        "AUTHENTICATION_ERROR",
+        "인증에 실패했습니다.",
+        null,
+        ex.getClass().getSimpleName(),
+        HttpStatus.UNAUTHORIZED.value()
+    );
+
+    return ResponseEntity
+        .status(HttpStatus.UNAUTHORIZED)
+        .body(response);
+  }
+
 
   private HttpStatus determineHttpStatus(DiscodeitException exception) {
     ErrorCode errorCode = exception.getErrorCode();
