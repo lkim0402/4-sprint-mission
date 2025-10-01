@@ -39,7 +39,7 @@ public class BasicAuthService implements AuthService {
         .orElseThrow(() -> UserNotFoundException.withId(userId));
     user.updateRole(role);
 
-    // find the user's principal in the SessionRegistry and expire their active sessions
+    // finds the user's principal in the SessionRegistry and expire their active sessions
     List<DiscodeitUserDetails> currentUserDetailsList = sessionRegistry.getAllPrincipals().stream()
         .filter(p -> p instanceof DiscodeitUserDetails)
         .map(p -> (DiscodeitUserDetails) p)
