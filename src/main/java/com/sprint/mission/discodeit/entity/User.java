@@ -33,9 +33,6 @@ public class User extends BaseUpdatableEntity {
   private BinaryContent profile;
   @JsonManagedReference
   @Setter
-//  @Setter(AccessLevel.PROTECTED)
-  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-  private UserStatus status;
 
   // role
   @Enumerated(EnumType.STRING)

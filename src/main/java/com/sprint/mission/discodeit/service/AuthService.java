@@ -8,4 +8,6 @@ public interface AuthService {
 //  UserDto login(LoginRequest loginRequest);
 
   UserDto updateRole(RoleUpdateRequest roleUpdateRequest);
+
+  boolean isUserOnline(String username);
 }

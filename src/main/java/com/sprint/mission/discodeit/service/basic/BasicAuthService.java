@@ -56,4 +56,17 @@ public class BasicAuthService implements AuthService {
     return userMapper.toDto(user);
   }
 
+  @Transactional
+  public boolean isUserOnline(String username) {
+    if (username == null) {
+      return false;
+    }
+
+    return sessionRegistry.getAllPrincipals().stream()
+        .filter(p -> p instanceof DiscodeitUserDetails)
+        .map(p -> (DiscodeitUserDetails) p)
+        .anyMatch(userDetails -> userDetails.getUsername().equals(username));
+  }
+
+
 }

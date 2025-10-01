@@ -11,11 +11,11 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-09-30T16:46:14+0900",
+    date = "2025-10-01T11:51:38+0900",
     comments = "version: 1.6.3, compiler: javac, environment: Java 17.0.12 (Oracle Corporation)"
 )
 @Component
-public class UserMapperImpl implements UserMapper {
+public class UserMapperImpl extends UserMapper {
 
     @Autowired
     private BinaryContentMapper binaryContentMapper;
@@ -38,7 +38,7 @@ public class UserMapperImpl implements UserMapper {
         profile = binaryContentMapper.toDto( user.getProfile() );
         role = user.getRole();
 
-        Boolean online = user.getStatus().isOnline();
+        Boolean online = null;
 
         UserDto userDto = new UserDto( userId, username, email, profile, online, role );
 
