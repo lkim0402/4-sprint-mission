@@ -53,10 +53,9 @@ public class DiscodeitUserDetails implements UserDetails {
     if (this == o) {
       return true;
     }
-    if (o == null || getClass() != o.getClass()) {
+    if (!(o instanceof DiscodeitUserDetails that)) { // includes null
       return false;
     }
-    DiscodeitUserDetails that = (DiscodeitUserDetails) o;
     return Objects.equals(this.getUserDto().userId(), that.userDto.userId());
   }
 
