@@ -1,88 +1,64 @@
 package com.sprint.mission.discodeit.auth.filter;
 
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.auth.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.auth.DiscodeitUserDetailsService;
 import com.sprint.mission.discodeit.auth.jwt.JwtTokenProvider;
-import com.sprint.mission.discodeit.dto.request.LoginRequest;
-import com.sprint.mission.discodeit.entity.User;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.filter.OncePerRequestFilter;
 
-// 로그인 인증을 담당하는 Security Filter(JwtAuthenticationFilter)가 클라이언트의 로그인 인증 정보 수신
+
+// 클라이언트 측에서 전송된 request header에 포함된 JWT에 대해 검증 작업을 수행
+// verifyng the token that the user already has
 @RequiredArgsConstructor
-public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-  // 로그인 인증 정보(Username/Password)를 전달받아 UserDetailsService와 인터랙션 한 뒤 인증 여부를 판단
-  private final AuthenticationManager authenticationManager;
-
-  // 클라이언트가 인증에 성공할 경우, JWT를 생성 및 발급
   private final JwtTokenProvider jwtTokenProvider;
+  private final DiscodeitUserDetailsService userDetailsService;
 
-  // 1) 받은 인증정보를 AuthenticationManager에게 전달해 인증처리 위임
-  @SneakyThrows
   @Override
-  public Authentication attemptAuthentication(HttpServletRequest request,
-      HttpServletResponse response) {
-    ObjectMapper objectMapper = new ObjectMapper();
-    LoginRequest loginRequest = objectMapper.readValue(request.getInputStream(),
-        LoginRequest.class);
+  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+      FilterChain filterChain) throws ServletException, IOException {
 
-    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-        loginRequest.username(),
-        loginRequest.password()
-    );
+    // claims 가져오기 (유효성 검사 포함)
+    Map<String, Object> claims = verifyJws(request);
+    
+    // userDetail 가져오기
+    String username = claims.get("username").toString();
+    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-    // DiscodeitUserDetailsService에게 사용자의 UserDetails 조회를 위임하고 사용자의 크레덴셜을 조회하고,
-    // AuthenticationManager에게 사용자의 UserDetails를 전달 (loadUserByUsername())
-    return authenticationManager.authenticate(authenticationToken);
+    UsernamePasswordAuthenticationToken authentication =
+        new UsernamePasswordAuthenticationToken(
+            userDetails,
+            null,
+            userDetails.getAuthorities()
+        );
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+
+    // continue to next chain
+    filterChain.doFilter(request, response);
   }
 
-  // 2) 인증이 성공될때 호출됨
   @Override
-  protected void successfulAuthentication(HttpServletRequest request,
-      HttpServletResponse response,
-      FilterChain chain,
-      Authentication authResult) {
-
-    // AuthenticationManager 내부에서 인증에 성공하면,
-    // 인증된 Authentication 객체가 생성되면서 principal 필드에 Member 객체가 할당됨
-    User user = (User) authResult.getPrincipal();
-
-    String accessToken = delegateAccessToken(user);
-    String refreshToken = delegateRefreshToken(user);
-
-    response.setHeader("Authorization", "Bearer " + accessToken);
-    response.setHeader("Refresh", refreshToken);
+  protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    String authorization = request.getHeader("Authorization");
+    return authorization == null || !authorization.startsWith("Bearer");
   }
 
-  // ====================== private methods ======================
-  // access token 생성
-  private String delegateAccessToken(User user) {
-    Map<String, Object> claims = new HashMap<>();
-    claims.put("username", user.getUsername());
-    claims.put("email", user.getEmail());
-    claims.put("role", user.getRole());
-    String subject = user.getId().toString();
-
-    return jwtTokenProvider.generateAccessToken(claims, subject);
-  }
-
-  // refresh token 생성
-  private String delegateRefreshToken(User user) {
-    String subject = user.getId().toString();
-
-    return jwtTokenProvider.generateRefreshToken(subject);
+  // ======================== private methods ========================
+  private Map<String, Object> verifyJws(HttpServletRequest request) {
+    String jws = request.getHeader("Authorization").replace("Bearer ", "");
+    return jwtTokenProvider.getClaims(jws); // 유효성 검사 포함
   }
 }
