@@ -35,6 +35,4 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     response.getWriter().write(json);
     response.sendRedirect("/");
   }
-
-
 }

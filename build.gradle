@@ -52,6 +52,9 @@ dependencies {
     // security
     implementation "org.springframework.boot:spring-boot-starter-security"
 
+    // nimbus
+    implementation 'com.nimbusds:nimbus-jose-jwt:9.40'
+
 }
 
 tasks.named('test') {

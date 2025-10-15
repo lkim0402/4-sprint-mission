@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.config;
 import com.sprint.mission.discodeit.auth.CustomAccessDeniedHandler;
 import com.sprint.mission.discodeit.auth.CustomAuthenticationEntryPoint;
 import com.sprint.mission.discodeit.auth.DiscodeitUserDetailsService;
+import com.sprint.mission.discodeit.auth.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.auth.LoginFailureHandler;
 import com.sprint.mission.discodeit.auth.LoginSuccessHandler;
 import com.sprint.mission.discodeit.entity.Role;
@@ -22,6 +23,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -43,7 +45,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  private final LoginSuccessHandler loginSuccessHandler;
+  //  private final LoginSuccessHandler loginSuccessHandler;
+  private final JwtLoginSuccessHandler loginSuccessHandler;
   private final LoginFailureHandler loginFailureHandler;
   private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
   private final CustomAccessDeniedHandler customAccessDeniedHandler;
@@ -127,13 +130,10 @@ public class SecurityConfig {
             .tokenValiditySeconds(7 * 24 * 60 * 60) // cookie expiration date (7 days)
             .rememberMeParameter("remember-me")
         )
-        // blocking concurrent logins
+        // since we're using tokens, we make sessions STATELESS
+        // we don't create HttpSession or a JsessionId cookie
         .sessionManagement(management -> management
-            .sessionConcurrency(concurrency -> concurrency
-                .maximumSessions(1)
-                .maxSessionsPreventsLogin(true)
-                .sessionRegistry(sessionRegistry())
-            ))
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
     ;
     return http.build();
   }

@@ -63,3 +63,8 @@ logging:
     org:
       springframework:
         security: DEBUG
+
+jwt:
+  secret-key: 2304890239570239581ldkjflds094525wet*&Eeirujwe
+  access-token-expiration-minutes: 3
+  refresh-token-expiration-minutes: 3
