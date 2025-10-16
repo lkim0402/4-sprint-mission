@@ -6,11 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.auth.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.auth.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.dto.data.UserDto;
-import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.dto.response.JwtDto;
 import com.sprint.mission.discodeit.entity.RefreshToken;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.RefreshTokenRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
@@ -47,13 +44,6 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
   @Override
   public Authentication attemptAuthentication(HttpServletRequest request,
       HttpServletResponse response) {
-//    ObjectMapper objectMapper = new ObjectMapper();
-//    LoginRequest loginRequest = objectMapper.readValue(request.getInputStream(),
-//        LoginRequest.class);
-//    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-//        loginRequest.username(),
-//        loginRequest.password()
-//    );
 
     String username = request.getParameter("username");
     String password = request.getParameter("password");

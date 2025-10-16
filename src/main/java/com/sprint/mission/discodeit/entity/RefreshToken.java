@@ -50,13 +50,6 @@ public class RefreshToken {
   private boolean rotated;
 
 
-  /**
-   * 토큰 폐기 처리
-   */
-  public void invalidate() {
-    this.expiredAt = LocalDateTime.now();
-  }
-
   public void updateToken(String token, long expirationMinutes) {
     this.token = token;
     this.expiredAt = LocalDateTime.now().plusMinutes(expirationMinutes);

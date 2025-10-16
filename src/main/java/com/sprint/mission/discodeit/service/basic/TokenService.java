@@ -37,9 +37,6 @@ public class TokenService {
     if (refreshToken.getExpiredAt().isBefore(LocalDateTime.now())) {
       throw new IllegalArgumentException("만료된 Refresh Token - 다시 로그인해주세요");
     }
-    if (refreshToken.isRotated()) {
-      throw new IllegalArgumentException("탈취된 Refresh Token - 다시 로그인해주세요");
-    }
 
     User user = userRepository.findById(refreshToken.getUserId())
         .orElseThrow(UserNotFoundException::new);
@@ -69,7 +66,11 @@ public class TokenService {
     return new TokenResponse(userMapper.toDto(user), newAccessToken, newRefreshTokenValue);
   }
 
+  /**
+   * Refresh Token 회전 여부 판단 로직 일정 주기(예: 만료 3일 전 등)에 따라 새 토큰 발급
+   */
   private boolean shouldRotate(RefreshToken token) {
+
     return token.getExpiredAt().isBefore(LocalDateTime.now().plusDays(3));
   }
 }

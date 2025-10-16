@@ -116,12 +116,4 @@ public class JwtTokenProvider {
       throw new RuntimeException("JWT 파싱 실패", e);
     }
   }
-
-  public Date getTokenExpiration(int expirationMinutes) {
-    Calendar calendar = Calendar.getInstance();
-    calendar.add(Calendar.MINUTE, expirationMinutes);
-
-    return calendar.getTime();
-  }
-
 }
