@@ -66,5 +66,6 @@ logging:
 
 jwt:
   secret-key: 2304890239570239581ldkjflds094525wet*&Eeirujwe
-  access-token-expiration-minutes: 3
-  refresh-token-expiration-minutes: 3
+  access-token-expiration-seconds-test: 30
+  access-token-expiration-minutes: 1
+  refresh-token-expiration-minutes: 2

@@ -12,10 +12,8 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 
@@ -33,7 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     // claims 가져오기 (유효성 검사 포함)
     Map<String, Object> claims = verifyJws(request);
-    
+
     // userDetail 가져오기
     String username = claims.get("username").toString();
     UserDetails userDetails = userDetailsService.loadUserByUsername(username);

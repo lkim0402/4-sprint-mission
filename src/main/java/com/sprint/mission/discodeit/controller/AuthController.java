@@ -4,13 +4,22 @@ import com.sprint.mission.discodeit.auth.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.controller.api.AuthApi;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
+import com.sprint.mission.discodeit.dto.request.TokenReissueRequest;
+import com.sprint.mission.discodeit.dto.response.JwtDto;
+import com.sprint.mission.discodeit.dto.response.TokenResponse;
 import com.sprint.mission.discodeit.service.AuthService;
+import com.sprint.mission.discodeit.service.basic.TokenService;
+import jakarta.annotation.Nullable;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +33,8 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthController implements AuthApi {
 
   private final AuthService authService;
+  private final TokenService tokenService;
+
 
   // where client first calls to get the initial CSRF token
   @GetMapping("/csrf-token")
@@ -43,27 +54,39 @@ public class AuthController implements AuthApi {
   //   - possible coz cookie was set with HttpOnly=false
   // The server simply checks if the token in cookie matches the token in the header
 
-
-  // @AuthenticationPrincipal goes to SecurityContextHolder, gets the user's Authentication object
-  //   & extracts the "Principal" from it, the DiscodeitUserDetails instance created during login
-  @GetMapping("/me")
-  public ResponseEntity<UserDto> getUserInfo(
-      @AuthenticationPrincipal DiscodeitUserDetails discodeitUserDetails) {
-
-    if (discodeitUserDetails == null) {
-      // return 401 Unauthorized instead of crashing with a 500 error
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-    }
-
-    return ResponseEntity.ok(discodeitUserDetails.getUserDto());
-  }
-
   @PutMapping("/role")
   public ResponseEntity<UserDto> updateUserRole(
       @RequestBody RoleUpdateRequest userRoleUpdateRequest
   ) {
     UserDto userDto = authService.updateRole(userRoleUpdateRequest);
     return ResponseEntity.ok(userDto);
+  }
+
+
+  /**
+   * Refresh Token을 이용한 Access Token 재발급 API
+   */
+  @PostMapping("/refresh")
+  public ResponseEntity<?> refresh(
+      @CookieValue(value = "REFRESH_TOKEN", required = false) String refreshTokenValue,
+      HttpServletResponse response
+  ) {
+
+    if (refreshTokenValue == null) {
+      // Tell the frontend "Unauthorized" so it can show the login page.
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+          .body("Refresh token is missing.");
+    }
+
+    TokenResponse tokenResponse = tokenService.reissueToken(refreshTokenValue);
+
+    //creating new cookie
+    Cookie refreshTokenCookie = new Cookie("REFRESH_TOKEN", tokenResponse.getRefreshToken());
+    refreshTokenCookie.setHttpOnly(true);
+    refreshTokenCookie.setPath("/");
+    response.addCookie(refreshTokenCookie);
+    JwtDto jwtDto = new JwtDto(tokenResponse.getUserDto(), tokenResponse.getAccessToken());
+    return ResponseEntity.ok(jwtDto);
   }
 
 }

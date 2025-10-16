@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 //     instead of its temporary one (in memory)
 // - If it's a bean it automatically replaces
 
-//@Service
+@Service
 @RequiredArgsConstructor
 public class DiscodeitUserDetailsService implements UserDetailsService {
 
@@ -27,6 +27,9 @@ public class DiscodeitUserDetailsService implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
+
+    System.out.println("Attempting to load user by username: " + name);
+
     Optional<com.sprint.mission.discodeit.entity.User> optionalUser = userRepository.findByUsername(
         name);
     com.sprint.mission.discodeit.entity.User user = optionalUser.orElseThrow(
@@ -35,6 +38,10 @@ public class DiscodeitUserDetailsService implements UserDetailsService {
     // converting the user's roles from the database to the format Spring Security needs
     Collection<? extends GrantedAuthority> authorities = List.of(
         new SimpleGrantedAuthority("ROLE_" + user.getRole().toString()));
+    System.out.println(
+        "Found user: " + user.getUsername() + " with encoded password: " + user.getPassword());
     return new DiscodeitUserDetails(userMapper.toDto(user), user.getPassword(), authorities);
+
+
   }
 }

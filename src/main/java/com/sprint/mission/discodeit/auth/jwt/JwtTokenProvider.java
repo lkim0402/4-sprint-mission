@@ -44,7 +44,9 @@ public class JwtTokenProvider {
 
       JWTClaimsSet claimsSet = new Builder()
           .subject(subject)
-          .claim("roles", claims.get("roles"))
+          .claim("email", claims.get("email"))
+          .claim("username", claims.get("username"))
+          .claim("role", claims.get("role"))
           .expirationTime(expiration)
           .issueTime(new Date())
 //          .issuer("discodeit.com")
