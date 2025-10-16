@@ -78,7 +78,6 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
       Authentication authResult) throws IOException {
 
     DiscodeitUserDetails userDetails = (DiscodeitUserDetails) authResult.getPrincipal();
-    System.out.println("Is user printed? " + userDetails.getUsername());
     UserDto user = userDetails.getUserDto();
     String accessToken = delegateAccessToken(user);
     String refreshToken = delegateRefreshToken(user);

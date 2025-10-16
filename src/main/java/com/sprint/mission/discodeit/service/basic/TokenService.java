@@ -60,18 +60,11 @@ public class TokenService {
     if (shouldRotate(refreshToken)) {
       long expirationMinutes = jwtTokenProvider.getRefreshTokenExpirationMinutes();
       LocalDateTime newExpiration = LocalDateTime.now().plusMinutes(expirationMinutes);
-      newRefreshTokenValue = jwtTokenProvider.generateRefreshToken("refreshToken");
-
-      RefreshToken newRefreshToken = RefreshToken.builder()
-          .token(newRefreshTokenValue)
-          .userId(userId)
-          .expiredAt(newExpiration)
-          .rotated(false)
-          .build();
+      newRefreshTokenValue = jwtTokenProvider.generateRefreshToken(userId.toString());
 
       refreshToken.setToken(newRefreshTokenValue);
       refreshToken.setExpiredAt(newExpiration);
-      refreshTokenRepository.save(refreshToken);
+//      refreshTokenRepository.save(refreshToken);
     }
     return new TokenResponse(userMapper.toDto(user), newAccessToken, newRefreshTokenValue);
   }
