@@ -20,5 +20,7 @@ public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
 
   Boolean existsByUserIdAndChannelId(UUID userId, UUID channelId);
 
+  List<ReadStatus> findByChannelIdAndNotificationEnabledTrue(UUID channelId);
+
   void deleteAllByChannelId(UUID channelId);
 }

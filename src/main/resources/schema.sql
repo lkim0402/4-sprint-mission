@@ -69,8 +69,25 @@ CREATE TABLE read_statuses
     UNIQUE (user_id, channel_id)
 );
 
+CREATE TABLE notifications
+(
+    id         UUID PRIMARY KEY,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone,
+    user_id    uuid                     NOT NULL,
+    title      varchar(100)             NOT NULL,
+    content    varchar(500)             NOT NULL
+);
+
 
 -- 제약 조건
+-- Notification (N) -> User (1)
+ALTER TABLE notifications
+    ADD CONSTRAINT fk_notification_user
+        FOREIGN KEY (user_id)
+            REFERENCES users (id)
+            ON DELETE CASCADE;
+
 -- User (1) -> BinaryContent (1)
 ALTER TABLE users
     ADD CONSTRAINT fk_user_binary_content

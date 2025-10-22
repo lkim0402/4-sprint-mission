@@ -10,7 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,8 +36,18 @@ public class NotificationController {
         .body(notificationDtos);
   }
 
-//  @DeleteMapping(path = "{notificationId}")
-//  public ResponseEntity<Void> deleteNotification() {
-//  }
+  @DeleteMapping(path = "{notificationId}")
+  public ResponseEntity<Void> deleteNotification(
+      @AuthenticationPrincipal UserPrincipal userPrincipal,
+      @PathVariable("notificationId") UUID notificationId
+  ) {
+
+    // ReadStatus 엔티티의 lastReadAt 시간을 업데이트
+
+    return ResponseEntity
+        .status(HttpStatus.NO_CONTENT)
+        .build();
+
+  }
 
 }
