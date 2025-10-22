@@ -22,11 +22,11 @@ public class BinaryContentListener {
   public void onApplicationEvent(BinaryContentCreatedEvent event) {
 
     try {
-      binaryContentStorage.put(event.getId(), event.getBytes());
-      binaryContentService.updateStatus(event.getId(), BinaryContentStatus.SUCCESS);
+      binaryContentStorage.put(event.id(), event.bytes());
+      binaryContentService.updateStatus(event.id(), BinaryContentStatus.SUCCESS);
     } catch (Exception e) {
       log.error("Binary Content 저장 실패: ", e);
-      binaryContentService.updateStatus(event.getId(), BinaryContentStatus.FAIL);
+      binaryContentService.updateStatus(event.id(), BinaryContentStatus.FAIL);
 
     }
   }
