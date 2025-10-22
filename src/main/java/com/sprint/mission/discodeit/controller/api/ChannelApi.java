@@ -76,14 +76,14 @@ public interface ChannelApi {
       @Parameter(description = "삭제할 Channel ID") UUID channelId
   );
 
-//  @Operation(summary = "User가 참여 중인 Channel 목록 조회")
-//  @ApiResponses(value = {
-//      @ApiResponse(
-//          responseCode = "200", description = "Channel 목록 조회 성공",
-//          content = @Content(array = @ArraySchema(schema = @Schema(implementation = ChannelDto.class)))
-//      )
-//  })
-//  ResponseEntity<List<ChannelDto>> findAll(
-//      @Parameter(description = "조회할 User ID") UUID userId
-//  );
+  @Operation(summary = "User가 참여 중인 Channel 목록 조회")
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = "200", description = "Channel 목록 조회 성공",
+          content = @Content(array = @ArraySchema(schema = @Schema(implementation = ChannelDto.class)))
+      )
+  })
+  ResponseEntity<List<ChannelDto>> findAll(
+      @Parameter(description = "조회할 User ID") UUID userId
+  );
 } 

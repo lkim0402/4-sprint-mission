@@ -12,7 +12,8 @@ spring:
       ddl-auto: validate
     open-in-view: false
   profiles:
-    active: test
+    active:
+      - dev
   config:
     import: optional:file:.env[.properties]
 
@@ -56,16 +57,18 @@ discodeit:
       region: ${AWS_S3_REGION}
       bucket: ${AWS_S3_BUCKET}
       presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600} # (기본값: 10분)
+  admin:
+    username: ${DISCODEIT_ADMIN_USERNAME}
+    email: ${DISCODEIT_ADMIN_EMAIL}
+    password: ${DISCODEIT_ADMIN_PASSWORD}
+  jwt:
+    access-token:
+      secret: ${JWT_ACCESS_SECRET:your-access-token-secret-key-here-make-it-long-and-random}
+      expiration-ms: ${JWT_ACCESS_EXPIRATION_MS:1800000} # 30 minutes
+    refresh-token:
+      secret: ${JWT_REFRESH_SECRET:your-refresh-token-secret-key-here-make-it-different-and-long}
+      expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000} # 7 days
 
 logging:
   level:
     root: info
-    org:
-      springframework:
-        security: DEBUG
-
-jwt:
-  secret-key: 2304890239570239581ldkjflds094525wet*&Eeirujwe
-  access-token-expiration-seconds-test: 30
-  access-token-expiration-minutes: 1
-  refresh-token-expiration-minutes: 2

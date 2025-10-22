@@ -5,26 +5,23 @@ import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -36,7 +33,6 @@ public class BasicUserService implements UserService {
   private final BinaryContentRepository binaryContentRepository;
   private final BinaryContentStorage binaryContentStorage;
   private final PasswordEncoder passwordEncoder;
-  private final AuthService authService;
 
   @Transactional
   @Override
@@ -67,44 +63,24 @@ public class BasicUserService implements UserService {
         })
         .orElse(null);
     String password = userCreateRequest.password();
+    String encodedPassword = passwordEncoder.encode(password);
 
-    // Saving PasswordEncoder via hash (BCryptPasswordEncoder)
-    String encodedPwd = passwordEncoder.encode(password);
-    User user = new User(username, email, encodedPwd, nullableProfile, Role.USER);
-    Instant now = Instant.now();
+    User user = new User(username, email, encodedPassword, nullableProfile);
 
     userRepository.save(user);
     log.info("사용자 생성 완료: id={}, username={}", user.getId(), username);
-    UserDto userDto = userMapper.toDto(user);
-    return new UserDto(
-        userDto.userId(),
-        userDto.username(),
-        userDto.email(),
-        userDto.profile(),
-        true,
-        userDto.role()
-    );
+    return userMapper.toDto(user);
   }
 
   @Transactional(readOnly = true)
   @Override
   public UserDto find(UUID userId) {
     log.debug("사용자 조회 시작: id={}", userId);
-    User user = userRepository.findById(userId)
-//        .map(userMapper::toDto)
+    UserDto userDto = userRepository.findById(userId)
+        .map(userMapper::toDto)
         .orElseThrow(() -> UserNotFoundException.withId(userId));
     log.info("사용자 조회 완료: id={}", userId);
-
-    UserDto basicDto = userMapper.toDto(user);
-    boolean isOnline = authService.isUserOnline(user.getUsername());
-    return new UserDto(
-        basicDto.userId(),
-        basicDto.username(),
-        basicDto.email(),
-        basicDto.profile(),
-        isOnline,
-        basicDto.role()
-    );
+    return userDto;
   }
 
   @Transactional(readOnly = true)
@@ -119,6 +95,7 @@ public class BasicUserService implements UserService {
     return userDtos;
   }
 
+  @PreAuthorize("principal.userDto.id == #userId")
   @Transactional
   @Override
   public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
@@ -157,12 +134,15 @@ public class BasicUserService implements UserService {
         .orElse(null);
 
     String newPassword = userUpdateRequest.newPassword();
-    user.update(newUsername, newEmail, newPassword, nullableProfile);
+    String encodedPassword = Optional.ofNullable(newPassword).map(passwordEncoder::encode)
+        .orElse(user.getPassword());
+    user.update(newUsername, newEmail, encodedPassword, nullableProfile);
 
     log.info("사용자 수정 완료: id={}", userId);
     return userMapper.toDto(user);
   }
 
+  @PreAuthorize("principal.userDto.id == #userId")
   @Transactional
   @Override
   public void delete(UUID userId) {

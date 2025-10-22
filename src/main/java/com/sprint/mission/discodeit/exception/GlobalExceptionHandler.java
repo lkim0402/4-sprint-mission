@@ -6,8 +6,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -65,55 +64,32 @@ public class GlobalExceptionHandler {
         .body(response);
   }
 
-  // 권한이 없는 경우
-  @ExceptionHandler(AccessDeniedException.class)
-  public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
-    log.error("권한 거부: {}", ex.getMessage());
-
+  @ExceptionHandler(AuthorizationDeniedException.class)
+  public ResponseEntity<ErrorResponse> handleAuthorizationDeniedException(
+      AuthorizationDeniedException ex) {
+    log.error("권한 거부 오류 발생: {}", ex.getMessage());
     ErrorResponse response = new ErrorResponse(
         Instant.now(),
-        "ACCESS_DENIED",
-        "이 작업을 수행할 권한이 없습니다.",
+        "AUTHORIZATION_DENIED",
+        "요청에 대한 권한이 없습니다",
         null,
         ex.getClass().getSimpleName(),
         HttpStatus.FORBIDDEN.value()
     );
-
     return ResponseEntity
         .status(HttpStatus.FORBIDDEN)
         .body(response);
   }
 
-  // 인증 실패할 경우
-  @ExceptionHandler(AuthenticationException.class)
-  public ResponseEntity<ErrorResponse> handleAuthentication(AuthenticationException ex) {
-    log.error("인증 실패: {}", ex.getMessage());
-
-    ErrorResponse response = new ErrorResponse(
-        Instant.now(),
-        "AUTHENTICATION_ERROR",
-        "인증에 실패했습니다.",
-        null,
-        ex.getClass().getSimpleName(),
-        HttpStatus.UNAUTHORIZED.value()
-    );
-
-    return ResponseEntity
-        .status(HttpStatus.UNAUTHORIZED)
-        .body(response);
-  }
-
-
   private HttpStatus determineHttpStatus(DiscodeitException exception) {
     ErrorCode errorCode = exception.getErrorCode();
     return switch (errorCode) {
       case USER_NOT_FOUND, CHANNEL_NOT_FOUND, MESSAGE_NOT_FOUND, BINARY_CONTENT_NOT_FOUND,
-           READ_STATUS_NOT_FOUND, USER_STATUS_NOT_FOUND -> HttpStatus.NOT_FOUND;
-      case DUPLICATE_USER, DUPLICATE_READ_STATUS, DUPLICATE_USER_STATUS -> HttpStatus.CONFLICT;
-      case INVALID_USER_CREDENTIALS, USER_NOT_ACTIVE -> HttpStatus.UNAUTHORIZED;
+           READ_STATUS_NOT_FOUND -> HttpStatus.NOT_FOUND;
+      case DUPLICATE_USER, DUPLICATE_READ_STATUS -> HttpStatus.CONFLICT;
+      case INVALID_USER_CREDENTIALS, INVALID_TOKEN, INVALID_USER_DETAILS -> HttpStatus.UNAUTHORIZED;
       case PRIVATE_CHANNEL_UPDATE, INVALID_REQUEST -> HttpStatus.BAD_REQUEST;
       case INTERNAL_SERVER_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
-      case USER_ALREADY_LOGGED_IN -> HttpStatus.CONFLICT;
     };
   }
 }
