@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.data.NotificationDto;
+import com.sprint.mission.discodeit.entity.Notification;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.service.NotificationService;
 import java.nio.file.attribute.UserPrincipal;
 import java.util.List;
@@ -26,10 +28,12 @@ public class NotificationController {
 
   @GetMapping
   public ResponseEntity<List<NotificationDto>> sendNotification(@AuthenticationPrincipal
-  UserPrincipal userPrincipal) {
-    String username = userPrincipal.getName();
+  DiscodeitUserDetails userDetails) {
+    UUID userId = userDetails.getUserDto().id();
 
-    List<NotificationDto> notificationDtos = notificationService.getNotificationsForUser(username);
+    log.info("알림 조회 요청: userId={}", userId);
+    List<NotificationDto> notificationDtos = notificationService.getNotificationsForUser(userId);
+    log.debug("알림 조회 응답: {}", notificationDtos);
 
     return ResponseEntity
         .status(HttpStatus.OK)
@@ -38,16 +42,18 @@ public class NotificationController {
 
   @DeleteMapping(path = "{notificationId}")
   public ResponseEntity<Void> deleteNotification(
-      @AuthenticationPrincipal UserPrincipal userPrincipal,
+      @AuthenticationPrincipal DiscodeitUserDetails userDetails,
       @PathVariable("notificationId") UUID notificationId
   ) {
 
-    // ReadStatus 엔티티의 lastReadAt 시간을 업데이트
+    UUID userId = userDetails.getUserDto().id();
+
+    log.info("알림 삭제 요청: userId={}", userId);
+    notificationService.delete(notificationId, userId);
+    log.debug("알림 삭제 응답: userId={}", userId);
 
     return ResponseEntity
         .status(HttpStatus.NO_CONTENT)
         .build();
-
   }
-
 }

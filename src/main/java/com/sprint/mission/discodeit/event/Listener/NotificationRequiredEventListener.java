@@ -1,18 +1,24 @@
-package com.sprint.mission.discodeit.event;
+package com.sprint.mission.discodeit.event.Listener;
 
-import com.sprint.mission.discodeit.dto.data.NotificationDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.Notification;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.MessageCreatedEvent;
+import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.repository.NotificationRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class NotificationRequiredEventListener {
@@ -20,14 +26,20 @@ public class NotificationRequiredEventListener {
   private final ReadStatusRepository readStatusRepository;
   private final NotificationRepository notificationRepository;
 
-  @TransactionalEventListener
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void on(MessageCreatedEvent event) {
+
+    log.info("!!! MessageCreatedEvent 수신 성공! 알림 생성을 시작합니다.");
+
     Message message = event.message();
     Channel channel = message.getChannel();
     User user = message.getAuthor();
 
     List<ReadStatus> readStatusList = readStatusRepository.findByChannelIdAndNotificationEnabledTrue(
         channel.getId());
+
+    log.info("!!! 조회된 ReadStatus 개수: {}", readStatusList.size());
 
     List<Notification> notifications = readStatusList.stream()
         // 해당 메시지를 보낸 사람은 알림 대상에서 제외
@@ -40,10 +52,12 @@ public class NotificationRequiredEventListener {
             )
         ).toList();
 
-    notificationRepository.saveAll(notifications);
+    List<Notification> list = notificationRepository.saveAll(notifications);
+    log.info("!!! MessageCreatedEvent 수신 완료. list={}", list);
   }
 
-  @TransactionalEventListener
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void on(RoleUpdatedEvent event) {
     User user = event.user();
     Notification notification = new Notification(
