@@ -18,6 +18,8 @@ import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,7 @@ public class BasicChannelService implements ChannelService {
   private final UserRepository userRepository;
   private final ChannelMapper channelMapper;
 
+  @CacheEvict(value = "userChannelsCache", allEntries = true)
   @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   @Transactional
   @Override
@@ -50,6 +53,7 @@ public class BasicChannelService implements ChannelService {
     return channelMapper.toDto(channel);
   }
 
+  @CacheEvict(value = "userChannelsCache", allEntries = true)
   @Transactional
   @Override
   public ChannelDto create(PrivateChannelCreateRequest request) {
@@ -89,6 +93,7 @@ public class BasicChannelService implements ChannelService {
         .toList();
   }
 
+  @CacheEvict(value = "userChannelsCache", allEntries = true)
   @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   @Transactional
   @Override
@@ -106,6 +111,7 @@ public class BasicChannelService implements ChannelService {
     return channelMapper.toDto(channel);
   }
 
+  @CacheEvict(value = "userChannelsCache", allEntries = true)
   @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   @Transactional
   @Override

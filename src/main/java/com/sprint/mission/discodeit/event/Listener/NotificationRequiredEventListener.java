@@ -12,6 +12,7 @@ import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -30,6 +31,8 @@ public class NotificationRequiredEventListener {
   @Async // 이벤트 리스너를 비동기적으로 실행
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  //evict the cache for all users who might have been affected
+  @CacheEvict(value = "userNotificationsCache", allEntries = true)
   public void on(MessageCreatedEvent event) {
 
     log.info("MessageCreatedEvent 수신 성공 - 알림 생성 시작");
@@ -61,6 +64,7 @@ public class NotificationRequiredEventListener {
   @Async
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @CacheEvict(value = "userNotificationsCache", key = "#event.user().id")
   public void on(RoleUpdatedEvent event) {
     log.info("RoleUpdatedEvent 수신 성공 - 알림 생성 시작");
 

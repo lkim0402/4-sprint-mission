@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,13 +35,13 @@ public class BasicUserService implements UserService {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
   private final BinaryContentRepository binaryContentRepository;
-  private final BinaryContentStorage binaryContentStorage;
   private final PasswordEncoder passwordEncoder;
 
   private final ApplicationEventPublisher publisher;
 
   @Transactional
   @Override
+  @CacheEvict(value = "userCache", allEntries = true)
   public UserDto create(UserCreateRequest userCreateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
     log.debug("사용자 생성 시작: {}", userCreateRequest);
@@ -64,7 +65,6 @@ public class BasicUserService implements UserService {
               contentType);
           binaryContentRepository.save(binaryContent);
 
-//          binaryContentStorage.put(binaryContent.getId(), bytes);
           publisher.publishEvent(new BinaryContentCreatedEvent(binaryContent.getId(), bytes));
 
           return binaryContent;
@@ -104,6 +104,7 @@ public class BasicUserService implements UserService {
     return userDtos;
   }
 
+  @CacheEvict(value = "userCache", allEntries = true) // cache
   @PreAuthorize("principal.userDto.id == #userId")
   @Transactional
   @Override
@@ -113,8 +114,7 @@ public class BasicUserService implements UserService {
 
     User user = userRepository.findById(userId)
         .orElseThrow(() -> {
-          UserNotFoundException exception = UserNotFoundException.withId(userId);
-          return exception;
+          return UserNotFoundException.withId(userId);
         });
 
     String newUsername = userUpdateRequest.newUsername();
@@ -153,6 +153,7 @@ public class BasicUserService implements UserService {
     return userMapper.toDto(user);
   }
 
+  @CacheEvict(value = "userCache", allEntries = true) // cache
   @PreAuthorize("principal.userDto.id == #userId")
   @Transactional
   @Override

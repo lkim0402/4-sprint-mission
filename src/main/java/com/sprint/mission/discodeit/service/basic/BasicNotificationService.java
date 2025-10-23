@@ -2,23 +2,17 @@ package com.sprint.mission.discodeit.service.basic;
 
 
 import com.sprint.mission.discodeit.dto.data.NotificationDto;
-import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.Notification;
-import com.sprint.mission.discodeit.exception.ErrorResponse;
 import com.sprint.mission.discodeit.exception.notification.NotificationAccessDeniedException;
-import com.sprint.mission.discodeit.mapper.MessageMapper;
-import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.NotificationRepository;
 import com.sprint.mission.discodeit.service.NotificationService;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.servlet.http.HttpServletResponse;
-import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,6 +47,7 @@ public class BasicNotificationService implements NotificationService {
     return notifications;
   }
 
+  @CacheEvict(value = "userNotificationsCache", key = "#userId")
   @Override
   @Transactional
   public void delete(UUID notificationId, UUID userId) {
