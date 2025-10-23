@@ -7,6 +7,8 @@ import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -18,6 +20,7 @@ public class BinaryContentListener {
   private final BinaryContentService binaryContentService;
   private final BinaryContentStorage binaryContentStorage;
 
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void onApplicationEvent(BinaryContentCreatedEvent event) {
 
@@ -27,7 +30,6 @@ public class BinaryContentListener {
     } catch (Exception e) {
       log.error("Binary Content 저장 실패: ", e);
       binaryContentService.updateStatus(event.id(), BinaryContentStatus.FAIL);
-
     }
   }
 }

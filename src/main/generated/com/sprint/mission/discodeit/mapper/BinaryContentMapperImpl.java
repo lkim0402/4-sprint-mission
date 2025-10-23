@@ -2,13 +2,14 @@ package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import java.util.UUID;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-10-22T19:29:51+0900",
+    date = "2025-10-23T11:20:47+0900",
     comments = "version: 1.6.3, compiler: javac, environment: Java 17.0.12 (Oracle Corporation)"
 )
 @Component
@@ -24,13 +25,15 @@ public class BinaryContentMapperImpl implements BinaryContentMapper {
         String fileName = null;
         Long size = null;
         String contentType = null;
+        BinaryContentStatus status = null;
 
         id = binaryContent.getId();
         fileName = binaryContent.getFileName();
         size = binaryContent.getSize();
         contentType = binaryContent.getContentType();
+        status = binaryContent.getStatus();
 
-        BinaryContentDto binaryContentDto = new BinaryContentDto( id, fileName, size, contentType );
+        BinaryContentDto binaryContentDto = new BinaryContentDto( id, fileName, size, contentType, status );
 
         return binaryContentDto;
     }

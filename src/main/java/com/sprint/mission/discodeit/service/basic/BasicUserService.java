@@ -135,7 +135,9 @@ public class BasicUserService implements UserService {
           BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
               contentType);
           binaryContentRepository.save(binaryContent);
-          binaryContentStorage.put(binaryContent.getId(), bytes);
+//          binaryContentStorage.put(binaryContent.getId(), bytes);
+          publisher.publishEvent(new BinaryContentCreatedEvent(binaryContent.getId(), bytes));
+
           return binaryContent;
         })
         .orElse(null);

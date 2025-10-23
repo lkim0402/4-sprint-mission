@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
@@ -84,13 +85,13 @@ public class BasicBinaryContentService implements BinaryContentService {
     log.info("바이너리 컨텐츠 삭제 완료: id={}", binaryContentId);
   }
 
-  @Transactional
   @Override
+  @Transactional
   public BinaryContentDto updateStatus(UUID binaryContentId, BinaryContentStatus status) {
     BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
         .orElseThrow(() -> BinaryContentNotFoundException.withId(binaryContentId));
 
-    binaryContent.updateStatus(status); // dirty checking
-    return binaryContentMapper.toDto(binaryContent); // transaction is commited, UPDATE SQL
+    binaryContent.updateStatus(status);
+    return binaryContentMapper.toDto(binaryContent);
   }
 }

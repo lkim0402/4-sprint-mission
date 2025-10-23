@@ -37,5 +37,4 @@ public class BinaryContent extends BaseUpdatableEntity {
   public void updateStatus(BinaryContentStatus status) {
     this.status = status;
   }
-
 }
