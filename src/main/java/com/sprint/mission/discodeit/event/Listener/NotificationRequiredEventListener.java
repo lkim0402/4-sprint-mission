@@ -30,7 +30,7 @@ public class NotificationRequiredEventListener {
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void on(MessageCreatedEvent event) {
 
-    log.info("!!! MessageCreatedEvent 수신 성공! 알림 생성을 시작합니다.");
+    log.info("MessageCreatedEvent 수신 성공 - 알림 생성 시작");
 
     Message message = event.message();
     Channel channel = message.getChannel();
@@ -39,7 +39,7 @@ public class NotificationRequiredEventListener {
     List<ReadStatus> readStatusList = readStatusRepository.findByChannelIdAndNotificationEnabledTrue(
         channel.getId());
 
-    log.info("!!! 조회된 ReadStatus 개수: {}", readStatusList.size());
+    log.info("조회된 ReadStatus 개수: {}", readStatusList.size());
 
     List<Notification> notifications = readStatusList.stream()
         // 해당 메시지를 보낸 사람은 알림 대상에서 제외
@@ -53,18 +53,22 @@ public class NotificationRequiredEventListener {
         ).toList();
 
     List<Notification> list = notificationRepository.saveAll(notifications);
-    log.info("!!! MessageCreatedEvent 수신 완료. list={}", list);
+    log.info("MessageCreatedEvent 수신 완료. list={}", list);
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void on(RoleUpdatedEvent event) {
+    log.info("RoleUpdatedEvent 수신 성공 - 알림 생성 시작");
+
     User user = event.user();
     Notification notification = new Notification(
         user,
         "권한이 변경되었습니다.",
-        String.format("%s -> %s", user.getRole(), event.role())
+        String.format("%s -> %s", event.role(), user.getRole())
     );
-    notificationRepository.save(notification);
+    Notification savedNotification = notificationRepository.save(notification);
+    log.info("RoleUpdatedEvent 수신 완료. savedNotification={}", savedNotification);
+
   }
 }
