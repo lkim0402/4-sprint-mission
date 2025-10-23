@@ -13,12 +13,12 @@ import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
@@ -39,9 +39,11 @@ public class BasicUserService implements UserService {
 
   private final ApplicationEventPublisher publisher;
 
+//  private final CacheManager cacheManager;
+
+  @CacheEvict(value = "userCache", allEntries = true)
   @Transactional
   @Override
-  @CacheEvict(value = "userCache", allEntries = true)
   public UserDto create(UserCreateRequest userCreateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
     log.debug("사용자 생성 시작: {}", userCreateRequest);
@@ -77,6 +79,9 @@ public class BasicUserService implements UserService {
 
     userRepository.save(user);
     log.info("사용자 생성 완료: id={}, username={}", user.getId(), username);
+
+//    cacheManager.getCache("userCache").clear();
+
     return userMapper.toDto(user);
   }
 
@@ -150,6 +155,9 @@ public class BasicUserService implements UserService {
     user.update(newUsername, newEmail, encodedPassword, nullableProfile);
 
     log.info("사용자 수정 완료: id={}", userId);
+
+//    cacheManager.getCache("userCache").clear();
+
     return userMapper.toDto(user);
   }
 
@@ -166,5 +174,9 @@ public class BasicUserService implements UserService {
 
     userRepository.deleteById(userId);
     log.info("사용자 삭제 완료: id={}", userId);
+
+//    cacheManager.getCache("userCache").clear();
   }
+
+
 }
