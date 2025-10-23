@@ -22,7 +22,6 @@ public class BinaryContentListener {
   private final BinaryContentStorage binaryContentStorage;
 
   @Async
-//  @Transactional(propagation = Propagation.REQUIRES_NEW)
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void onApplicationEvent(BinaryContentCreatedEvent event) {
 
