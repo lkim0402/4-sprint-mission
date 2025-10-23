@@ -16,6 +16,12 @@ spring:
     open-in-view: false
   config:
     import: optional:file:.env[.properties]
+  # 캐시 설정
+  cache:
+    cache-names: userChannelsCache, userNotificationsCache, userCache
+    caffeine:
+      spec: maximumSize=500,expireAfterWrite=5m
+
 
 management:
   endpoints:
