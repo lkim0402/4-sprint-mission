@@ -4,6 +4,8 @@ import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import java.io.InputStream;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 
 public interface BinaryContentStorage {
 

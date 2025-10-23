@@ -54,6 +54,13 @@ dependencies {
     // cache
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'com.github.ben-manes.caffeine:caffeine'
+
+    // retry
+    implementation 'org.springframework.retry:spring-retry'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+    // s3
+    implementation 'com.amazonaws:aws-java-sdk:1.2.1'
 }
 
 tasks.named('test') {
