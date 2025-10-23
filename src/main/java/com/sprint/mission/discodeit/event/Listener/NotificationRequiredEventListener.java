@@ -16,6 +16,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.event.EventListener;
@@ -111,7 +112,8 @@ public class NotificationRequiredEventListener {
         String.format("RequestId: %s, "
                 + "BinaryContentId: %s, "
                 + "Error: %s",
-            s3Event != null ? s3Event.requestId() : "N/A",
+            // MDC의 Request Id
+            MDC.get("REQUEST_ID"),
             event.binaryContentId(),
             s3Event != null ? s3Event.getMessage() : "AWS S3 파일 업로드 오류"
         )
