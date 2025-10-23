@@ -45,7 +45,7 @@ public class BasicBinaryContentService implements BinaryContentService {
         contentType
     );
     binaryContentRepository.save(binaryContent);
-//    binaryContentStorage.put(binaryContent.getId(), bytes);
+
     publisher.publishEvent(new BinaryContentCreatedEvent(binaryContent.getId(), bytes));
 
     log.info("바이너리 컨텐츠 생성 완료: id={}, fileName={}, size={}",
@@ -87,6 +87,7 @@ public class BasicBinaryContentService implements BinaryContentService {
 
   @Override
   @Transactional
+//  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public BinaryContentDto updateStatus(UUID binaryContentId, BinaryContentStatus status) {
     BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
         .orElseThrow(() -> BinaryContentNotFoundException.withId(binaryContentId));

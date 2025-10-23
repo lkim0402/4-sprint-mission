@@ -22,7 +22,6 @@ public class AsyncConfig {
     executor.setKeepAliveSeconds(30);
     executor.setThreadNamePrefix("CustomExecutor-"); //스레드 이름 접두사 설정 → 디버깅 및 로깅 시 유용
     executor.setTaskDecorator(new CustomTaskDecorator()); // 커스텀 TaskDecorator
-    executor.setRejectedExecutionHandler(new CallerRunsPolicy());
     executor.initialize();
     return executor;
   }
