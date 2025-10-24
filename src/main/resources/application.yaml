@@ -19,11 +19,18 @@ spring:
   # 캐시 설정
   cache:
     cache-names: userChannelsCache, userNotificationsCache, userCache
+    type: redis
     caffeine:
       spec: >
         maximumSize=500,
         expireAfterAccess=600s,
         recordStats
+      redis:
+        enable-statistics: true
+    data:
+      redis:
+        host: ${REDIS_HOST:localhost}
+        port: ${REDIS_PORT:6379}
   # kafka 설정
   kafka:
     bootstrap-servers: localhost:9092
