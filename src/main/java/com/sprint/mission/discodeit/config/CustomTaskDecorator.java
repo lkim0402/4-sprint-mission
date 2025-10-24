@@ -12,7 +12,6 @@ public class CustomTaskDecorator implements TaskDecorator {
   public Runnable decorate(Runnable runnable) {
     // 현재 스레드의 MDC 데이터 복사
     Map<String, String> contextMap = MDC.getCopyOfContextMap();
-
     // 현재 스레드의 SecurityContext를 복사
     SecurityContext context = SecurityContextHolder.getContext();
 
